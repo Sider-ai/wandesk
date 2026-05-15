@@ -2,38 +2,93 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**Wandesk is an AI desktop and local workbench for agent-native apps.**
+**Wandesk is an AI desktop where AI does more than chat: it can build new apps, and those apps can talk back to AI.**
 
-It gives AI tools a familiar desktop surface: windows, apps, files, tasks, memory, settings, and coding workspaces all running from one local TypeScript project. Instead of treating AI as a chat box on the side, Wandesk treats AI as the operating layer for real work.
+Most AI tools still feel like a chat box attached to your work. Wandesk explores a different shape: a local desktop/workbench where chat, apps, files, memory, tasks, and coding agents live in one place.
 
-## What It Is
+The important part is not the window chrome. The important part is the loop:
 
-Wandesk is built around a simple idea:
+> You describe what you need → AI helps create or modify an app → the app becomes part of your desktop → the app can call AI again when it needs reasoning, writing, analysis, or automation.
 
-> AI should feel like a workspace, not just a prompt box.
+Wandesk grew from the broader AI operating-system direction explored in [realuckyang/AIOS](https://github.com/realuckyang/AIOS), but this repository focuses on a friendly, desktop-shaped workbench experience.
 
-The project combines:
+## Why Not Just Chat?
+
+Chat is powerful, but many real workflows still need a visible interface.
+
+A note should stay in a notebook. A task should stay on a board. A file should be browsable. A finance record should be editable in a table. A coding session should have history, settings, project context, and logs.
+
+Wandesk treats conversation and interface as partners:
+
+- 💬 **Chat is where intent begins**
+- 🪟 **Apps are where workflows live**
+- 🛠️ **AI can build or change those apps**
+- 🤖 **Apps can ask AI to do work through the task system**
+- 📁 **Files, data, prompts, and app docs stay inspectable locally**
+
+The result is not "one chat box for everything." It is a workspace where AI can create tools, use tools, and be called by tools.
+
+## The Core Loop
+
+```text
+User idea
+  ↓
+Chat / App Workshop
+  ↓
+AI edits frontend + backend + app docs
+  ↓
+Wandesk reloads the desktop app surface
+  ↓
+The new app can store data, expose APIs, and call AI tasks
+```
+
+That is the difference between a prompt and a workbench. A prompt disappears into history; an app stays on your desktop and keeps working for you.
+
+## Apps Can Talk To AI
+
+In a traditional app, the logic is fixed: click a button, run a function, update the UI.
+
+In Wandesk, an app can send intent to the system task layer and let AI handle the flexible part. For example:
+
+- A notebook app can ask AI to rewrite, summarize, or expand a note.
+- A finance app can ask AI to categorize records or explain spending.
+- A GitHub Trending app can ask AI to analyze a repository.
+- A custom business app can ask AI to generate reports, compare options, or fill structured fields.
+
+The task API gives apps two basic modes:
+
+```text
+POST /api/task/create/instant   short synchronous AI work
+POST /api/task/create/agent     longer agent work with tool use
+```
+
+Apps can also use shared helpers such as `server/shared/apps/instantTask.ts` and `server/shared/apps/agentTask.ts` so AI becomes a native capability of the app, not a bolted-on chat widget.
+
+## AI Can Understand Apps
+
+Every app can carry an `APP.md` file that explains what the app is, where its frontend/backend/database live, and how it should be used.
+
+That gives AI a direct contract:
+
+```text
+apps/<app>/APP.md          app-facing context
+server/apps/<app>/APP.md   backend app context
+gui/src/apps/<app>/        React UI
+server/apps/<app>/         API, service, repository
+database/apps/<app>.db     app data at runtime
+```
+
+Instead of blindly clicking around the UI, AI can read the app contract, call APIs, inspect source, and make targeted changes.
+
+## What Is Inside
 
 - 🧠 **AI workspace primitives**: chat, tasks, memory, model settings, and app prompts
-- 🪟 **Desktop-style UI**: draggable app windows, launcher, wallpaper, global toast, and app panels
+- 🪄 **App Workshop**: a place to describe new tools and send the request into the AI workflow
+- 🪟 **Desktop-style UI**: windows, launcher, wallpaper, app panel, and global toast
 - 🛠️ **Agent workbenches**: Codex and Claude Code style apps for projects, sessions, skills, MCP, history, and settings
-- 📁 **Local-first tools**: files, notebook, finance, GitHub trending, crypto bot, and other app modules
+- 📁 **Local-first tools**: files, notebook, finance, GitHub Trending, Crypto Bot, and more
 - 🌐 **Full-stack app boundary**: React frontend, TypeScript backend APIs, app registry, language assets, and SQLite storage
-- 🧩 **App-native docs**: every app can carry `APP.md` context for AI-facing behavior
-
-## Why Wandesk
-
-Most AI products still live in a browser tab, a terminal, or a single chat thread. Wandesk explores a different shape: an AI desktop where apps are small, inspectable, local, and agent-aware.
-
-The goal is not to recreate a traditional operating system. The goal is to make a practical workbench where AI can:
-
-- open tools with clear boundaries
-- read app-specific instructions
-- keep useful local state
-- work across files, tasks, notes, and code
-- evolve new apps inside the same environment
-
-Wandesk grew from the broader AI operating-system direction explored in [realuckyang/AIOS](https://github.com/realuckyang/AIOS), but this repository focuses on a friendly desktop/workbench experience.
+- 🧩 **App-native docs**: `APP.md` files make apps legible to AI
 
 ## Tech Stack
 
@@ -68,11 +123,12 @@ gui/dist/
 node_modules/
 ```
 
-## Apps
+## Built-In Apps
 
 Current app surface includes:
 
 - 💬 Chat
+- 🪄 App Workshop
 - ✅ Tasks
 - 📓 Notebook
 - 📁 Files
@@ -139,7 +195,7 @@ This writes runtime state under `.aios/` and generates app-facing docs under `ap
 
 ## Status
 
-Wandesk is an early open-source AI desktop/workbench project. The architecture is intentionally small and hackable so apps, agents, and workflows can be changed quickly.
+Wandesk is an early open-source AI desktop/workbench project. The app creation loop, task layer, and agent workbenches are intentionally kept small and hackable so the system can evolve quickly.
 
 Contributions, experiments, and new app ideas are welcome. 🚀
 
