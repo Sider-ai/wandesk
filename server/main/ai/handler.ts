@@ -1,4 +1,4 @@
-import { tools } from "./tools.js";
+import { getTools } from "./tools.js";
 import { runTools } from "./runner.js";
 import { callLlmStream } from "../llm/index.js";
 import { normalizeAgentMessages, normalizeChatOptions } from "./utils.js";
@@ -17,6 +17,7 @@ const chat = async (messages, {
 }: any = {}) => {
   const opts = normalizeChatOptions({ maxRounds, enableToolResultTruncate, toolResultMaxChars });
   const workMessages = normalizeAgentMessages(messages);
+  const tools = getTools();
   let round = 0;
   while (round++ < opts.maxRounds) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
@@ -61,8 +62,8 @@ const chat = async (messages, {
     send({ type: "done", message: replyMsg });
     return text;
   }
-  send({ type: "done", message: { role: "assistant", content: "(达到最大轮次限制)" } });
-  return "(达到最大轮次限制)";
+  send({ type: "done", message: { role: "assistant", content: "__T_CHAT_MAX_ROUNDS_REACHED__" } });
+  return "__T_CHAT_MAX_ROUNDS_REACHED__";
 };
 export {
   chat

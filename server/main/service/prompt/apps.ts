@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 const APPS_ROOT = join(process.cwd(), "apps");
+const PROMPT_APPS_TITLE = "__T_PROMPT_APPS_TITLE__";
+const PROMPT_APPS_INTRO = "__T_PROMPT_APPS_INTRO__";
 const parseReadme = (filePath) => {
   if (!existsSync(filePath)) return null;
   const text = readFileSync(filePath, "utf8");
@@ -32,8 +34,8 @@ const apps = () => {
   if (!existsSync(APPS_ROOT)) {
     return `
 
-## 应用目录
-你可以帮助用户构建应用、使用应用、管理应用。`;
+## ${PROMPT_APPS_TITLE}
+${PROMPT_APPS_INTRO}`;
   }
   const list = [];
   for (const name of readdirSync(APPS_ROOT)) {
@@ -59,8 +61,8 @@ const apps = () => {
   if (!Array.isArray(list) || list.length === 0) {
     return `
 
-## 应用目录
-你可以帮助用户构建应用、使用应用、管理应用。`;
+## ${PROMPT_APPS_TITLE}
+${PROMPT_APPS_INTRO}`;
   }
   const lines = list.map((app, i) => {
     const summary = app.summary ? ` - ${app.summary}` : "";
@@ -70,8 +72,8 @@ const apps = () => {
   });
   return `
 
-## 应用目录
-你可以帮助用户构建应用、使用应用、管理应用。
+## ${PROMPT_APPS_TITLE}
+${PROMPT_APPS_INTRO}
 ${lines.join("\n")}`;
 };
 export {

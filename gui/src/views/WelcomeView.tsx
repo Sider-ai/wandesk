@@ -211,7 +211,12 @@ export default function WelcomeView() {
   const skipToDesktop = async () => {
     if (pending) return;
     try {
-      await fetch("/api/health", { credentials: "include" });
+      await fetch("/api/settings/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ welcomeSkipped: true })
+      });
     } catch {
     }
     window.location.href = "/";

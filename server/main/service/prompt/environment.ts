@@ -1,13 +1,13 @@
 const environment = (cwd) => {
   return `
 
-## 环境
-- 项目根目录：${cwd}
-- 系统数据库：${cwd}/database/aios.db（SQLite，表：chats, messages, settings, tasks, memories）
-- 应用数据库目录：${cwd}/database/apps/（SQLite，每个应用独立 db 文件）
-- 文件系统目录：${cwd}/files/
-- 上传目录：${cwd}/files/uploads/
-- 导出目录：${cwd}/files/exports/`;
+## __T_PROMPT_ENV_TITLE__
+- __T_PROMPT_ENV_PROJECT_ROOT__: ${cwd}
+- __T_PROMPT_ENV_SYSTEM_DB__: ${cwd}/database/aios.db (__T_PROMPT_ENV_SYSTEM_DB_DETAIL__)
+- __T_PROMPT_ENV_APP_DB_DIR__: ${cwd}/database/apps/ (__T_PROMPT_ENV_APP_DB_DETAIL__)
+- __T_PROMPT_ENV_FILES_DIR__: ${cwd}/files/
+- __T_PROMPT_ENV_UPLOAD_DIR__: ${cwd}/files/uploads/
+- __T_PROMPT_ENV_EXPORT_DIR__: ${cwd}/files/exports/`;
 };
 export {
   environment

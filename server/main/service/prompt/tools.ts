@@ -6,11 +6,11 @@ const tools = ({
 }) => {
   return `
 
-## 工具配置
-- 工具结果截断：${enableToolResultTruncate ? "开启" : "关闭"}
-- 工具结果最大长度：${toolResultMaxChars ?? "-"}
-- 工具循环限制：${enableToolLoopLimit ? "开启" : "关闭"}
-- 工具最大循环轮次：${toolMaxRounds ?? "-"}`;
+## __T_PROMPT_TOOLS_TITLE__
+- __T_PROMPT_TOOLS_RESULT_TRUNCATION__: ${enableToolResultTruncate ? "__T_PROMPT_ENABLED__" : "__T_PROMPT_DISABLED__"}
+- __T_PROMPT_TOOLS_MAX_RESULT_LENGTH__: ${toolResultMaxChars ?? "-"}
+- __T_PROMPT_TOOLS_LOOP_LIMIT__: ${enableToolLoopLimit ? "__T_PROMPT_ENABLED__" : "__T_PROMPT_DISABLED__"}
+- __T_PROMPT_TOOLS_MAX_ROUNDS__: ${toolMaxRounds ?? "-"}`;
 };
 export {
   tools

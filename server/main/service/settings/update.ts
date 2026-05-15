@@ -18,6 +18,7 @@ const updateSettings = (body: any = {}) => {
   if (body.apiUrl !== void 0) saveSetting("apiUrl", body.apiUrl);
   if (body.apiKey !== void 0) saveSetting("apiKey", body.apiKey);
   if (body.model !== void 0) saveSetting("model", body.model);
+  if (body.welcomeSkipped !== void 0) saveSetting("welcomeSkipped", body.welcomeSkipped ? "1" : "0");
   if (body.enableToolResultTruncate !== void 0) saveSetting("enableToolResultTruncate", body.enableToolResultTruncate ? "1" : "0");
   if (body.toolResultMaxChars !== void 0) saveSetting("toolResultMaxChars", String(clampToolResultMaxChars(body.toolResultMaxChars)));
   if (body.enableToolLoopLimit !== void 0) saveSetting("enableToolLoopLimit", body.enableToolLoopLimit ? "1" : "0");
