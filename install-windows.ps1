@@ -1,19 +1,19 @@
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$RepoUrl = if ($env:AIOS_REPO_URL) { $env:AIOS_REPO_URL } else { "https://github.com/realuckyang/aios.git" }
-$RepoRef = if ($env:AIOS_REPO_REF) { $env:AIOS_REPO_REF } else { "main" }
-$InstallRoot = if ($env:AIOS_INSTALL_ROOT) { $env:AIOS_INSTALL_ROOT } else { Join-Path $HOME ".aios" }
+$RepoUrl = if ($env:WANDESK_REPO_URL) { $env:WANDESK_REPO_URL } else { "https://github.com/Sider-ai/wandesk.git" }
+$RepoRef = if ($env:WANDESK_REPO_REF) { $env:WANDESK_REPO_REF } else { "main" }
+$InstallRoot = if ($env:WANDESK_INSTALL_ROOT) { $env:WANDESK_INSTALL_ROOT } else { Join-Path $HOME ".wandesk" }
 $RepoDir = Join-Path $InstallRoot "repo"
-$AppDir = Join-Path $RepoDir "AIOS"
+$AppDir = $RepoDir
 $LogDir = Join-Path $InstallRoot "logs"
 $RunDir = Join-Path $InstallRoot "run"
 $ServerLog = Join-Path $LogDir "server.log"
 $AppsLog = Join-Path $LogDir "apps.log"
 $ServerPidFile = Join-Path $RunDir "server.pid"
 $AppsPidFile = Join-Path $RunDir "apps.pid"
-$ServerPort = if ($env:AIOS_SERVER_PORT) { [int]$env:AIOS_SERVER_PORT } else { 9502 }
-$AppsPort = if ($env:AIOS_APPS_PORT) { [int]$env:AIOS_APPS_PORT } else { 9503 }
+$ServerPort = if ($env:WANDESK_SERVER_PORT) { [int]$env:WANDESK_SERVER_PORT } else { 9502 }
+$AppsPort = if ($env:WANDESK_APPS_PORT) { [int]$env:WANDESK_APPS_PORT } else { 9503 }
 
 function Write-Info([string]$Message) {
   Write-Host $Message
@@ -65,7 +65,7 @@ function Update-Repo {
     & git clone --branch $RepoRef --depth 1 $RepoUrl $RepoDir
   }
   if (-not (Test-Path (Join-Path $AppDir "package.json"))) {
-    Fail "AIOS app directory not found: $AppDir"
+    Fail "Wandesk app directory not found: $AppDir"
   }
 }
 
@@ -164,12 +164,12 @@ try {
   Stop-PreviousProcess -PidFile $ServerPidFile -Name "server"
   Stop-PreviousProcess -PidFile $AppsPidFile -Name "apps"
   Assert-PortsFree
-  Start-ServiceProcess -Command "npm run start" -LogFile $ServerLog -PidFile $ServerPidFile -Name "AIOS server"
-  Start-ServiceProcess -Command "npm run start:apps" -LogFile $AppsLog -PidFile $AppsPidFile -Name "AIOS apps service"
-  Wait-ForHttp -Url "http://127.0.0.1:$ServerPort/api/health" -Name "AIOS server"
-  Wait-ForHttp -Url "http://127.0.0.1:$AppsPort/apps/health" -Name "AIOS apps service"
+  Start-ServiceProcess -Command "npm run start" -LogFile $ServerLog -PidFile $ServerPidFile -Name "Wandesk server"
+  Start-ServiceProcess -Command "npm run start:apps" -LogFile $AppsLog -PidFile $AppsPidFile -Name "Wandesk apps service"
+  Wait-ForHttp -Url "http://127.0.0.1:$ServerPort/api/health" -Name "Wandesk server"
+  Wait-ForHttp -Url "http://127.0.0.1:$AppsPort/apps/health" -Name "Wandesk apps service"
   Write-Info ""
-  Write-Info "AIOS installed successfully."
+  Write-Info "Wandesk installed successfully."
   Write-Info "Open: http://localhost:$ServerPort"
   Write-Info "Repo: $RepoDir"
   Write-Info "Logs: $LogDir"

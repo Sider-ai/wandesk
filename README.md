@@ -89,6 +89,28 @@ The goal is not a disposable generated page. The goal is a real local app that c
 - SQLite via `better-sqlite3`
 - WebSocket runtime channel
 
+## Install
+
+Prerequisites: Git, Node.js 20+, and npm.
+
+macOS:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-macos.sh | sh
+```
+
+Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-linux.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-windows.ps1 | iex"
+```
+
 ## Project Layout
 
 ```text

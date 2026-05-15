@@ -2,19 +2,19 @@
 
 set -eu
 
-REPO_URL="${AIOS_REPO_URL:-https://github.com/realuckyang/aios.git}"
-REPO_REF="${AIOS_REPO_REF:-main}"
-INSTALL_ROOT="${AIOS_INSTALL_ROOT:-$HOME/.aios}"
+REPO_URL="${WANDESK_REPO_URL:-https://github.com/Sider-ai/wandesk.git}"
+REPO_REF="${WANDESK_REPO_REF:-main}"
+INSTALL_ROOT="${WANDESK_INSTALL_ROOT:-$HOME/.wandesk}"
 REPO_DIR="$INSTALL_ROOT/repo"
-APP_DIR="$REPO_DIR/AIOS"
+APP_DIR="$REPO_DIR"
 LOG_DIR="$INSTALL_ROOT/logs"
 RUN_DIR="$INSTALL_ROOT/run"
 SERVER_LOG="$LOG_DIR/server.log"
 APPS_LOG="$LOG_DIR/apps.log"
 SERVER_PID_FILE="$RUN_DIR/server.pid"
 APPS_PID_FILE="$RUN_DIR/apps.pid"
-SERVER_PORT="${AIOS_SERVER_PORT:-9502}"
-APPS_PORT="${AIOS_APPS_PORT:-9503}"
+SERVER_PORT="${WANDESK_SERVER_PORT:-9502}"
+APPS_PORT="${WANDESK_APPS_PORT:-9503}"
 
 log() {
   printf '%s\n' "$*"
@@ -64,7 +64,7 @@ update_repo() {
     log "Cloning repository into $REPO_DIR"
     git clone --branch "$REPO_REF" --depth 1 "$REPO_URL" "$REPO_DIR"
   fi
-  [ -f "$APP_DIR/package.json" ] || fail "AIOS app directory not found: $APP_DIR"
+  [ -f "$APP_DIR/package.json" ] || fail "Wandesk app directory not found: $APP_DIR"
 }
 
 port_in_use() {
@@ -121,14 +121,14 @@ build_app() {
 }
 
 start_services() {
-  log "Starting AIOS server"
+  log "Starting Wandesk server"
   (
     cd "$APP_DIR"
     nohup npm run start >"$SERVER_LOG" 2>&1 &
     printf '%s' "$!" >"$SERVER_PID_FILE"
   )
 
-  log "Starting AIOS apps service"
+  log "Starting Wandesk apps service"
   (
     cd "$APP_DIR"
     nohup npm run start:apps >"$APPS_LOG" 2>&1 &
@@ -178,16 +178,16 @@ main() {
   stop_pid_file "$APPS_PID_FILE" "apps"
   verify_ports_free
   start_services
-  if ! wait_for_http "http://127.0.0.1:$SERVER_PORT/api/health" "AIOS server"; then
+  if ! wait_for_http "http://127.0.0.1:$SERVER_PORT/api/health" "Wandesk server"; then
     print_failure_logs
     fail "Server did not become healthy."
   fi
-  if ! wait_for_http "http://127.0.0.1:$APPS_PORT/apps/health" "AIOS apps service"; then
+  if ! wait_for_http "http://127.0.0.1:$APPS_PORT/apps/health" "Wandesk apps service"; then
     print_failure_logs
     fail "Apps service did not become healthy."
   fi
   log ""
-  log "AIOS installed successfully."
+  log "Wandesk installed successfully."
   log "Open: http://localhost:$SERVER_PORT"
   log "Repo: $REPO_DIR"
   log "Logs: $LOG_DIR"
