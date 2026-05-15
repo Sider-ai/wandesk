@@ -1,5 +1,7 @@
 # Wandesk 🖥️✨
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 **Wandesk is an AI desktop and local workbench for agent-native apps.**
 
 It gives AI tools a familiar desktop surface: windows, apps, files, tasks, memory, settings, and coding workspaces all running from one local TypeScript project. Instead of treating AI as a chat box on the side, Wandesk treats AI as the operating layer for real work.
