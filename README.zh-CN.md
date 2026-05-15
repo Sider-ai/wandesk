@@ -6,6 +6,20 @@
 
 大多数 AI 产品和开源项目，仍然以对话作为主要交互方式。Wandesk 的出发点不同：AI 不应该把所有应用都替换成一个万能聊天框，而应该帮助每个人创建、使用和协同真实的应用程序。
 
+## 截图
+
+![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
+
+_App Workshop 可以把应用想法推进成具体的本地应用。_
+
+![Wandesk Codex 工作台](docs/images/wandesk-codex.png)
+
+_Codex 风格工作台，包含会话、技能、MCP、AGENTS.md、历史记录和设置。_
+
+![Wandesk Chat](docs/images/wandesk-chat.png)
+
+_聊天仍然是桌面里的意图入口，而不是整个产品的唯一形态。_
+
 ## 为什么不只是聊天？
 
 对话很强。它自然、门槛低，也很适合表达复杂意图。
