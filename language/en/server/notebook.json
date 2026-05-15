@@ -1,0 +1,14 @@
+{
+  "notebook_seed_1_content": "Freeform Notes\n\nWrite down whatever comes to mind. Do not worry about structure.\nTap [Assist] at the bottom right and AI will use system context to finish, polish, or expand what you wrote.\n\nAIOS can also see what you write here.\nWhen you chat, it understands what you are thinking about and paying attention to,\nso its responses can feel more like they are truly for you.",
+  "notebook_seed_2_content": "Even fragments are worth keeping\n\nIdeas do not wait for you to be ready.\nA single word, half a sentence, a thought you have not finished yet -\nthrow it in here first and do not worry about whether it is complete.\n\nSometimes when you look back a few weeks later,\nyou realize that one casual line you wrote down back then\nwas exactly the answer you need now.",
+  "notebook_seed_3_content": "Things worth sitting with\n\nWhat kind of day does not feel empty when it ends?\nWhat is something only you can do?\nWhen do you feel most like yourself?\n\nYou do not have to answer right now.\nJust write it down and keep it.",
+  "notebook_default_task_title": "Note Assist",
+  "notebook_assist_prompt_role": "You are Wandesk's notebook assistant.",
+  "notebook_assist_prompt_intro": "The user wrote something in the Notebook app. Based on its intent, generate the final note body to save:",
+  "notebook_assist_prompt_task": "- If it is a task or instruction, use shell proactively to gather the needed context, for example query database/aios.db chats/messages for recent conversation history, call /apps/* HTTP endpoints, or read local files. Complete the instruction and output the result as the note body.",
+  "notebook_assist_prompt_task_context": "- If it is an unfinished draft, polish or expand it so it is clearer and more professional while preserving the original intent.",
+  "notebook_assist_prompt_draft": "- If it is already complete, only improve the wording and keep the meaning unchanged.",
+  "notebook_assist_prompt_polish": "- Write in English unless the user's note clearly asks for another language.",
+  "notebook_assist_prompt_output": "When finished, output only the final note body. Do not add a prefix, explanation, or markdown heading.",
+  "notebook_assist_prompt_content_label": "[Content written by the user in Notebook]"
+}

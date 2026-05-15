@@ -1,0 +1,676 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+/* 全局滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+:root:not(.dark) * {
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
+.dark *::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); }
+.dark *::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
+
+textarea { field-sizing: content; }
+
+/* ── Wallpapers ─────────────────────────────────────────────────────────── */
+.wp-sea-mist-blue-bay {
+  background: linear-gradient(to top, #fff1eb 0%, #ace0f9 100%);
+}
+
+.wp-morning-sandbar {
+  background-color: #000408;
+  background-image:
+    /* 星点 — 最亮 */
+    radial-gradient(circle 2.5px at 8% 14%, rgba(255,248,220,0.96) 0%, transparent 100%),
+    radial-gradient(circle 2.2px at 52% 4%, rgba(255,255,255,0.92) 0%, transparent 100%),
+    radial-gradient(circle 2px at 84% 9%, rgba(200,220,255,0.90) 0%, transparent 100%),
+    radial-gradient(circle 2.3px at 91% 42%, rgba(255,255,255,0.93) 0%, transparent 100%),
+    radial-gradient(circle 2px at 22% 52%, rgba(255,235,180,0.88) 0%, transparent 100%),
+    /* 星点 — 亮 */
+    radial-gradient(circle 1.6px at 15% 28%, rgba(255,255,255,0.80) 0%, transparent 100%),
+    radial-gradient(circle 1.7px at 72% 22%, rgba(255,255,255,0.82) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 45% 35%, rgba(255,240,200,0.76) 0%, transparent 100%),
+    radial-gradient(circle 1.6px at 62% 48%, rgba(255,255,255,0.78) 0%, transparent 100%),
+    radial-gradient(circle 1.4px at 38% 18%, rgba(200,215,255,0.75) 0%, transparent 100%),
+    radial-gradient(circle 1.4px at 78% 58%, rgba(180,200,255,0.74) 0%, transparent 100%),
+    radial-gradient(circle 1.6px at 30% 65%, rgba(255,255,255,0.76) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 88% 72%, rgba(255,248,210,0.78) 0%, transparent 100%),
+    /* 星点 — 中等 */
+    radial-gradient(circle 1px at 5% 38%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(circle 1.1px at 25% 72%, rgba(200,210,255,0.62) 0%, transparent 100%),
+    radial-gradient(circle 1px at 48% 55%, rgba(255,255,255,0.68) 0%, transparent 100%),
+    radial-gradient(circle 1.2px at 58% 68%, rgba(180,220,255,0.64) 0%, transparent 100%),
+    radial-gradient(circle 1px at 65% 28%, rgba(255,255,255,0.60) 0%, transparent 100%),
+    radial-gradient(circle 1px at 82% 30%, rgba(255,255,255,0.62) 0%, transparent 100%),
+    radial-gradient(circle 1.1px at 12% 82%, rgba(255,255,255,0.58) 0%, transparent 100%),
+    radial-gradient(circle 1px at 70% 12%, rgba(255,230,180,0.62) 0%, transparent 100%),
+    radial-gradient(circle 0.9px at 95% 62%, rgba(255,255,255,0.58) 0%, transparent 100%),
+    /* 银河带 */
+    radial-gradient(ellipse 88% 22% at 52% 50%, rgba(158,178,242,0.20) 0%, rgba(128,152,232,0.10) 45%, transparent 68%),
+    radial-gradient(ellipse 115% 40% at 55% 52%, rgba(98,118,212,0.12) 0%, transparent 62%),
+    /* 星云色块 */
+    radial-gradient(ellipse 22% 16% at 35% 38%, rgba(78,128,242,0.18) 0%, transparent 62%),
+    radial-gradient(ellipse 18% 12% at 68% 55%, rgba(222,148,88,0.12) 0%, transparent 58%),
+    radial-gradient(ellipse 15% 10% at 82% 35%, rgba(58,198,192,0.10) 0%, transparent 58%),
+    radial-gradient(ellipse 20% 14% at 18% 42%, rgba(158,78,232,0.12) 0%, transparent 62%),
+    /* 亮星光晕 */
+    radial-gradient(circle 100px at 88% 14%, rgba(255,252,235,0.22) 0%, rgba(240,240,210,0.06) 30%, transparent 60%),
+    /* 地平线大气散射 */
+    radial-gradient(ellipse 100% 30% at 50% 100%, rgba(14,24,72,0.68) 0%, transparent 50%),
+    linear-gradient(180deg, #000205 0%, #010408 30%, #020610 60%, #010508 88%, #000204 100%);
+}
+
+.wp-forest-mist {
+  background-color: #020c14;
+  background-image:
+    /* 极光帷幕 1 — 翠绿 */
+    radial-gradient(ellipse 20% 80% at 28% 42%, rgba(28,218,128,0.62) 0%, rgba(20,200,112,0.22) 52%, transparent 80%),
+    /* 极光帷幕 2 — 青绿 */
+    radial-gradient(ellipse 15% 72% at 42% 38%, rgba(18,208,175,0.52) 0%, rgba(12,188,162,0.18) 52%, transparent 78%),
+    /* 极光帷幕 3 — 湛蓝 */
+    radial-gradient(ellipse 17% 75% at 57% 35%, rgba(38,178,222,0.48) 0%, rgba(28,158,210,0.16) 52%, transparent 80%),
+    /* 极光帷幕 4 — 深紫 */
+    radial-gradient(ellipse 13% 68% at 70% 40%, rgba(128,55,235,0.45) 0%, rgba(108,38,215,0.15) 52%, transparent 78%),
+    /* 极光帷幕 5 — 洋红尾焰 */
+    radial-gradient(ellipse 10% 58% at 83% 45%, rgba(225,55,188,0.32) 0%, transparent 74%),
+    /* 极光天空底色辉光 */
+    radial-gradient(ellipse 150% 52% at 50% 42%, rgba(12,78,78,0.38) 0%, transparent 64%),
+    /* 地面反光 */
+    radial-gradient(ellipse 100% 22% at 50% 100%, rgba(8,58,45,0.58) 0%, transparent 52%),
+    /* 极光中稀疏星点 */
+    radial-gradient(circle 1.5px at 12% 12%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(circle 1px at 35% 8%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(circle 1.2px at 88% 10%, rgba(255,255,255,0.50) 0%, transparent 100%),
+    radial-gradient(circle 0.8px at 62% 6%, rgba(255,255,255,0.40) 0%, transparent 100%),
+    radial-gradient(circle 1px at 92% 22%, rgba(255,255,255,0.42) 0%, transparent 100%),
+    linear-gradient(180deg, #010608 0%, #020b14 28%, #030e1c 58%, #020c16 82%, #010609 100%);
+}
+
+.wp-silver-cyan-lake {
+  background-color: #c07085;
+  background-image:
+    /* 地平线暖阳光晕 */
+    radial-gradient(ellipse 75% 38% at 50% 105%, rgba(255,185,100,0.72) 0%, rgba(255,140,90,0.38) 38%, transparent 60%),
+    /* 珊瑚晨带 */
+    radial-gradient(ellipse 100% 28% at 50% 88%, rgba(255,138,118,0.48) 0%, rgba(242,108,128,0.22) 48%, transparent 65%),
+    /* 左云霞 */
+    radial-gradient(ellipse 38% 18% at 18% 68%, rgba(255,175,190,0.38) 0%, transparent 58%),
+    /* 右云霞 */
+    radial-gradient(ellipse 32% 15% at 82% 65%, rgba(255,168,185,0.32) 0%, transparent 55%),
+    /* 中心暖晕 */
+    radial-gradient(ellipse 55% 28% at 50% 75%, rgba(255,200,155,0.28) 0%, transparent 52%),
+    /* 顶部深紫夜空 */
+    radial-gradient(ellipse 85% 52% at 50% 0%, rgba(72,32,118,0.52) 0%, rgba(55,24,95,0.24) 52%, transparent 78%),
+    /* 深紫→玫红→珊瑚→金橙→暖杏 */
+    linear-gradient(180deg, #221038 0%, #581840 22%, #a84868 42%, #d87868 62%, #f0a870 80%, #ffd898 100%);
+}
+
+.wp-dusk-rock-shore {
+  background-color: #505d6e;
+  background-image:
+    repeating-linear-gradient(38deg, transparent 0px, transparent 5px, rgba(255,255,255,0.055) 5px, rgba(255,255,255,0.055) 6px),
+    repeating-linear-gradient(-38deg, transparent 0px, transparent 5px, rgba(0,0,0,0.08) 5px, rgba(0,0,0,0.08) 6px),
+    repeating-linear-gradient(180deg, transparent 0px, transparent 20px, rgba(0,0,0,0.045) 20px, rgba(0,0,0,0.045) 21px, transparent 21px, transparent 42px, rgba(255,255,255,0.03) 42px, rgba(255,255,255,0.03) 43px),
+    radial-gradient(ellipse at 50% 8%, rgba(198,212,235,0.24) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(18,22,32,0.45) 0%, transparent 50%),
+    linear-gradient(180deg, #8c99ac 0%, #637282 40%, #4a5668 72%, #2c3440 100%);
+}
+
+.wp-linen-warm-paper {
+  background-color: #d5c8ac;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(75,55,30,0.09) 0px, rgba(75,55,30,0.09) 1px, transparent 1px, transparent 2px, rgba(75,55,30,0.055) 2px, rgba(75,55,30,0.055) 3px, transparent 3px, transparent 5px),
+    repeating-linear-gradient(0deg, rgba(75,55,30,0.08) 0px, rgba(75,55,30,0.08) 1px, transparent 1px, transparent 2px, rgba(75,55,30,0.045) 2px, rgba(75,55,30,0.045) 3px, transparent 3px, transparent 5px),
+    repeating-linear-gradient(45deg, rgba(255,242,215,0.07) 0px, rgba(255,242,215,0.07) 1px, transparent 1px, transparent 5px),
+    radial-gradient(ellipse at 50% 15%, rgba(255,250,238,0.32) 0%, transparent 55%),
+    linear-gradient(165deg, #f6ede0 0%, #e2d1bc 48%, #cdbfa5 100%);
+}
+
+.wp-amber-clouds {
+  background-color: #f0c8e0;
+  background-image:
+    /* 波点层 1 — 粉 */
+    radial-gradient(circle 1.8px at 15px 15px, rgba(255,130,190,0.32) 0%, transparent 100%),
+    /* 波点层 2 — 紫，错位半格 */
+    radial-gradient(circle 1.4px at 30px 30px, rgba(175,135,255,0.26) 0%, transparent 100%),
+    /* 左上粉白光晕 */
+    radial-gradient(ellipse 55% 42% at 20% 22%, rgba(255,228,242,0.70) 0%, rgba(255,198,230,0.28) 44%, transparent 68%),
+    /* 右下丁香光晕 */
+    radial-gradient(ellipse 48% 38% at 84% 80%, rgba(215,185,255,0.55) 0%, rgba(195,158,250,0.20) 44%, transparent 65%),
+    /* 中心薄荷柔光 */
+    radial-gradient(ellipse 42% 32% at 55% 52%, rgba(180,248,228,0.28) 0%, transparent 55%),
+    /* 粉→丁香→薄荷三色渐变 */
+    linear-gradient(135deg, #ffd8ec 0%, #f5c5e8 22%, #e8bef5 46%, #d2cbff 68%, #bef0ea 100%);
+  background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.wp-snowlight-peak {
+  background-color: #000810;
+  background-image:
+    /* 水面焦散光纹 */
+    repeating-linear-gradient(
+      65deg,
+      transparent 0px, transparent 9px,
+      rgba(0,210,200,0.055) 9px, rgba(0,210,200,0.055) 10px
+    ),
+    repeating-linear-gradient(
+      -25deg,
+      transparent 0px, transparent 12px,
+      rgba(0,190,220,0.045) 12px, rgba(0,190,220,0.045) 13px
+    ),
+    /* 生物荧光 1 — 青绿大光团 */
+    radial-gradient(ellipse 28% 20% at 38% 48%, rgba(0,228,195,0.30) 0%, rgba(0,205,178,0.12) 45%, transparent 72%),
+    /* 生物荧光 2 — 水蓝中等光团 */
+    radial-gradient(ellipse 20% 14% at 70% 60%, rgba(0,205,232,0.24) 0%, rgba(0,182,215,0.08) 45%, transparent 68%),
+    /* 生物荧光 3 — 小亮点 */
+    radial-gradient(circle 70px at 55% 35%, rgba(0,245,210,0.20) 0%, rgba(0,215,185,0.06) 45%, transparent 62%),
+    /* 深蓝幽光 */
+    radial-gradient(ellipse 15% 10% at 22% 65%, rgba(30,100,200,0.18) 0%, transparent 62%),
+    /* 深海底压光晕 */
+    radial-gradient(ellipse 100% 45% at 50% 100%, rgba(0,35,75,0.65) 0%, transparent 55%),
+    /* 深渊顶部 */
+    radial-gradient(ellipse 80% 38% at 50% 0%, rgba(0,5,15,0.55) 0%, transparent 60%),
+    linear-gradient(180deg, #000305 0%, #000810 32%, #000c18 62%, #000a14 86%, #000508 100%);
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.2s steps(1) infinite;
+}
+@keyframes dots {
+  0%   { content: ''; }
+  33%  { content: '.'; }
+  66%  { content: '..'; }
+  100% { content: '...'; }
+}
+
+.typing-cursor::after {
+  content: '▋';
+  animation: blink 1s steps(1) infinite;
+  margin-left: 1px;
+  font-size: 0.9em;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.desktop-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  grid-template-rows: repeat(auto-fill, 90px);
+  grid-auto-flow: column;
+  gap: 6px 16px;
+  align-content: start;
+}
+
+/* Notebook */
+.cork-surface {
+  background-color: #b5835a;
+  background-image:
+    radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+.pin-red { background: radial-gradient(circle at 30% 30%, #ff5252, #b71c1c); }
+.pin-blue { background: radial-gradient(circle at 30% 30%, #448aff, #0d47a1); }
+.pin-yellow { background: radial-gradient(circle at 30% 30%, #ffd740, #ff6f00); }
+.pin-metal { background: radial-gradient(circle at 30% 30%, #eceff1, #78909c); }
+.card-yellow-lined {
+  background-color: #fdf5d3;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 24px, #a4c8e1 24px, #a4c8e1 25px);
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.4);
+  border-radius: 2px 2px 4px 6px;
+}
+.card-yellow-lined::before {
+  content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M0 8 L4 2 L8 6 L12 0 L16 8 Z' fill='%23fdf5d3'/%3E%3C/svg%3E") repeat-x;
+}
+.card-yellow-lined::after {
+  content: ''; position: absolute; top: 4px; bottom: 0; left: 30px; width: 1px;
+  background: rgba(220,100,100,0.4); z-index: -1;
+}
+.card-pink-grid {
+  background-color: #ffcdd2;
+  background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 18px 18px;
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-white-grid {
+  background-color: #fafafa;
+  background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 15px 15px;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+  border-radius: 1px;
+}
+.card-green-lined {
+  background-color: #c8e6c9;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 22px, rgba(0,80,0,0.12) 22px, rgba(0,80,0,0.12) 23px);
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-blue-dot {
+  background-color: #b3e5fc;
+  background-image: radial-gradient(circle, rgba(0,50,100,0.12) 1px, transparent 1px);
+  background-size: 12px 12px;
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-orange-ruled {
+  background-color: #ffe0b2;
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(180,100,0,0.1) 20px, rgba(180,100,0,0.1) 21px);
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-kraft {
+  background-color: #c9a96e;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.35);
+  border-radius: 2px;
+}
+.card-pink-lined {
+  background-color: #fce4ec;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 24px, #e8a0b0 24px, #e8a0b0 25px);
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+  border-radius: 2px;
+}
+.card-pink-lined::after {
+  content: ''; position: absolute; top: 4px; bottom: 0; left: 30px; width: 1px;
+  background: rgba(200,80,120,0.3); z-index: -1;
+}
+.card-lavender-diag {
+  background-color: #e8daef;
+  background-image: repeating-linear-gradient(135deg, transparent 0, transparent 10px, rgba(100,50,150,0.08) 10px, rgba(100,50,150,0.08) 11px);
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-mint-check {
+  background-color: #c8f7e1;
+  background-image: linear-gradient(45deg, rgba(0,80,60,0.06) 25%, transparent 25%, transparent 75%, rgba(0,80,60,0.06) 75%), linear-gradient(45deg, rgba(0,80,60,0.06) 25%, transparent 25%, transparent 75%, rgba(0,80,60,0.06) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  box-shadow: 2px 4px 6px rgba(0,0,0,0.25);
+  border-radius: 2px;
+}
+.card-cream-cross {
+  background-color: #faf0d8;
+  background-image: radial-gradient(circle, rgba(160,120,40,0.12) 1px, transparent 1px), linear-gradient(rgba(160,120,40,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(160,120,40,0.06) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+  border-radius: 2px;
+}
+.card-sky-ruled {
+  background-color: #dceefb;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 24px, #90b8d8 24px, #90b8d8 25px);
+  box-shadow: 2px 4px 10px rgba(0,0,0,0.4);
+  border-radius: 2px 2px 4px 6px;
+}
+.card-sky-ruled::before {
+  content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M0 8 L4 2 L8 6 L12 0 L16 8 Z' fill='%23dceefb'/%3E%3C/svg%3E") repeat-x;
+}
+.card-sky-ruled::after {
+  content: ''; position: absolute; top: 4px; bottom: 0; left: 30px; width: 1px;
+  background: rgba(80,120,180,0.35); z-index: -1;
+}
+.clipboard-board {
+  background: linear-gradient(135deg, #5c412a, #3a2515);
+  box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), inset 0 -4px 10px rgba(0,0,0,0.4), 10px 20px 30px rgba(0,0,0,0.8);
+}
+.clip-base {
+  background: linear-gradient(180deg, #d4d4d4, #a3a3a3 40%, #888);
+  box-shadow: inset 0 2px 2px rgba(255,255,255,0.8), 0 4px 6px rgba(0,0,0,0.4);
+}
+.clip-jaw {
+  background: linear-gradient(180deg, #f0f0f0, #b3b3b3 50%, #999);
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.9), 0 8px 10px rgba(0,0,0,0.5);
+}
+.rivet {
+  background: radial-gradient(circle at 35% 35%, #fff, #999);
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.5), 0 2px 3px rgba(0,0,0,0.5);
+}
+.legal-pad { box-shadow: inset 0 0 40px rgba(0,0,0,0.08); }
+.pad-yellow-lined {
+  background-color: #fdf5d3;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 29px, #a4c8e1 29px, #a4c8e1 30px);
+  background-position: 0 50px;
+}
+.pad-yellow-lined::after, .pad-sky-ruled::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 45px; width: 2px; pointer-events: none;
+}
+.pad-yellow-lined::after { background: rgba(220,100,100,0.5); box-shadow: 4px 0 0 rgba(220,100,100,0.15); }
+.pad-pink-grid {
+  background-color: #ffcdd2;
+  background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 30px 30px; background-position: 0 50px;
+}
+.pad-white-grid {
+  background-color: #fafafa;
+  background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 30px 30px; background-position: 0 50px;
+}
+.pad-green-lined {
+  background-color: #c8e6c9;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 29px, rgba(0,80,0,0.12) 29px, rgba(0,80,0,0.12) 30px);
+  background-position: 0 50px;
+}
+.pad-blue-dot {
+  background-color: #b3e5fc;
+  background-image: radial-gradient(circle, rgba(0,50,100,0.12) 1px, transparent 1px);
+  background-size: 20px 20px; background-position: 0 50px;
+}
+.pad-orange-ruled {
+  background-color: #ffe0b2;
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent 28px, rgba(180,100,0,0.1) 28px, rgba(180,100,0,0.1) 29px);
+}
+.pad-kraft {
+  background-color: #c9a96e;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+}
+.pad-pink-lined {
+  background-color: #fce4ec;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 29px, #e8a0b0 29px, #e8a0b0 30px);
+  background-position: 0 50px;
+}
+.pad-pink-lined::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 45px; width: 1px;
+  background: rgba(200,80,120,0.3); pointer-events: none;
+}
+.pad-lavender-diag {
+  background-color: #e8daef;
+  background-image: repeating-linear-gradient(135deg, transparent 0, transparent 14px, rgba(100,50,150,0.08) 14px, rgba(100,50,150,0.08) 15px);
+}
+.pad-mint-check {
+  background-color: #c8f7e1;
+  background-image: linear-gradient(45deg, rgba(0,80,60,0.06) 25%, transparent 25%, transparent 75%, rgba(0,80,60,0.06) 75%), linear-gradient(45deg, rgba(0,80,60,0.06) 25%, transparent 25%, transparent 75%, rgba(0,80,60,0.06) 75%);
+  background-size: 30px 30px; background-position: 0 0, 15px 15px;
+}
+.pad-cream-cross {
+  background-color: #faf0d8;
+  background-image: radial-gradient(circle, rgba(160,120,40,0.12) 1px, transparent 1px), linear-gradient(rgba(160,120,40,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(160,120,40,0.06) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: 0 50px;
+}
+.pad-sky-ruled {
+  background-color: #dceefb;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 29px, #90b8d8 29px, #90b8d8 30px);
+  background-position: 0 50px;
+}
+.pad-sky-ruled::after { background: rgba(80,120,180,0.4); box-shadow: 4px 0 0 rgba(80,120,180,0.12); }
+.pad-binding { background: linear-gradient(180deg, #111, #333, #111); }
+.bottom-zone {
+  background: linear-gradient(180deg, #3a1818, #2a0e0e);
+  border-top: 3px solid #5a3020;
+  box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.005) 0px, rgba(255,255,255,0.005) 1px, transparent 1px, transparent 3px);
+}
+.ai-drawer { max-height: 0; transition: max-height 0.4s ease; }
+.ai-drawer.show { max-height: 50vh; }
+.ai-well { background: rgba(0,0,0,0.25); box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.03); }
+.ai-modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+.ai-modal-card {
+  background: linear-gradient(180deg, #3a1818, #2a0e0e);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.005) 0px, rgba(255,255,255,0.005) 1px, transparent 1px, transparent 3px);
+}
+.ai-tag::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #e8c060, #a08030);
+  box-shadow: 0 0 4px rgba(200,160,60,0.4);
+}
+.ai-body { color: rgba(220,200,160,0.75); max-height: 28vh; }
+.ai-body::-webkit-scrollbar { width: 3px; }
+.ai-body::-webkit-scrollbar-thumb { background: rgba(200,160,80,0.15); border-radius: 2px; }
+.quill-anim::before {
+  content: '\270D'; font-size: 14px; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  animation: quillWrite 1.2s ease-in-out infinite;
+  filter: grayscale(0.3) brightness(0.8);
+}
+@keyframes quillWrite {
+  0%,100% { transform: rotate(-5deg) translateY(0); }
+  25% { transform: rotate(3deg) translateY(-2px); }
+  50% { transform: rotate(-3deg) translateY(1px); }
+  75% { transform: rotate(2deg) translateY(-1px); }
+}
+
+/* Finance */
+.passbook-bg {
+  background-color: #1a1a1a;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, transparent 1px, transparent 10px);
+}
+.passbook-cover {
+  background: linear-gradient(135deg, #a41b1b, #7d1010);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.2'/%3E%3C/svg%3E");
+  box-shadow: inset 4px 0 10px rgba(0,0,0,0.5), inset -2px 0 8px rgba(0,0,0,0.8);
+}
+.cover-stripe {
+  background: linear-gradient(90deg, #111, #333, #111);
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.8);
+}
+.passbook-pages {
+  background-color: #f0f4f8;
+  background-image: repeating-linear-gradient(45deg, rgba(82,113,255,0.03) 0, rgba(82,113,255,0.03) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(-45deg, rgba(82,113,255,0.03) 0, rgba(82,113,255,0.03) 1px, transparent 1px, transparent 12px);
+  box-shadow: inset 15px 0 25px rgba(0,0,0,0.15);
+}
+.spine-crease {
+  background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 40%, transparent 100%);
+}
+.dot-matrix {
+  font-family: 'Courier New', Courier, monospace;
+  color: #0b1c67;
+  text-shadow: 0 0 1px rgba(11,28,103,0.4);
+}
+.passbook-table-wrapper::-webkit-scrollbar { width: 8px; }
+.passbook-table-wrapper::-webkit-scrollbar-track { background: transparent; }
+.passbook-table-wrapper::-webkit-scrollbar-thumb { background: rgba(82,113,255,0.2); border-radius: 4px; }
+.passbook-table-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(82,113,255,0.4); }
+
+/* App Workshop */
+.createapp-shell {
+  background:
+    radial-gradient(circle at 16% -10%, rgba(45, 212, 191, 0.18), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(96, 165, 250, 0.14), transparent 32%),
+    linear-gradient(180deg, #f8fbfc 0%, #f3f7f7 100%);
+}
+.prompt-box { filter: drop-shadow(0 14px 34px rgba(15, 32, 48, 0.08)); }
+.prompt-input {
+  min-height: 108px;
+  border-color: #dbe4ec;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.prompt-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.14), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.create-button {
+  border-radius: 8px;
+  background: linear-gradient(135deg, #102033 0%, #0f766e 100%);
+  box-shadow: 0 8px 20px rgba(15,118,110,0.22);
+}
+.create-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15,118,110,0.28);
+}
+.category-group { position: relative; }
+.category-group::before {
+  content: "";
+  position: absolute;
+  inset: -8px 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148,163,184,0.34), transparent);
+}
+.category-button {
+  border-color: rgba(221,230,238,0.86);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.62);
+  color: #5d6c7b;
+  box-shadow: 0 1px 2px rgba(15,32,48,0.03);
+}
+.category-button:hover {
+  border-color: color-mix(in srgb, var(--accent) 36%, #dde6ee);
+  color: #17212b;
+}
+.category-button.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+.category-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+.category-button.is-active .category-mark { color: currentColor; }
+.template-card {
+  border-color: #dfe7ef;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(15,32,48,0.03);
+}
+.template-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 8px 0 0 8px;
+  background: var(--accent);
+  opacity: 0.35;
+}
+.template-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 38%, #dfe7ef);
+  box-shadow: 0 10px 24px rgba(15,32,48,0.08);
+}
+.template-card.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent), 0 10px 24px rgba(15,32,48,0.08);
+}
+.template-icon {
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, #dfe7ef);
+  background: color-mix(in srgb, var(--accent) 8%, #fff);
+  color: var(--accent);
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.template-card:hover .template-icon,
+.template-card.is-selected .template-icon {
+  border-color: color-mix(in srgb, var(--accent) 30%, #dfe7ef);
+  background: color-mix(in srgb, var(--accent) 14%, #fff);
+}
+
+/* Claude Code / Codex */
+.cc-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+.cc-thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160,120,80,0.2) transparent;
+}
+.cc-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b5a46;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+  cursor: pointer;
+  position: relative;
+  top: 6px;
+  transition: all 0.12s;
+}
+.cc-tab-btn:hover {
+  color: #2a1f13;
+  background: rgba(140,100,60,0.06);
+}
+.cc-tab-active {
+  background: #faf6ec;
+  color: #2a1f13;
+  border-color: rgba(140,100,60,0.12);
+  border-bottom-color: #faf6ec;
+  box-shadow: 0 -2px 0 #5c4332 inset;
+}
+.cc-stat-card {
+  background: #fff;
+  border: 1px solid rgba(140, 100, 60, 0.12);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.cc-stat-label {
+  font-size: 10.5px;
+  color: #8a7965;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+.cc-stat-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2a1f13;
+  margin-top: 4px;
+}
+.cc-chart-card {
+  background: #fff;
+  border: 1px solid rgba(140, 100, 60, 0.12);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.cc-chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2a1f13;
+}
+.cc-chart-sub {
+  font-size: 11px;
+  color: #8a7965;
+  margin-top: 2px;
+}
+.cc-card {
+  background: #fff;
+  border: 1px solid rgba(140, 100, 60, 0.12);
+  border-radius: 8px;
+  padding: 12px;
+}
+.cc-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: rgba(140, 100, 60, 0.08);
+  font-size: 16px;
+}
+.cc-btn-primary {
+  background: linear-gradient(135deg, #7a5430, #5c4332);
+  color: #fff6e0;
+  border: 0;
+  cursor: pointer;
+}
+.cc-btn-primary:hover {
+  filter: brightness(1.05);
+}
+.cc-btn-primary:active {
+  transform: scale(0.97);
+}

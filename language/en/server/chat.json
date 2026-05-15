@@ -1,0 +1,3 @@
+{
+  "chat_missing_model_message": "Looks like no model is configured yet — no worries. Head to \"Settings\", fill in {missing}, then come back and resend to keep chatting.\n\nYou can also let an external agent like Claude Code or Codex drive AIOS — send it this link and it will read the system's architecture and apps, then take over: http://127.0.0.1:9502/welcome"
+}
