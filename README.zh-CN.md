@@ -1,121 +1,87 @@
-# Wandesk 🖥️✨
+# Wandesk
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**Wandesk 是一个 AI 桌面：AI 不只是聊天，它可以开发新的应用，而应用也可以反过来和 AI 对话。**
+**Wandesk 是一个开源 AI 桌面和本地工作台。**
 
-大多数 AI 产品和开源项目，仍然以对话作为主要交互方式。Wandesk 的出发点不同：AI 不应该把所有应用都替换成一个万能聊天框，而应该帮助每个人创建、使用和协同真实的应用程序。
+它的核心想法很简单：AI 不应该只存在于聊天框里。人依然需要应用、窗口、文件、记忆、表格、笔记本和工作空间。Wandesk 把这些形态放到一起，让 AI 可以聊天、使用应用、开发应用，也让应用可以反过来和 AI 协作。
 
 ## 截图
 
-![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
-
-_App Workshop 可以把应用想法推进成具体的本地应用。_
-
-![Wandesk Codex 工作台](docs/images/wandesk-codex.png)
-
-_Codex 风格工作台，包含会话、技能、MCP、AGENTS.md、历史记录和设置。_
+### Chat
 
 ![Wandesk Chat](docs/images/wandesk-chat.png)
 
-_聊天仍然是桌面里的意图入口，而不是整个产品的唯一形态。_
+Chat 是桌面里的意图入口。它可以读取本地上下文、检查工作区、调用工具，并和系统里的其他能力协同。
 
-## 为什么不只是聊天？
+### Notebook
 
-对话很强。它自然、门槛低，也很适合表达复杂意图。
+![Wandesk Notebook](docs/images/wandesk-notebook.png)
 
-但只有对话不够。很多真实工作依然需要 GUI 和应用程序，因为工作需要稳定、可见、可回到的形态。
+Notebook 把轻量笔记留在一个可见的应用里，而不是埋在聊天记录中。笔记也可以成为后续 AI 工作的上下文。
 
-笔记应该留在笔记本里。任务应该留在看板上。文件应该能被浏览。财务记录应该能在表格里编辑。代码会话应该有历史、设置、项目上下文和日志。
+### Memory
 
-所以 Wandesk 把对话和 GUI 看成互补关系：
+![Wandesk Memory](docs/images/wandesk-memory.png)
 
-- 💬 聊天适合表达意图
-- 🪟 应用适合承载工作流
-- 📁 文件、数据和状态需要可见的地方停留
-- 🧠 AI 应该在这些地方之间移动，而不是把一切压平到一个聊天线程里
+Memory 用来存储 AI 可复用的长期上下文。系统内置记忆可以告诉 AI Wandesk 应用应该怎么开发，用户也可以加入自己的偏好、事实和规则。
 
-## 每个人都可以创造应用
+### Claude Code Workbench
 
-如果 AI 已经能写软件，那么应用创造就应该成为个人计算中的日常能力。
+![Wandesk Claude Code](docs/images/wandesk-claude-code.png)
 
-在 Wandesk 里，你应该可以直接描述自己想要的应用，而不是去找一个只能部分满足需求的通用工具。
+Claude Code 被放进一个桌面应用里，包含 chat、projects、memory files、plans、history、skills、plugins、agents、MCP、stats、settings 和 account 等视图。
 
-你可以打开 Chat 或 App Workshop，说：
+### Ledger
 
-```text
-创建一个轻量 CRM，用来记录客户、跟进、下一步动作和成交状态。
-```
+![Wandesk Ledger](docs/images/wandesk-ledger.png)
 
-AI 可以把这个需求直接落到代码里：
+Ledger 是一个本地优先的财务应用。它展示了 Wandesk 可以承载普通 GUI 工具和独立数据模型，而不只是 AI 聊天页面。
 
-- 🪟 在 `gui/src/apps/<app>/` 下创建 React 界面
-- 🧱 在 `server/apps/<app>/` 下添加后端 API、service 和 repository
-- 🗄️ 为应用数据定义本地 SQLite 存储
-- 🧩 编写 `APP.md`，让后续 AI 会话也能理解这个应用
-- 🔁 重新加载运行时，让新应用出现在桌面里
+### Open Source Radar
 
-关键是，结果不是一次性的生成页面。它应该成为一个真正的 Wandesk 应用：本地运行、可检查、可修改，并且可以在后续对话中继续演化。
+![Wandesk Open Source Radar](docs/images/wandesk-open-source-radar.png)
 
-## 应用也可以和 AI 对话
+Open Source Radar 用来追踪 GitHub 趋势项目，也可以让 AI 对仓库做摘要和分析。
 
-传统应用里，逻辑通常是固定的：点击按钮，执行函数，更新界面。
+## Wandesk 能做什么
 
-在 Wandesk 里，应用可以把意图交给系统任务层，让 AI 处理更灵活的部分。
+- 💬 **和 AI 聊天**，同时保留本地工作区上下文。
+- 🪟 **运行真实应用**，用桌面式窗口、启动器和任务栏组织工作。
+- 🧠 **保存记忆**，让 AI 记住稳定事实、偏好和系统指导。
+- 🪄 **创建新应用**，让 AI 编写 React UI、TypeScript 后端 API、SQLite 存储和 `APP.md` 文档。
+- 🔁 **让应用调用 AI**，通过任务 API 做摘要、分析、改写、编码和更长的 agent 工作。
+- 🛠️ **使用 agent 工作台**，把 Claude Code、Codex 等能力放进同一个桌面。
 
-例如：
+## 为什么仍然需要应用
 
-- 笔记本应用可以请求 AI 改写、总结或扩写一条笔记。
-- 财务应用可以请求 AI 分类账目或解释消费。
-- GitHub Trending 应用可以请求 AI 分析一个仓库。
-- 自定义业务应用可以请求 AI 生成报告、比较方案或填写结构化字段。
+对话很有用，但它不应该替代所有界面。
 
-任务 API 提供两种基础模式：
+笔记应该像笔记本。财务记录应该能在表格里编辑。代码 agent 需要项目、历史、设置、记忆文件和日志。Wandesk 把聊天和 GUI 看成互补关系：聊天表达意图，应用承载工作流，AI 在这些应用之间移动。
+
+## 应用开发
+
+Wandesk 应用是本地的、可检查的、可继续修改的。一个新应用通常会涉及：
 
 ```text
-POST /api/task/create/instant   短的同步 AI 任务
-POST /api/task/create/agent     可调用工具的长 agent 任务
+gui/src/apps/<app>/          React UI
+server/apps/<app>/           API、service、repository
+language/<lang>/apps/<app>/  APP.md 源文档
+apps/<app>/APP.md            烘培后的运行态应用上下文
+database/apps/<app>.db       运行时 SQLite 数据
 ```
 
-应用也可以使用 `server/shared/apps/instantTask.ts` 和 `server/shared/apps/agentTask.ts` 这样的共享 helper。这样 AI 就不是外接的聊天插件，而是应用自己的原生能力。
-
-## AI 可以更原生地操作应用
-
-AI 也应该能更直接地操作应用。
-
-大多数现有软件不是为 agent 设计的，所以 AI 往往只能模拟人：看屏幕、解析 DOM、找按钮、点击、输入，然后祈祷界面没有变化。
-
-Wandesk 应用可以暴露更清晰的契约。每个应用都可以携带一个 `APP.md`，说明这个应用是什么、前端在哪里、后端在哪里、数据库在哪里、应该怎么被使用。
-
-```text
-apps/<app>/APP.md          面向应用的上下文
-server/apps/<app>/APP.md   后端应用上下文
-gui/src/apps/<app>/        React UI
-server/apps/<app>/         API、service、repository
-database/apps/<app>.db     运行时应用数据
-```
-
-AI 不需要盲目模拟用户点击界面。它可以读取应用契约、调用 API、检查源码，并进行有针对性的修改。这就是 Wandesk 想实现的协同：人、应用和 AI 在同一个本地工作空间里一起工作。
-
-## 里面有什么
-
-- 🧠 **AI 工作空间基础能力**：聊天、任务、记忆、模型设置和应用提示词
-- 🪄 **App Workshop**：描述新工具，把需求送入 AI 工作流
-- 🪟 **桌面式界面**：窗口、启动器、壁纸、应用面板和全局提示
-- 🛠️ **Agent 工作台**：Codex 和 Claude Code 风格的项目、会话、技能、MCP、历史记录和设置界面
-- 📁 **本地优先工具**：文件、笔记本、财务、GitHub Trending、Crypto Bot 等应用模块
-- 🌐 **完整全栈边界**：React 前端、TypeScript 后端 API、应用注册表、语言资源和 SQLite 存储
-- 🧩 **应用原生文档**：`APP.md` 让应用对 AI 可读
+目标不是一次性的生成页面，而是一个真正的本地应用，可以在后续 AI 会话中继续演化。
 
 ## 技术栈
 
-- ⚛️ React 19
-- 🟦 TypeScript
-- ⚡ Vite
-- 🎨 Tailwind CSS
-- 🧱 Node.js 后端 API
-- 🗄️ SQLite，通过 `better-sqlite3`
-- 🔌 WebSocket 运行时通道
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Node.js 后端 API
+- SQLite，通过 `better-sqlite3`
+- WebSocket 运行时通道
 
 ## 项目结构
 
@@ -124,13 +90,13 @@ gui/              React 桌面 UI
 server/main/      核心 HTTP / WS API 和系统服务
 server/apps/      应用级后端模块
 server/shared/    后端共享工具
-apps/             面向应用的 APP.md 上下文文件
-language/         UI 文本和应用文档的多语言源文件
-scripts/          开发与语言烘焙脚本
+apps/             烘培后的 APP.md 应用上下文
+language/         UI 文本、prompt 和应用文档的多语言源
+scripts/          开发与语言烘培脚本
 skills/           内置 Codex skills
 ```
 
-运行时输出不会进入 git：
+生成态和运行态目录不是源码：
 
 ```text
 .aios/
@@ -140,38 +106,15 @@ gui/dist/
 node_modules/
 ```
 
-## 内置应用
-
-当前应用表面包括：
-
-- 💬 Chat
-- 🪄 App Workshop
-- ✅ Tasks
-- 📓 Notebook
-- 📁 Files
-- 🧠 Memory
-- ⚙️ Settings
-- 🤖 Codex
-- 🧑‍💻 Claude Code
-- 📈 Finance
-- 📰 GitHub Trending
-- ₿ Crypto Bot
-
 ## 开发
-
-安装依赖：
 
 ```bash
 npm install
-```
-
-启动英文开发工作区：
-
-```bash
 npm run dev
+npm run typecheck
 ```
 
-启动中文开发工作区：
+中文开发环境：
 
 ```bash
 npm run dev:zh
@@ -184,37 +127,16 @@ npm run build
 npm run build:zh
 ```
 
-运行 TypeScript 检查：
+## 语言烘培
 
-```bash
-npm run typecheck
-```
-
-## 语言烘焙
-
-Wandesk 使用 `language/<locale>/` 下的语言源文件，并在开发或构建前把它们烘焙到运行工作区。
-
-烘焙入口是：
+Wandesk 使用 `language/<locale>/` 下的源文件，并在运行工作区里执行烘培：
 
 ```bash
 tsx scripts/start.ts en --force
 tsx scripts/start.ts zh --force
 ```
 
-这个步骤会把运行状态写入 `.aios/`，并生成应用侧文档到 `apps/`。如果要做干净的本地测试，建议在复制出来的运行工作区里执行，不要提交生成态内容。
-
-## 仓库规则
-
-- 源码保留在 `gui/`、`server/`、`language/`、`scripts/`、`apps/` 和 `skills/`
-- 不提交运行数据、数据库、上传文件、构建输出或本地模型配置
-- `database/`、`files/`、`.aios/`、`gui/dist/` 和 `node_modules/` 都视为生成目录
-- 不要把密钥提交进仓库
-
-## 状态
-
-Wandesk 仍是一个早期开源的 AI 桌面 / 工作台项目。应用创建循环、任务层和 agent 工作台都刻意保持小而可改，方便系统快速演化。
-
-欢迎贡献、实验和新的应用想法。🚀
+这个过程会生成 `apps/` 下的运行态应用文档，并把语言状态写入 `.aios/`。
 
 ## 相关
 
