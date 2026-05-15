@@ -14,6 +14,12 @@ It is built around a simple idea: AI should not only live in chat. People still 
 
 Chat is the intent layer of the desktop. It can use local context, inspect the workspace, call tools, and coordinate work with the rest of the system.
 
+### App Workshop
+
+![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
+
+App Workshop turns an app idea into a concrete build request. Pick a template, describe the workflow, and let AI start creating the local app.
+
 ### Notebook
 
 ![Wandesk Notebook](docs/images/wandesk-notebook.png)

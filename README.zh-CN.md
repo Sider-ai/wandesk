@@ -14,6 +14,12 @@
 
 Chat 是桌面里的意图入口。它可以读取本地上下文、检查工作区、调用工具，并和系统里的其他能力协同。
 
+### App Workshop
+
+![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
+
+App Workshop 可以把一个应用想法变成具体的构建请求。选择模板、描述工作流，然后让 AI 开始创建本地应用。
+
 ### Notebook
 
 ![Wandesk Notebook](docs/images/wandesk-notebook.png)
