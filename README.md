@@ -6,6 +6,20 @@
 
 Most AI products and open-source projects still use conversation as the primary interaction model. Wandesk starts from a different assumption: AI should not replace applications with one universal chat box. It should help people create, use, and coordinate real applications.
 
+## Screenshots
+
+![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
+
+_App Workshop turns app ideas into concrete local apps._
+
+![Wandesk Codex workbench](docs/images/wandesk-codex.png)
+
+_Codex-style workbench for sessions, skills, MCP, AGENTS.md, history, and settings._
+
+![Wandesk Chat](docs/images/wandesk-chat.png)
+
+_Chat remains available as an intent layer inside the desktop._
+
 ## Why Not Just Chat?
 
 Conversation is powerful. It is natural, low-friction, and good at expressing complex intent.
