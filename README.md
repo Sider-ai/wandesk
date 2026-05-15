@@ -199,7 +199,7 @@ Contributions, experiments, and new app ideas are welcome. 🚀
 
 ## Related
 
-- [realuckyang/AIOS](https://github.com/realuckyang/AIOS): a related exploration of AI operating-system ideas, app generation, and agent-native workflows.
+- [realuckyang/AIOS](https://github.com/realuckyang/AIOS): exploring an operating system for the AI era.
 
 ## License
 
