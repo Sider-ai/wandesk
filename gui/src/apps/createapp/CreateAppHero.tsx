@@ -1,0 +1,1 @@
+export default function CreateAppHero() { return <div className="rounded-[18px] border border-white/10 bg-[#101827] p-6 text-white"><div className="text-[22px] font-bold">App Workshop</div><div className="mt-2 text-[13px] text-white/60">Describe the app you want to build.</div></div>; }

@@ -1,0 +1,3 @@
+{
+  "chat_missing_model_message": "看起来您还没有配置模型，不过这没关系 —— 去\"设置\"里补一下 {missing}，回来再发一次就能继续聊啦。\n\n也可以让 Claude Code、Codex 等外部 agent 来驱动 AIOS —— 把这个链接发给它，它就能读懂系统的架构与应用，接管调度：http://127.0.0.1:9502/welcome"
+}

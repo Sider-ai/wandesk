@@ -1,0 +1,1 @@
+export default function MemoryFileCard({ data }: { data?: unknown }) { return <pre className="h-full overflow-auto rounded-[12px] border bg-white/70 p-3 text-[11px]">{JSON.stringify(data || {}, null, 2)}</pre>; }

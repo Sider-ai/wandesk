@@ -1,0 +1,48 @@
+{
+  "name": "wandesk",
+  "version": "1.0.0",
+  "description": "An AI desktop and local workbench for agent-native apps.",
+  "type": "module",
+  "main": "server/main/index.ts",
+  "scripts": {
+    "dev": "tsx scripts/start.ts en --force && AIOS_DEV_FRONTEND=1 tsx server/main/index.ts & tsx server/apps/index.ts & vite --config gui/vite.config.ts gui",
+    "dev:zh": "tsx scripts/start.ts zh --force && AIOS_DEV_FRONTEND=1 tsx server/main/index.ts & tsx server/apps/index.ts & vite --config gui/vite.config.ts gui",
+    "build": "tsx scripts/start.ts en --force && vite build --config gui/vite.config.ts gui",
+    "build:zh": "tsx scripts/start.ts zh --force && vite build --config gui/vite.config.ts gui",
+    "typecheck": "tsc --noEmit",
+    "start": "tsx server/main/index.ts",
+    "start:apps": "tsx server/apps/index.ts"
+  },
+  "keywords": [
+    "ai",
+    "desktop",
+    "workbench",
+    "agents",
+    "react",
+    "typescript"
+  ],
+  "author": "Sider AI",
+  "license": "ISC",
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "better-sqlite3": "^12.6.2",
+    "lucide-react": "^0.576.0",
+    "marked": "^17.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.10.1",
+    "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.1"
+  }
+}

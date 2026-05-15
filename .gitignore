@@ -1,0 +1,53 @@
+# OS / 编辑器
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 依赖 / 构建产物
+node_modules/
+*.log
+logs/
+*.local
+
+# AIOS / Wandesk 运行态(任何子目录里都视为运行副本)
+**/.aios/
+/database/
+/files/
+**/gui/dist/
+**/ui/dist/
+**/dist/
+**/dist-ssr/
+
+# Tauri / Rust 构建产物
+**/tauri/target/
+**/tauri/.generated/
+**/tauri/gen/schemas/
+**/tauri/resources/aios/
+**/tauri/resources/overrides/
+**/tauri/resources/vendor/
+
+# 客户端打包产物
+Wandesk*.dmg
+Wandesk*.exe
+Wandesk*.msi
+Wandesk.app/
+
+# 本地证书目录(签名/公证用,绝不提交)
+**/dev/signing-cert/
+
+# AI / Agent 工具的本地文件
+.claude/
+think/
+debug/
+.playwright-cli/
+.qoder
+.AGENTS
+.agents
+.agent
+skills-lock.json

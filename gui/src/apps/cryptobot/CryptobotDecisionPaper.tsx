@@ -1,0 +1,1 @@
+export default function CryptobotDecisionPaper({ decision }: { decision?: unknown }) { return <pre className="rounded-[12px] border bg-white/70 p-3 text-[11px]">{JSON.stringify(decision || {}, null, 2)}</pre>; }

@@ -1,0 +1,14 @@
+{
+  "notebook_seed_1_content": "随心记\n\n想到什么就写，不用在意格式。\n点击右下「协助」，让 AI 基于系统上下文帮你完成任务、润色或扩写。\n\n你写在这里的东西，AIOS 也能看到。\n聊天时它了解你在想什么、关注什么，\n给你的回应会更贴合你自己。",
+  "notebook_seed_2_content": "碎片也值得被留下\n\n灵感不会等你准备好。\n一个词、半句话、还没想清楚的念头——\n先扔进来，不要管它够不够完整。\n\n有时候几周后再看，\n才发现当时随手写的那句话，\n正好是你现在需要的答案。",
+  "notebook_seed_3_content": "值得慢慢想的事\n\n什么样的一天，结束时不觉得空？\n什么事情，是只有自己才能做的？\n什么时候，感觉最像自己？\n\n不用现在回答。\n写下来，留着。",
+  "notebook_default_task_title": "笔记协助",
+  "notebook_assist_prompt_role": "你是 Wandesk 的笔记助手。",
+  "notebook_assist_prompt_intro": "用户在笔记应用中写下了一段内容。请根据它的意图，生成最终保存为笔记的正文：",
+  "notebook_assist_prompt_task": "- 如果是一条任务或指令（例如\"把刚才聊的内容存为笔记\"、\"整理上次会议要点\"），请通过 shell 主动获取所需上下文（例如查询 database/aios.db 的 chats / messages 表读取最近聊天记录、或调用 /apps/* HTTP 接口、读取本机文件），完成这条指令，把执行结果作为笔记正文输出。",
+  "notebook_assist_prompt_task_context": "- 如果是一段未完成的草稿，请润色或扩写，使其更通顺、更专业，保持原意。",
+  "notebook_assist_prompt_draft": "- 如果表达已经完整，仅做表达层面的优化，保持原意不变。",
+  "notebook_assist_prompt_polish": "- 除非用户的笔记明确要求其他语言，否则使用中文。",
+  "notebook_assist_prompt_output": "完成后，只输出最终的笔记正文，不要前缀、不要解释、不要 markdown 标题。",
+  "notebook_assist_prompt_content_label": "[用户在笔记里写下的内容]"
+}
