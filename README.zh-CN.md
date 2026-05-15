@@ -10,8 +10,6 @@
 
 > 你描述需求 → AI 帮你创建或修改应用 → 应用成为桌面的一部分 → 应用在需要推理、写作、分析或自动化时，又可以继续调用 AI。
 
-Wandesk 的思想源头之一来自 [realuckyang/AIOS](https://github.com/realuckyang/AIOS) 所探索的 AI 操作系统方向；这个仓库更聚焦于友好的桌面与工作台体验。
-
 ## 为什么不只是聊天？
 
 聊天很强，但很多真实工作仍然需要可见的界面。
@@ -198,6 +196,10 @@ tsx scripts/start.ts zh --force
 Wandesk 仍是一个早期开源的 AI 桌面 / 工作台项目。应用创建循环、任务层和 agent 工作台都刻意保持小而可改，方便系统快速演化。
 
 欢迎贡献、实验和新的应用想法。🚀
+
+## 相关
+
+- [realuckyang/AIOS](https://github.com/realuckyang/AIOS)：一个相关的 AI 操作系统方向探索，包含应用生成、agent-native workflow 等思路。
 
 ## License
 
