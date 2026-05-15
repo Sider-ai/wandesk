@@ -89,6 +89,28 @@ database/apps/<app>.db       运行时 SQLite 数据
 - SQLite，通过 `better-sqlite3`
 - WebSocket 运行时通道
 
+## 安装
+
+前置要求：Git、Node.js 20+ 和 npm。
+
+macOS：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-macos.sh | sh
+```
+
+Linux：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-linux.sh | sh
+```
+
+Windows PowerShell：
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-windows.ps1 | iex"
+```
+
 ## 项目结构
 
 ```text
