@@ -1,5 +1,10 @@
 import { db } from "./client.js";
 
+const APP_CREATION_GUIDE_SEED_KEY = "memorySeed.appCreationGuide.id";
+const APP_CREATION_GUIDE_TITLE = "__T_MEMORY_SEED_APP_CREATION_GUIDE_TITLE__";
+const APP_CREATION_GUIDE_DESCRIPTION = "__T_MEMORY_SEED_APP_CREATION_GUIDE_DESCRIPTION__";
+const APP_CREATION_GUIDE_CONTENT = "__T_MEMORY_SEED_APP_CREATION_GUIDE_CONTENT__";
+
 const createTables = () => {
   db.exec(`
     CREATE TABLE IF NOT EXISTS chats (
@@ -76,8 +81,40 @@ const createTables = () => {
   `);
 };
 
+const seedAppCreationGuideMemory = () => {
+  const title = String(APP_CREATION_GUIDE_TITLE || "").trim();
+  const description = String(APP_CREATION_GUIDE_DESCRIPTION || "").trim();
+  const content = String(APP_CREATION_GUIDE_CONTENT || "").trim();
+  if (!title || !content) return;
+
+  const setting = db.prepare("SELECT value FROM settings WHERE key = ?").get(APP_CREATION_GUIDE_SEED_KEY) as any;
+  const existingId = Number(setting?.value || 0);
+  const existing = existingId
+    ? db.prepare("SELECT id FROM memories WHERE id = ?").get(existingId) as any
+    : null;
+
+  if (existing?.id) {
+    db.prepare(`
+      UPDATE memories
+      SET title = ?, description = ?, content = ?, updated_at = datetime('now')
+      WHERE id = ?
+    `).run(title, description, content, existing.id);
+    return;
+  }
+
+  const ret = db.prepare(`
+    INSERT INTO memories (title, description, content, enabled, pinned)
+    VALUES (?, ?, ?, 1, 1)
+  `).run(title, description, content);
+  db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)").run(
+    APP_CREATION_GUIDE_SEED_KEY,
+    String(ret.lastInsertRowid)
+  );
+};
+
 const initDatabase = () => {
   createTables();
+  seedAppCreationGuideMemory();
 };
 
 export {

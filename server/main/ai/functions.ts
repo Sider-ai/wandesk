@@ -41,7 +41,7 @@ export const shell = ({ command, cwd, timeout }: any) => {
         resolve(`exit code ${err.code}\n${stderr || err.message}`);
         return;
       }
-      resolve(stdout || stderr || '(no output)');
+      resolve(stdout || stderr || '__T_TOOL_NO_OUTPUT__');
     });
   });
 };

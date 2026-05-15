@@ -62,6 +62,7 @@ const PUBLIC_API_PATHS = new Set([
   "/api/auth/state",
   "/api/auth/setup",
   "/api/auth/login",
+  "/api/settings/setup",
   "/api/health",
 ]);
 

@@ -24,6 +24,18 @@ const hasConfiguredModelSettings = () => {
   return Boolean(provider && model && apiUrl && apiKey);
 };
 
+const getSetupStatus = () => {
+  const obj = readSettingsMap();
+  const provider = String(obj.provider || "").trim();
+  const model = String(obj.model || "").trim();
+  const apiUrl = String(obj.apiUrl || "").trim();
+  const apiKey = String(obj.apiKey || "").trim();
+  return {
+    initialized: Boolean(provider && model && apiUrl && apiKey),
+    welcomeSkipped: obj.welcomeSkipped === "1"
+  };
+};
+
 const getSettings = () => {
   const obj = readSettingsMap();
   const toolResultMaxChars = Math.max(1e3, Math.min(5e4, Number(obj.toolResultMaxChars) || 12e3));
@@ -44,6 +56,7 @@ const getSettings = () => {
   return settings;
 };
 export {
+  getSetupStatus,
   getSettings,
   hasConfiguredModelSettings,
   normalizeContextRounds

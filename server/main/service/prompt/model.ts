@@ -1,10 +1,10 @@
 const model = ({ provider, name, apiUrl }) => {
   return `
 
-## 当前模型配置
-- 供应方：${provider || "-"}
-- 模型：${name || "-"}
-- 请求地址：${apiUrl || "-"}`;
+## __T_PROMPT_MODEL_TITLE__
+- __T_PROMPT_MODEL_PROVIDER__: ${provider || "-"}
+- __T_PROMPT_MODEL_NAME__: ${name || "-"}
+- __T_PROMPT_MODEL_API_URL__: ${apiUrl || "-"}`;
 };
 export {
   model

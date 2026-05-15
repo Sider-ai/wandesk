@@ -18,7 +18,7 @@ const injectAttachmentsMessage = (messages = [], rawAttachments = []) => {
       const label = String(item.label || "").trim();
       if (label) {
         validAttachments.push({ type: "context", scene: item.scene, label });
-        contextParts.push(`[当前应用: ${label}]`);
+        contextParts.push(`[__T_CHAT_ATTACHMENT_CURRENT_APP__: ${label}]`);
       }
       continue;
     }
@@ -36,7 +36,11 @@ const injectAttachmentsMessage = (messages = [], rawAttachments = []) => {
   const parts = [];
   if (contextParts.length) parts.push(contextParts.join("\n"));
   if (fileParts.length) {
-    parts.push(["【附件文件路径】", ...fileParts, "请先读取这些文件内容，再结合用户问题回答。"].join("\n"));
+    parts.push([
+      "__T_CHAT_ATTACHMENT_FILE_PATHS__",
+      ...fileParts,
+      "__T_CHAT_ATTACHMENT_READ_FIRST__"
+    ].join("\n"));
   }
   if (parts.length) {
     const lastIndex = list.length - 1;

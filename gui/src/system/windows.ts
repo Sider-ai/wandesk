@@ -185,6 +185,17 @@ function updateSize(windowId: string, w: number, h: number) {
   }
 }
 
+function updateRect(windowId: string, rect: { x: number; y: number; w: number; h: number }) {
+  const win = windows.find((item) => item.id === windowId);
+  if (win) {
+    win.x = rect.x;
+    win.y = rect.y;
+    win.w = Math.max(rect.w, win.minW);
+    win.h = Math.max(rect.h, win.minH);
+    emit();
+  }
+}
+
 export const windowManager = {
   openWindow,
   openComponent,
@@ -197,7 +208,8 @@ export const windowManager = {
   isActive,
   toggleFromTaskbar,
   updatePosition,
-  updateSize
+  updateSize,
+  updateRect
 };
 
 export function useWindows() {

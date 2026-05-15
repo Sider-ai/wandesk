@@ -17,7 +17,7 @@ const instruction = (settings) => String(settings.systemPrompt || "").trim() || 
 const appContextSection = (text) => {
   const trimmed = String(text || "").trim();
   if (!trimmed) return "";
-  return `\n\n## 当前应用上下文\n用户正在使用某个应用,该应用主动告诉你以下信息:\n${trimmed}`;
+  return `\n\n## __T_PROMPT_APP_CONTEXT_TITLE__\n__T_PROMPT_APP_CONTEXT_INTRO__\n${trimmed}`;
 };
 
 const buildSystemPrompt = (currentConversationId = "", { appContext = "" }: any = {}) => {
