@@ -4,7 +4,7 @@
 
 **Wandesk is an AI desktop where AI does more than chat: it can build new apps, and those apps can talk back to AI.**
 
-Most AI tools still feel like a chat box attached to your work. Wandesk explores a different shape: a local desktop/workbench where chat, apps, files, memory, tasks, and coding agents live in one place.
+Most AI products and open-source projects still use conversation as the primary interaction model. Wandesk explores a different shape: a local desktop/workbench where chat, apps, files, memory, tasks, and coding agents live in one place.
 
 The important part is not the window chrome. The important part is the loop:
 
