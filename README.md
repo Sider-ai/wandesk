@@ -1,121 +1,87 @@
-# Wandesk 🖥️✨
+# Wandesk
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-**Wandesk is an AI desktop where AI does more than chat: it can build new apps, and those apps can talk back to AI.**
+**Wandesk is an open-source AI desktop and local workbench.**
 
-Most AI products and open-source projects still use conversation as the primary interaction model. Wandesk starts from a different assumption: AI should not replace applications with one universal chat box. It should help people create, use, and coordinate real applications.
+It is built around a simple idea: AI should not only live in chat. People still need apps, windows, files, memory, tables, notebooks, and workspaces. Wandesk brings those shapes together so AI can chat, use apps, build apps, and help apps talk back to AI.
 
 ## Screenshots
 
-![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
-
-_App Workshop turns app ideas into concrete local apps._
-
-![Wandesk Codex workbench](docs/images/wandesk-codex.png)
-
-_Codex-style workbench for sessions, skills, MCP, AGENTS.md, history, and settings._
+### Chat
 
 ![Wandesk Chat](docs/images/wandesk-chat.png)
 
-_Chat remains available as an intent layer inside the desktop._
+Chat is the intent layer of the desktop. It can use local context, inspect the workspace, call tools, and coordinate work with the rest of the system.
 
-## Why Not Just Chat?
+### Notebook
 
-Conversation is powerful. It is natural, low-friction, and good at expressing complex intent.
+![Wandesk Notebook](docs/images/wandesk-notebook.png)
 
-But conversation alone is not enough. Many workflows still need GUI and applications, because work needs persistent shapes.
+Notebook keeps lightweight notes in a visual app instead of burying them inside a conversation thread. Notes can become context for later AI work.
 
-A note should stay in a notebook. A task should stay on a board. A file should be browsable. A finance record should be editable in a table. A coding session should have history, settings, project context, and logs.
+### Memory
 
-So Wandesk treats conversation and GUI as complementary:
+![Wandesk Memory](docs/images/wandesk-memory.png)
 
-- 💬 chat is good for expressing intent
-- 🪟 apps are good for carrying workflows
-- 📁 files, data, and state need visible places to live
-- 🧠 AI should move through those places instead of flattening everything into a thread
+Memory stores reusable long-term context for AI. Built-in memories can explain how Wandesk apps are structured, and users can add their own persistent preferences or facts.
 
-## Everyone Can Create Apps
+### Claude Code Workbench
 
-If AI can write software, then app creation should become a normal part of personal computing.
+![Wandesk Claude Code](docs/images/wandesk-claude-code.png)
 
-In Wandesk, you should be able to describe the app you want instead of searching for a generic tool that only partly fits.
+Claude Code is presented as a desktop app with tabs for chat, projects, memory files, plans, history, skills, plugins, agents, MCP, stats, settings, and account state.
 
-You can open Chat or App Workshop and say:
+### Ledger
 
-```text
-Create a lightweight CRM for tracking customers, follow-ups, next actions, and deal status.
-```
+![Wandesk Ledger](docs/images/wandesk-ledger.png)
 
-AI can then work on the app as code:
+Ledger is a local-first finance app. It shows how Wandesk can host ordinary GUI tools with their own data model, not just AI chat views.
 
-- 🪟 create the React UI under `gui/src/apps/<app>/`
-- 🧱 add backend APIs, services, and repositories under `server/apps/<app>/`
-- 🗄️ define local SQLite storage for app data
-- 🧩 write `APP.md` so the app is understandable to future AI sessions
-- 🔁 reload the runtime so the new app appears in the desktop
+### Open Source Radar
 
-The result is not meant to be a disposable generated page. It is meant to become a real Wandesk app: local, inspectable, editable, and able to keep evolving through later conversations.
+![Wandesk Open Source Radar](docs/images/wandesk-open-source-radar.png)
 
-## Apps Can Talk To AI
+Open Source Radar tracks trending GitHub projects and can ask AI to summarize or analyze selected repositories.
 
-Traditional apps usually have fixed logic: click a button, run a function, update the UI.
+## What Wandesk Does
 
-In Wandesk, an app can send intent to the system task layer and let AI handle the flexible part.
+- 💬 **Chat with AI** while keeping local workspace context available.
+- 🪟 **Run real apps** in desktop-style windows with a launcher and taskbar.
+- 🧠 **Store memory** so AI can remember stable facts, preferences, and system guidance.
+- 🪄 **Create new apps** by letting AI write React UI, TypeScript backend APIs, SQLite storage, and `APP.md` docs.
+- 🔁 **Let apps call AI** through task APIs for summaries, analysis, rewriting, coding, and longer agent work.
+- 🛠️ **Use agent workbenches** such as Claude Code and Codex inside the same desktop.
 
-For example:
+## Why Apps Still Matter
 
-- A notebook app can ask AI to rewrite, summarize, or expand a note.
-- A finance app can ask AI to categorize records or explain spending.
-- A GitHub Trending app can ask AI to analyze a repository.
-- A custom business app can ask AI to generate reports, compare options, or fill structured fields.
+Conversation is useful, but it should not replace every interface.
 
-The task API gives apps two basic modes:
+A notebook should look like a notebook. A finance record should stay editable in a table. A coding agent needs projects, history, settings, memory files, and logs. Wandesk treats chat and GUI as complementary: chat expresses intent, apps hold workflows, and AI moves between them.
+
+## App Creation
+
+Wandesk apps are local, inspectable, and editable. A new app usually touches:
 
 ```text
-POST /api/task/create/instant   short synchronous AI work
-POST /api/task/create/agent     longer agent work with tool use
+gui/src/apps/<app>/          React UI
+server/apps/<app>/           API, service, repository
+language/<lang>/apps/<app>/  APP.md source
+apps/<app>/APP.md            baked runtime app context
+database/apps/<app>.db       runtime SQLite data
 ```
 
-Apps can also use shared helpers such as `server/shared/apps/instantTask.ts` and `server/shared/apps/agentTask.ts`. AI becomes a native capability of the app, not a bolted-on chat widget.
-
-## AI Can Operate Apps Natively
-
-AI should also be able to operate applications more directly.
-
-Most existing software was not designed for agents, so AI often has to imitate a human: look at the screen, parse the DOM, find buttons, click, type, and hope the UI did not change.
-
-Wandesk apps can expose a clearer contract. Every app can carry an `APP.md` file that explains what the app is, where its frontend/backend/database live, and how it should be used.
-
-```text
-apps/<app>/APP.md          app-facing context
-server/apps/<app>/APP.md   backend app context
-gui/src/apps/<app>/        React UI
-server/apps/<app>/         API, service, repository
-database/apps/<app>.db     app data at runtime
-```
-
-Instead of blindly clicking around the UI, AI can read the app contract, call APIs, inspect source, and make targeted changes. That is the collaboration Wandesk is aiming for: people, apps, and AI working through the same local workspace.
-
-## What Is Inside
-
-- 🧠 **AI workspace primitives**: chat, tasks, memory, model settings, and app prompts
-- 🪄 **App Workshop**: a place to describe new tools and send the request into the AI workflow
-- 🪟 **Desktop-style UI**: windows, launcher, wallpaper, app panel, and global toast
-- 🛠️ **Agent workbenches**: Codex and Claude Code style apps for projects, sessions, skills, MCP, history, and settings
-- 📁 **Local-first tools**: files, notebook, finance, GitHub Trending, Crypto Bot, and more
-- 🌐 **Full-stack app boundary**: React frontend, TypeScript backend APIs, app registry, language assets, and SQLite storage
-- 🧩 **App-native docs**: `APP.md` files make apps legible to AI
+The goal is not a disposable generated page. The goal is a real local app that can keep evolving through future AI sessions.
 
 ## Tech Stack
 
-- ⚛️ React 19
-- 🟦 TypeScript
-- ⚡ Vite
-- 🎨 Tailwind CSS
-- 🧱 Node.js backend APIs
-- 🗄️ SQLite via `better-sqlite3`
-- 🔌 WebSocket runtime channel
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Node.js backend APIs
+- SQLite via `better-sqlite3`
+- WebSocket runtime channel
 
 ## Project Layout
 
@@ -124,13 +90,13 @@ gui/              React desktop UI
 server/main/      core HTTP / WS APIs and system services
 server/apps/      app-specific backend modules
 server/shared/    shared backend utilities
-apps/             app-facing APP.md context files
-language/         locale source for UI text and app docs
+apps/             baked app-facing APP.md context files
+language/         locale source for UI text, prompts, and app docs
 scripts/          development and language-baking scripts
 skills/           bundled Codex skills
 ```
 
-Runtime output is intentionally kept out of git:
+Generated/runtime output is not source:
 
 ```text
 .aios/
@@ -140,38 +106,15 @@ gui/dist/
 node_modules/
 ```
 
-## Built-In Apps
-
-Current app surface includes:
-
-- 💬 Chat
-- 🪄 App Workshop
-- ✅ Tasks
-- 📓 Notebook
-- 📁 Files
-- 🧠 Memory
-- ⚙️ Settings
-- 🤖 Codex
-- 🧑‍💻 Claude Code
-- 📈 Finance
-- 📰 GitHub Trending
-- ₿ Crypto Bot
-
 ## Development
-
-Install dependencies:
 
 ```bash
 npm install
-```
-
-Start the English development workspace:
-
-```bash
 npm run dev
+npm run typecheck
 ```
 
-Start the Chinese development workspace:
+Chinese development build:
 
 ```bash
 npm run dev:zh
@@ -184,37 +127,16 @@ npm run build
 npm run build:zh
 ```
 
-Run TypeScript checks:
-
-```bash
-npm run typecheck
-```
-
 ## Language Baking
 
-Wandesk uses language source files under `language/<locale>/` and bakes them into the runtime workspace before development or build commands.
-
-The bake step is handled by:
+Wandesk uses source files under `language/<locale>/` and bakes them into the runtime workspace:
 
 ```bash
 tsx scripts/start.ts en --force
 tsx scripts/start.ts zh --force
 ```
 
-This writes runtime state under `.aios/` and generates app-facing docs under `apps/`. For clean local testing, run from a copied runtime workspace instead of committing generated state.
-
-## Repository Rules
-
-- Keep source code in `gui/`, `server/`, `language/`, `scripts/`, `apps/`, and `skills/`
-- Do not commit runtime data, databases, uploaded files, build output, or local model config
-- Treat `database/`, `files/`, `.aios/`, `gui/dist/`, and `node_modules/` as generated
-- Keep secrets out of the repository
-
-## Status
-
-Wandesk is an early open-source AI desktop/workbench project. The app creation loop, task layer, and agent workbenches are intentionally kept small and hackable so the system can evolve quickly.
-
-Contributions, experiments, and new app ideas are welcome. 🚀
+This generates runtime app docs under `apps/` and writes locale state under `.aios/`.
 
 ## Related
 
