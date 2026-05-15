@@ -4,69 +4,52 @@
 
 **Wandesk is an AI desktop where AI does more than chat: it can build new apps, and those apps can talk back to AI.**
 
-Most AI products and open-source projects still use conversation as the primary interaction model. Wandesk explores a different shape: a local desktop/workbench where chat, apps, files, memory, tasks, and coding agents live in one place.
-
-The important part is not the window chrome. The important part is the loop:
-
-> You describe what you need → AI helps create or modify an app → the app becomes part of your desktop → the app can call AI again when it needs reasoning, writing, analysis, or automation.
+Most AI products and open-source projects still use conversation as the primary interaction model. Wandesk starts from a different assumption: AI should not replace applications with one universal chat box. It should help people create, use, and coordinate real applications.
 
 ## Why Not Just Chat?
 
-Chat is powerful, but many real workflows still need a visible interface.
+Conversation is powerful. It is natural, low-friction, and good at expressing complex intent.
+
+But conversation alone is not enough. Many workflows still need GUI and applications, because work needs persistent shapes.
 
 A note should stay in a notebook. A task should stay on a board. A file should be browsable. A finance record should be editable in a table. A coding session should have history, settings, project context, and logs.
 
-Wandesk treats conversation and interface as partners:
+So Wandesk treats conversation and GUI as complementary:
 
-- 💬 **Chat is where intent begins**
-- 🪟 **Apps are where workflows live**
-- 🛠️ **AI can build or change those apps**
-- 🤖 **Apps can ask AI to do work through the task system**
-- 📁 **Files, data, prompts, and app docs stay inspectable locally**
+- 💬 chat is good for expressing intent
+- 🪟 apps are good for carrying workflows
+- 📁 files, data, and state need visible places to live
+- 🧠 AI should move through those places instead of flattening everything into a thread
 
-The result is not "one chat box for everything." It is a workspace where AI can create tools, use tools, and be called by tools.
+## Everyone Can Create Apps
 
-## The Core Loop
+If AI can write software, then app creation should become a normal part of personal computing.
 
-```text
-User idea
-  ↓
-Chat / App Workshop
-  ↓
-AI edits frontend + backend + app docs
-  ↓
-Wandesk reloads the desktop app surface
-  ↓
-The new app can store data, expose APIs, and call AI tasks
-```
+In Wandesk, you should be able to describe the app you want instead of searching for a generic tool that only partly fits.
 
-That is the difference between a prompt and a workbench. A prompt disappears into history; an app stays on your desktop and keeps working for you.
-
-## AI Creates Apps
-
-In Wandesk, creating an app should feel closer to describing a need than starting a software project.
-
-You can open Chat or App Workshop and say what you want:
+You can open Chat or App Workshop and say:
 
 ```text
 Create a lightweight CRM for tracking customers, follow-ups, next actions, and deal status.
 ```
 
-The AI workflow can then work on the app as code:
+AI can then work on the app as code:
 
 - 🪟 create the React UI under `gui/src/apps/<app>/`
 - 🧱 add backend APIs, services, and repositories under `server/apps/<app>/`
 - 🗄️ define local SQLite storage for app data
 - 🧩 write `APP.md` so the app is understandable to future AI sessions
-- 🔁 request a runtime reload so the new app appears in the desktop
+- 🔁 reload the runtime so the new app appears in the desktop
 
-The important part is that the result is not a throwaway generated page. It is meant to become a real Wandesk app: inspectable, editable, local, and able to keep evolving through later conversations.
+The result is not meant to be a disposable generated page. It is meant to become a real Wandesk app: local, inspectable, editable, and able to keep evolving through later conversations.
 
 ## Apps Can Talk To AI
 
-In a traditional app, the logic is fixed: click a button, run a function, update the UI.
+Traditional apps usually have fixed logic: click a button, run a function, update the UI.
 
-In Wandesk, an app can send intent to the system task layer and let AI handle the flexible part. For example:
+In Wandesk, an app can send intent to the system task layer and let AI handle the flexible part.
+
+For example:
 
 - A notebook app can ask AI to rewrite, summarize, or expand a note.
 - A finance app can ask AI to categorize records or explain spending.
@@ -80,13 +63,15 @@ POST /api/task/create/instant   short synchronous AI work
 POST /api/task/create/agent     longer agent work with tool use
 ```
 
-Apps can also use shared helpers such as `server/shared/apps/instantTask.ts` and `server/shared/apps/agentTask.ts` so AI becomes a native capability of the app, not a bolted-on chat widget.
+Apps can also use shared helpers such as `server/shared/apps/instantTask.ts` and `server/shared/apps/agentTask.ts`. AI becomes a native capability of the app, not a bolted-on chat widget.
 
-## AI Can Understand Apps
+## AI Can Operate Apps Natively
 
-Every app can carry an `APP.md` file that explains what the app is, where its frontend/backend/database live, and how it should be used.
+AI should also be able to operate applications more directly.
 
-That gives AI a direct contract:
+Most existing software was not designed for agents, so AI often has to imitate a human: look at the screen, parse the DOM, find buttons, click, type, and hope the UI did not change.
+
+Wandesk apps can expose a clearer contract. Every app can carry an `APP.md` file that explains what the app is, where its frontend/backend/database live, and how it should be used.
 
 ```text
 apps/<app>/APP.md          app-facing context
@@ -96,7 +81,7 @@ server/apps/<app>/         API, service, repository
 database/apps/<app>.db     app data at runtime
 ```
 
-Instead of blindly clicking around the UI, AI can read the app contract, call APIs, inspect source, and make targeted changes.
+Instead of blindly clicking around the UI, AI can read the app contract, call APIs, inspect source, and make targeted changes. That is the collaboration Wandesk is aiming for: people, apps, and AI working through the same local workspace.
 
 ## What Is Inside
 
