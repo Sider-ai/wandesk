@@ -42,6 +42,26 @@ The new app can store data, expose APIs, and call AI tasks
 
 That is the difference between a prompt and a workbench. A prompt disappears into history; an app stays on your desktop and keeps working for you.
 
+## AI Creates Apps
+
+In Wandesk, creating an app should feel closer to describing a need than starting a software project.
+
+You can open Chat or App Workshop and say what you want:
+
+```text
+Create a lightweight CRM for tracking customers, follow-ups, next actions, and deal status.
+```
+
+The AI workflow can then work on the app as code:
+
+- 🪟 create the React UI under `gui/src/apps/<app>/`
+- 🧱 add backend APIs, services, and repositories under `server/apps/<app>/`
+- 🗄️ define local SQLite storage for app data
+- 🧩 write `APP.md` so the app is understandable to future AI sessions
+- 🔁 request a runtime reload so the new app appears in the desktop
+
+The important part is that the result is not a throwaway generated page. It is meant to become a real Wandesk app: inspectable, editable, local, and able to keep evolving through later conversations.
+
 ## Apps Can Talk To AI
 
 In a traditional app, the logic is fixed: click a button, run a function, update the UI.
