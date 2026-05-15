@@ -10,8 +10,6 @@ The important part is not the window chrome. The important part is the loop:
 
 > You describe what you need → AI helps create or modify an app → the app becomes part of your desktop → the app can call AI again when it needs reasoning, writing, analysis, or automation.
 
-Wandesk grew from the broader AI operating-system direction explored in [realuckyang/AIOS](https://github.com/realuckyang/AIOS), but this repository focuses on a friendly, desktop-shaped workbench experience.
-
 ## Why Not Just Chat?
 
 Chat is powerful, but many real workflows still need a visible interface.
@@ -198,6 +196,10 @@ This writes runtime state under `.aios/` and generates app-facing docs under `ap
 Wandesk is an early open-source AI desktop/workbench project. The app creation loop, task layer, and agent workbenches are intentionally kept small and hackable so the system can evolve quickly.
 
 Contributions, experiments, and new app ideas are welcome. 🚀
+
+## Related
+
+- [realuckyang/AIOS](https://github.com/realuckyang/AIOS): a related exploration of AI operating-system ideas, app generation, and agent-native workflows.
 
 ## License
 
