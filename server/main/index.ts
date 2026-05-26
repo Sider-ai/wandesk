@@ -11,12 +11,16 @@ if (portArg && !/^\-\-port=\d+$/.test(portArg)) {
 const PORT = portArg ? Number(portArg.slice("--port=".length)) : 9502;
 process.env.AIOS_MAIN_PORT = String(PORT);
 
+// 默认只绑 127.0.0.1,避免桌面版被同局域网其他设备访问。
+// 云端 / Docker 部署可通过环境变量 AIOS_MAIN_HOST=0.0.0.0 暴露。
+const HOST = process.env.AIOS_MAIN_HOST || "127.0.0.1";
+
 initSystemDirs();
 initDatabase();
 exposeTokenToEnv();   // 启动时把 api_token 推到 process.env.AIOS_API_TOKEN
 setupWebSocket(httpServer);
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, HOST, () => {
   console.log(`🌱  AIOS is growing`);
-  console.log(`🌐  http://localhost:${PORT}`);
+  console.log(`🌐  http://${HOST}:${PORT}`);
 });
