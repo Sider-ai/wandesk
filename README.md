@@ -1,171 +1,194 @@
+<div align="center">
+
 # Wandesk
 
-[English](README.md) | [中文](README.zh-CN.md)
+**Give intelligence shape. Let AI sculpt your desktop.**
 
-**Wandesk is an open-source AI desktop and local workbench for agent-native apps.**
+An open-source AI desktop where you build the apps you need just by describing them. Plug in Claude Code, Codex, DeepSeek, OpenAI, Kimi, Qwen — anything OpenAI-compatible. Apps share context. AI remembers you. All local. No signup.
 
-AI should not only live in chat. Wandesk gives AI a desktop: windows, apps, files, memory, notebooks, ledgers, coding workbenches, and app creation tools. Chat remains important, but apps carry the workflows.
+[Website](https://wandesk.ai) · [中文](README.zh-CN.md) · [Discord](https://discord.gg/VUfTzCvz)
 
-## ✨ Highlights
+![Wandesk Chat](docs/images/wandesk-chat.png)
 
-- **AI desktop**: launcher, taskbar, windows, wallpaper, and local apps.
-- **App creation**: describe an app idea and let AI turn it into a local full-stack app.
-- **App-native AI**: apps can call AI for analysis, writing, summaries, code work, and longer agent tasks.
-- **Long-term memory**: reusable system and user context is stored as editable memories.
-- **Agent workbenches**: Claude Code and Codex-style spaces for projects, skills, MCP, history, settings, and account state.
-- **Local-first runtime**: React + TypeScript + Node.js APIs + SQLite.
+</div>
+
+---
 
 ## 🚀 Install
 
-Prerequisites: Git, Node.js 20+, and npm.
+> Prerequisites: Git, Node.js 20+, and npm.
 
-macOS:
+**macOS**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-macos.sh | sh
 ```
 
-Linux:
+**Linux**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-linux.sh | sh
 ```
 
-Windows PowerShell:
+**Windows PowerShell**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-windows.ps1 | iex"
 ```
 
-After installation, open:
+After installation, open <http://localhost:9502>.
 
-```text
-http://localhost:9502
-```
+> Prefer a packaged desktop app instead of `localhost`? Grab the macOS / Windows builds at **[wandesk.ai](https://wandesk.ai)**.
 
-## 🧠 Why Wandesk
+---
 
-Most AI tools start from conversation. Wandesk starts from work.
+## ✨ What Wandesk gives you
 
-Real work needs visible shapes: notes stay in notebooks, finance records stay in tables, files stay browsable, and coding sessions need projects, history, memory files, and logs. Wandesk lets AI move through those places instead of flattening everything into one chat thread.
+Not a smarter chat box. A real desktop your AI can live and work in.
 
-## 🪄 App Creation
+### 💬 Chat + Apps — your real AI workspace
 
-Wandesk apps are local, inspectable, and editable. A new app usually touches:
+The chat box is just the entry point. Real work happens in apps. Notebook, ledger, board, interactive fiction — each built for the long haul.
 
-```text
-gui/src/apps/<app>/          React UI
-server/apps/<app>/           API, service, repository
-language/<lang>/apps/<app>/  APP.md source
-apps/<app>/APP.md            baked runtime app context
-database/apps/<app>.db       runtime SQLite data
-```
+- Open chat, notebook, and ledger side by side — never flattened into one thread.
+- Notebook, Ledger, Chat, Memory, Open Source Radar — ready out of the box.
+- One consistent design language across every app.
+- Notes stay in the notebook, ledger entries in the ledger — never buried under a chat scroll.
 
-The goal is a real local app that can keep evolving through future AI sessions, not a disposable generated page.
+![Chat](docs/images/wandesk-chat.png)
 
-## 🖼️ Screenshots
+### 🪄 App Workshop — say it, get the app
 
-### Chat
+Own software without writing a line of code. Describe the feature you want and Wandesk generates a complete local app — UI, backend, database in one shot.
 
-![Wandesk Chat](docs/images/wandesk-chat.png)
+- React UI + backend API + SQLite storage generated together.
+- Fully local — no cloud dependency, works offline.
+- Keep talking to AI to iterate; edits apply in place.
+- No subscription, no ads, no cloud account lock-in.
 
-Chat is the intent layer of the desktop. It can use local context, inspect the workspace, call tools, and coordinate work with the rest of the system.
+![App Workshop](docs/images/wandesk-app-workshop.png)
 
-### App Workshop
+### ⚙️ AI Inside Every App — natively
 
-![Wandesk App Workshop](docs/images/wandesk-app-workshop.png)
+It is not just AI helping you from the outside. Every Wandesk app can fire AI tasks of its own.
 
-App Workshop turns an app idea into a concrete build request. Pick a template, describe the workflow, and let AI start creating the local app.
+- Ledger auto-tags expenses and writes monthly reports.
+- Notebook summarizes a week of notes from one sentence.
+- Interactive fiction continues itself, keeping characters consistent.
+- Apps generated by App Workshop inherit the same AI-calling power.
 
-### Notebook
+![Ledger](docs/images/wandesk-ledger.png)
 
-![Wandesk Notebook](docs/images/wandesk-notebook.png)
+### 🧠 Shared Context — what you just said, the apps already know
 
-Notebook keeps lightweight notes in a visual app instead of burying them inside a conversation thread.
+All apps share one agent core and one workspace.
 
-### Memory
+- Switch to any app, say *"save what we just discussed"* — it knows what you mean.
+- No clipboard ping-pong, no Zapier, no MCP bridge gymnastics.
+- Intent → AI → app, end to end.
 
-![Wandesk Memory](docs/images/wandesk-memory.png)
+![Notebook](docs/images/wandesk-notebook.png)
 
-Memory stores reusable long-term context for AI, including built-in guidance for how Wandesk apps are structured.
+### 📌 Personal Memory — the more you use it, the more it knows you
 
-### Claude Code Workbench
+Wandesk actively remembers your preferences, skills, and corrections.
 
-![Wandesk Claude Code](docs/images/wandesk-claude-code.png)
+- *"I use Swift + SwiftUI"* — tell it once, applies forever.
+- Corrected once, AI does not repeat the same mistake.
+- Package recurring routines into reusable **Skills**.
+- Every memory is inspectable — never a black box.
 
-Claude Code is presented as a desktop app with tabs for chat, projects, memory files, plans, history, skills, plugins, agents, MCP, stats, settings, and account state.
+![Memory](docs/images/wandesk-memory.png)
 
-### Ledger
+### 🤝 Agent Integration — Claude Code, Codex live in your desktop
 
-![Wandesk Ledger](docs/images/wandesk-ledger.png)
+The AI coding tools you already use become Wandesk apps. No window switching, no copy-paste, all agent collaboration in one place.
 
-Ledger shows how Wandesk can host ordinary GUI tools with their own data model, not just AI chat views.
+- If the `claude` or `codex` CLI is installed, Wandesk surfaces it as a desktop app.
+- External agents can operate Wandesk natively — send them one URL, they read your whole desktop.
+- Real code in real repos, not a simulation.
 
-### Open Source Radar
+![Claude Code](docs/images/wandesk-claude-code.png)
 
-![Wandesk Open Source Radar](docs/images/wandesk-open-source-radar.png)
+---
 
-Open Source Radar tracks trending GitHub projects and can ask AI to summarize or analyze selected repositories.
+## 🔌 Bring Your Own Model
 
-## 🧩 Built-In Apps
+Wandesk is provider-neutral. Plug in any AI you already use:
 
-- Chat
-- App Workshop
-- Tasks
-- Notebook
-- Files
-- Memory
-- Settings
-- Claude Code
-- Codex
-- Ledger
-- Open Source Radar
+- **DeepSeek**
+- **OpenAI**
+- **Anthropic / Claude**
+- **Google Gemini**
+- **Kimi (Moonshot)**
+- **Qwen (Alibaba)**
+- Any OpenAI-compatible endpoint
+
+Switch providers per-app from the Settings inside Wandesk.
+
+---
+
+## 🧩 Built-in Apps
+
+| App | Purpose |
+|---|---|
+| **Chat** | The intent layer — talk to AI with full workspace context |
+| **App Workshop** | Describe an app idea, get a real local app generated |
+| **Tasks** | Track ongoing agent tasks across the desktop |
+| **Notebook** | Lightweight notes that AI can read and write |
+| **Files** | Browse and operate on the local workspace |
+| **Memory** | Inspect and edit personal long-term memory |
+| **Settings** | Models, providers, language, theme |
+| **Claude Code** | Anthropic's coding workbench, wrapped as a desktop app |
+| **Codex** | OpenAI's Codex workbench, same treatment |
+| **Ledger** | Personal finance with AI auto-categorization |
+| **Open Source Radar** | Track and analyze trending GitHub projects |
+
+---
 
 ## 🏗️ Architecture
 
 ```text
-gui/              React desktop UI
-server/main/      core HTTP / WS APIs and system services
-server/apps/      app-specific backend modules
-server/shared/    shared backend utilities
-apps/             baked app-facing APP.md context files
-language/         locale source for UI text, prompts, and app docs
-scripts/          development and language-baking scripts
-skills/           bundled Codex skills
+gui/                React desktop UI (windows, taskbar, launcher, apps)
+server/main/        core HTTP / WebSocket APIs and system services
+server/apps/        app-specific backend modules
+server/shared/      shared backend utilities
+apps/               baked APP.md context files (per app)
+language/           locale source for UI text, prompts, and app docs
+scripts/            development and language-baking scripts
+skills/             bundled Codex skills
+docs/               documentation and images
 ```
 
-Generated/runtime output is not source:
+Generated and runtime output is **not** source — keep these out of git:
 
 ```text
-.aios/
-database/
-files/
-gui/dist/
+.aios/            runtime locale and config state
+database/         SQLite app data
+files/            user-side files
+gui/dist/         built frontend
 node_modules/
 ```
 
+---
+
 ## 🧱 Tech Stack
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- Node.js backend APIs
-- SQLite via `better-sqlite3`
-- WebSocket runtime channel
+- **Frontend**: React 19, TypeScript, Vite, Tailwind CSS
+- **Backend**: Node.js HTTP APIs + WebSocket runtime channel
+- **Storage**: SQLite via `better-sqlite3`
+- **Runtime ports**: main `9501`, apps `9502`
+- **Workspace data**: `~/Library/Application Support/com.vidline.aios.wandesk.client/workspace` (macOS); equivalent paths on Linux / Windows
+
+---
 
 ## 🛠️ Development
 
 ```bash
 npm install
-npm run dev
+npm run dev          # English locale dev
+npm run dev:zh       # Chinese locale dev
 npm run typecheck
-```
-
-Chinese development build:
-
-```bash
-npm run dev:zh
 ```
 
 Build frontend assets:
@@ -175,7 +198,7 @@ npm run build
 npm run build:zh
 ```
 
-## 🌐 Language Baking
+### Language baking
 
 Wandesk uses source files under `language/<locale>/` and bakes them into the runtime workspace:
 
@@ -184,12 +207,35 @@ tsx scripts/start.ts en --force
 tsx scripts/start.ts zh --force
 ```
 
-This generates runtime app docs under `apps/` and writes locale state under `.aios/`.
+This regenerates runtime app docs under `apps/` and locale state under `.aios/`.
+
+---
+
+## 🌐 Community
+
+- **Website**: <https://wandesk.ai>
+- **中文站**: <https://wandesk.cn>
+- **Discord**: <https://discord.gg/VUfTzCvz>
+- **Issues**: <https://github.com/Sider-ai/wandesk/issues>
+
+We accept PRs, bug reports, app ideas, locale contributions, and Skill submissions. For anything bigger than a small fix, open an issue first so we can talk through the shape of the change.
+
+---
 
 ## 🔗 Related
 
-- [realuckyang/AIOS](https://github.com/realuckyang/AIOS): exploring an operating system for the AI era.
+- [realuckyang/AIOS](https://github.com/realuckyang/AIOS) — earlier exploration of an operating system for the AI era.
+
+---
 
 ## 📄 License
 
 ISC
+
+---
+
+<div align="center">
+
+Built with care for people who want to grow their own AI desktop.
+
+</div>
