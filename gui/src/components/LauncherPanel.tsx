@@ -34,7 +34,7 @@ export default function LauncherPanel({ onOpen, onClose }: { onOpen: (appId: str
         autoFocus
         value={search}
         onChange={(event) => setSearch(event.target.value)}
-        placeholder="Search apps"
+        placeholder="__T_LAUNCHER_SEARCH_PLACEHOLDER__"
         className={`mb-2.5 h-9 w-full rounded-xl border px-3 text-[13px] outline-none ${dark ? "border-white/[0.10] bg-white/[0.08] text-white placeholder:text-white/35" : "border-black/[0.08] bg-white/70 text-[#222] placeholder:text-black/35"}`}
       />
       <div className="grid max-h-[360px] grid-cols-4 gap-2 overflow-y-auto pr-1">

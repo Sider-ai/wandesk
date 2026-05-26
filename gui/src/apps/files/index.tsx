@@ -184,7 +184,7 @@ export default function FilesApp() {
       await request("/api/fs/mkdir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root: FS_ROOT, path: buildPath(name.trim()) }) });
       await loadItems(currentPath);
     } catch (err) {
-      toast.show((err as Error).message || "创建失败", { type: "error" });
+      toast.show((err as Error).message || "__T_FILES_ERR_CREATE__", { type: "error" });
     }
   };
 
@@ -196,7 +196,7 @@ export default function FilesApp() {
       await request("/api/fs/write", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root: FS_ROOT, path: buildPath(name.trim()), content: "", create: true }) });
       await loadItems(currentPath);
     } catch (err) {
-      toast.show((err as Error).message || "创建失败", { type: "error" });
+      toast.show((err as Error).message || "__T_FILES_ERR_CREATE__", { type: "error" });
     }
   };
 
@@ -218,7 +218,7 @@ export default function FilesApp() {
       event.target.value = "";
       await loadItems(currentPath);
     } catch (err) {
-      toast.show((err as Error).message || "上传失败", { type: "error" });
+      toast.show((err as Error).message || "__T_FILES_ERR_UPLOAD__", { type: "error" });
     }
   };
 
@@ -231,7 +231,7 @@ export default function FilesApp() {
       windowManager.closeByKey(`file-view:${item.path}`);
       await loadItems(currentPath);
     } catch (err) {
-      toast.show((err as Error).message || "删除失败", { type: "error" });
+      toast.show((err as Error).message || "__T_FILES_ERR_DELETE__", { type: "error" });
     }
   };
 

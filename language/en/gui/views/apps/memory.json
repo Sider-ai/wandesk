@@ -43,5 +43,7 @@
   "memory_tab_pinned": "Pinned",
   "memory_tab_enabled": "Starred",
   "memory_tab_disabled": "Stored",
-  "memory_filter_empty": "No memories in this category"
+  "memory_filter_empty": "No memories in this category",
+  "memory_edit_name_placeholder": "Give this memory a name",
+  "memory_edit_summary_placeholder": "One-line summary of what this memory is for"
 }

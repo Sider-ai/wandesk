@@ -11,7 +11,7 @@
   "notebook_ai_assist": "AI 协助",
   "notebook_ai_loading": "AI 处理中...",
   "notebook_empty_card": "（空）",
-  "notebook_editor_placeholder": "在这里记下你的灵感碎片...",
+  "notebook_editor_placeholder": "在这里记录你的想法片段...",
   "notebook_just_now": "刚刚",
   "notebook_minutes_ago": "{n}分钟前",
   "notebook_hours_ago": "{n}小时前",
@@ -37,6 +37,6 @@
   "notebook_chat_quick_3": "帮我总结笔记要点",
   "app_sidebar_notebook": "记事本",
   "notebook_composer_placeholder": "写点什么...（Ctrl/Cmd + Enter 快速保存）",
-  "notebook_record": "记录"
-  ,"notebook_default_task_title": "笔记协助"
+  "notebook_record": "记录",
+  "notebook_default_task_title": "笔记协助"
 }

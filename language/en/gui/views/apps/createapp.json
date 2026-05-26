@@ -55,5 +55,6 @@
   "app_sidebar_create_app": "App Workshop",
   "createapp_title": "Create New App",
   "createapp_eyebrow": "App Workshop",
-  "createapp_empty_category": "No ideas in this category yet"
+  "createapp_empty_category": "No ideas in this category yet",
+  "createapp_input_placeholder": "Describe the app you want..."
 }

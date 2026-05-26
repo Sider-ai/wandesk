@@ -54,5 +54,6 @@
   "app_sidebar_settings": "设置",
   "settings_chat_quick_1": "当前的模型配置是什么",
   "settings_chat_quick_2": "帮我切换模型",
-  "settings_chat_quick_3": "系统有哪些可配置项"
+  "settings_chat_quick_3": "系统有哪些可配置项",
+  "launcher_search_placeholder": "搜索应用"
 }
