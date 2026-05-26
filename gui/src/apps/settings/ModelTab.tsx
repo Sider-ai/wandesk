@@ -27,7 +27,7 @@ export default function ModelTab({ provider, apiUrl, apiKey, model, providerGrou
       <div className="rounded-[13px] border px-4 py-4" style={{ background: "#fff", borderColor: "rgba(0,0,0,0.08)" }}>
         <div className="space-y-4">
           <div>
-            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>Provider</label>
+            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>__T_SETTINGS_PROVIDER__</label>
             <select
               value={provider}
               className="w-full cursor-pointer appearance-none rounded-[10px] border bg-[#faf8f5] px-[14px] py-[10px] pr-9 text-[13px] outline-none transition-colors focus:border-[#a07850] focus:bg-white"
@@ -43,25 +43,25 @@ export default function ModelTab({ provider, apiUrl, apiKey, model, providerGrou
           </div>
 
           <div>
-            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>Request URL</label>
+            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>__T_SETTINGS_API_URL__</label>
             <input value={apiUrl} placeholder="https://api.example.com/v1/chat/completions" className={inputClass} style={{ borderColor: "rgba(0,0,0,0.1)", color: "#2a1f13" }} onChange={(event) => onApiUrlChange(event.target.value)} />
           </div>
 
           <div>
-            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>Model Key</label>
+            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>__T_SETTINGS_API_KEY__</label>
             <input value={apiKey} type="password" placeholder="sk-..." className={inputClass} style={{ borderColor: "rgba(0,0,0,0.1)", color: "#2a1f13" }} onChange={(event) => onApiKeyChange(event.target.value)} />
           </div>
 
           <div>
-            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>Model</label>
-            <input value={model} placeholder="Enter a model name, for example gpt-4o" className={inputClass} style={{ borderColor: "rgba(0,0,0,0.1)", color: "#2a1f13" }} onChange={(event) => onModelChange(event.target.value)} />
+            <label className={labelClass} style={{ color: "rgba(0,0,0,0.35)" }}>__T_SETTINGS_MODEL__</label>
+            <input value={model} placeholder="__T_SETTINGS_MODEL_PLACEHOLDER__" className={inputClass} style={{ borderColor: "rgba(0,0,0,0.1)", color: "#2a1f13" }} onChange={(event) => onModelChange(event.target.value)} />
           </div>
         </div>
 
         <div className="mt-5 flex justify-end border-t pt-4" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
           <div className="flex items-center gap-3">
             {saveNotice?.message && <p className="text-[12px] font-medium" style={{ color: saveNotice.type === "error" ? "#b2452f" : "#6f7f4b" }}>{saveNotice.message}</p>}
-            <button className="rounded-[9px] bg-[#5c4332] px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#3d2a1e]" onClick={onSave}>Save</button>
+            <button className="rounded-[9px] bg-[#5c4332] px-5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#3d2a1e]" onClick={onSave}>__T_SETTINGS_SAVE__</button>
           </div>
         </div>
       </div>

@@ -31,6 +31,7 @@
   "settings_skills_source_project": "Project",
   "settings_skills_source_system": "System",
   "settings_skills_empty_group": "No skills are currently available.",
+  "settings_save": "Save",
   "settings_saved": "Configuration saved",
   "settings_save_failed": "Failed to save: {message}",
   "settings_saving": "Saving...",
