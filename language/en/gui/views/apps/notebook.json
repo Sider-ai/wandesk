@@ -37,6 +37,6 @@
   "notebook_chat_quick_3": "Help me summarize the key points of my notes",
   "app_sidebar_notebook": "Notebook",
   "notebook_composer_placeholder": "Write something... (Ctrl/Cmd + Enter to save)",
-  "notebook_record": "Record"
-  ,"notebook_default_task_title": "Note Assist"
+  "notebook_record": "Record",
+  "notebook_default_task_title": "Note Assist"
 }

@@ -29,5 +29,6 @@
   "finance_chat_quick_1": "帮我分析这个月的支出",
   "finance_chat_quick_2": "有哪些可以省的开支？",
   "finance_chat_quick_3": "生成本月财务小结",
-  "app_sidebar_finance": "记账本"
+  "app_sidebar_finance": "记账本",
+  "finance_ledger_note_placeholder": "摘要..."
 }

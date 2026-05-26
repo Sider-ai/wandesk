@@ -69,7 +69,7 @@ export default function NotebookEditorView({
             value={editorDraft}
             onChange={(event) => setEditorDraft(event.target.value)}
             className={`absolute inset-0 resize-none border-none bg-transparent pb-4 pl-[55px] pr-4 pt-[50px] font-['Comic_Sans_MS','Chalkboard_SE',cursive] text-lg leading-[30px] tracking-wide outline-none placeholder:italic placeholder:opacity-30 ${style.inkCls}`}
-            placeholder="Capture your idea fragments here..."
+            placeholder="__T_NOTEBOOK_EDITOR_PLACEHOLDER__"
             spellCheck={false}
             autoFocus
           />

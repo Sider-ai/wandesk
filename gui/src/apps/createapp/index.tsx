@@ -132,7 +132,7 @@ export default function CreateAppApp() {
             value={prompt}
             rows={3}
             className="prompt-input w-full resize-none border bg-white px-4 py-3.5 pr-[120px] text-[13.5px] leading-[1.65] text-[#17212b] outline-none transition placeholder:text-[#9aa7b4]"
-            placeholder="Describe the app you want..."
+            placeholder="__T_CREATEAPP_INPUT_PLACEHOLDER__"
             onChange={(event) => setPrompt(event.target.value)}
             onCompositionStart={() => setComposing(true)}
             onCompositionEnd={() => setComposing(false)}

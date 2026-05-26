@@ -55,5 +55,6 @@
   "app_sidebar_create_app": "应用工坊",
   "createapp_title": "创建新应用",
   "createapp_eyebrow": "App Workshop",
-  "createapp_empty_category": "这个分类暂时还没有灵感"
+  "createapp_empty_category": "这个分类暂时还没有灵感",
+  "createapp_input_placeholder": "描述你想要的应用..."
 }

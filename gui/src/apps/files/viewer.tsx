@@ -43,7 +43,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
       setContent(next);
       setOriginal(next);
     } catch (err) {
-      setErrorMessage((err as Error).message || "读取失败");
+      setErrorMessage((err as Error).message || "__T_FILES_ERR_READ__");
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
       });
       setOriginal(content);
     } catch (err) {
-      setErrorMessage((err as Error).message || "保存失败");
+      setErrorMessage((err as Error).message || "__T_FILES_ERR_SAVE__");
     } finally {
       setSaving(false);
     }
@@ -101,7 +101,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
         </div>
         <div className="flex h-8 shrink-0 items-center gap-3 border-t px-4" style={{ borderColor: "rgba(0,0,0,0.06)", background: "rgba(234,228,218,0.6)" }}>
           <div className="h-1.5 w-1.5 rounded-full transition-opacity" style={{ background: "#c9a56e", opacity: dirty ? 1 : 0 }} />
-          <span className="text-[10.5px] tabular-nums" style={{ color: "rgba(0,0,0,0.35)" }}>{content.length} 字符</span>
+          <span className="text-[10.5px] tabular-nums" style={{ color: "rgba(0,0,0,0.35)" }}>{content.length} __T_FILES_VIEWER_CHAR_UNIT__</span>
           <div className="flex-1" />
           <button className="rounded-full px-4 text-[11.5px] font-semibold text-white transition disabled:opacity-40" style={{ height: 22, background: "#5c4332", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }} disabled={saving || !dirty} onClick={saveFile}>
             {saving ? "Saving..." : "Save"}
@@ -125,7 +125,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
     <div className="flex h-full flex-col items-center justify-center gap-3 bg-[#faf8f4]">
       <div className="text-[40px] opacity-40">📄</div>
       <div className="text-[13px] font-semibold text-[#2a1f13]">{fileName}</div>
-      <div className="text-[11.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>此文件类型暂不支持直接查看</div>
+      <div className="text-[11.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>__T_FILES_VIEWER_UNSUPPORTED__</div>
       <button className="mt-1 rounded-full px-4 py-1.5 text-[11.5px] font-semibold text-white" style={{ background: "#5c4332", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }} onClick={downloadFile}>Download</button>
     </div>
   );

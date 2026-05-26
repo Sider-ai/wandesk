@@ -29,5 +29,6 @@
   "finance_chat_quick_1": "Help me analyze this month's expenses",
   "finance_chat_quick_2": "What spending can I cut back on?",
   "finance_chat_quick_3": "Generate a financial summary for this month",
-  "app_sidebar_finance": "Ledger"
+  "app_sidebar_finance": "Ledger",
+  "finance_ledger_note_placeholder": "Summary..."
 }

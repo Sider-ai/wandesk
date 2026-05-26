@@ -43,5 +43,7 @@
   "memory_tab_pinned": "必读",
   "memory_tab_enabled": "星标",
   "memory_tab_disabled": "已存",
-  "memory_filter_empty": "当前分类下没有记忆"
+  "memory_filter_empty": "当前分类下没有记忆",
+  "memory_edit_name_placeholder": "给这条记忆起个名字",
+  "memory_edit_summary_placeholder": "一句话说明这条记忆的用途"
 }

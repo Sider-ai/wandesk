@@ -32,6 +32,13 @@
   "files_empty": "No files yet",
   "files_drop_hint": "Drag and drop files here to upload",
   "files_uploading": "Uploading",
+  "files_err_create": "Failed to create",
+  "files_err_upload": "Failed to upload",
+  "files_err_delete": "Failed to delete",
+  "files_err_read": "Failed to read",
+  "files_err_save": "Failed to save",
+  "files_viewer_char_unit": "chars",
+  "files_viewer_unsupported": "This file type cannot be previewed directly",
   "files_chat_quick_1": "Help me organize the file directory",
   "files_chat_quick_2": "Find the files uploaded recently",
   "files_chat_quick_3": "Clean up temporary files"

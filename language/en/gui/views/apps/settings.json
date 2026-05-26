@@ -54,5 +54,6 @@
   "app_sidebar_settings": "Settings",
   "settings_chat_quick_1": "What is the current model configuration",
   "settings_chat_quick_2": "Help me switch models",
-  "settings_chat_quick_3": "What settings can be configured"
+  "settings_chat_quick_3": "What settings can be configured",
+  "launcher_search_placeholder": "Search apps"
 }
