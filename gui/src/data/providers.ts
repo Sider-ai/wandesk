@@ -1,10 +1,10 @@
 export type ProviderGroup = { id: string; name: string };
 export type ProviderItem = { id: string; name: string; group: string; apiUrl: string; defaultModel: string; keyUrl: string };
 export const PROVIDER_GROUPS = [
-  { id: "default", name: "默认" },
-  { id: "aggregator", name: "聚合平台" },
-  { id: "coding", name: "Coding Plan" },
-  { id: "custom", name: "自定义" }
+  { id: "default", name: "__T_PROVIDER_GROUP_DEFAULT__" },
+  { id: "aggregator", name: "__T_PROVIDER_GROUP_AGGREGATOR__" },
+  { id: "coding", name: "__T_PROVIDER_GROUP_CODING__" },
+  { id: "custom", name: "__T_PROVIDER_GROUP_CUSTOM__" }
 ];
 export const PROVIDERS = [
   // 默认
@@ -58,7 +58,7 @@ export const PROVIDERS = [
   },
   {
     id: "qwen",
-    name: "Qwen (通义千问)",
+    name: "__T_PROVIDER_QWEN__",
     group: "default",
     apiUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     defaultModel: "qwen3.6-plus",
@@ -66,7 +66,7 @@ export const PROVIDERS = [
   },
   {
     id: "glm",
-    name: "GLM (智谱)",
+    name: "__T_PROVIDER_GLM__",
     group: "default",
     apiUrl: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
     defaultModel: "glm-5",
@@ -82,7 +82,7 @@ export const PROVIDERS = [
   },
   {
     id: "kimi",
-    name: "Kimi (月之暗面)",
+    name: "__T_PROVIDER_KIMI__",
     group: "default",
     apiUrl: "https://api.moonshot.cn/v1/chat/completions",
     defaultModel: "kimi-2.6",
@@ -90,7 +90,7 @@ export const PROVIDERS = [
   },
   {
     id: "stepfun",
-    name: "StepFun (阶跃星辰)",
+    name: "__T_PROVIDER_STEPFUN__",
     group: "default",
     apiUrl: "https://api.stepfun.com/v1/chat/completions",
     defaultModel: "step-3.5-flash",
@@ -106,7 +106,7 @@ export const PROVIDERS = [
   },
   {
     id: "doubao",
-    name: "Doubao (豆包)",
+    name: "__T_PROVIDER_DOUBAO__",
     group: "default",
     apiUrl: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
     defaultModel: "doubao-seed-2-0-pro-260215",
@@ -140,7 +140,7 @@ export const PROVIDERS = [
   // Coding Plan
   {
     id: "glm-coding",
-    name: "智谱 Coding Plan",
+    name: "__T_PROVIDER_ZHIPU_CODING__",
     group: "coding",
     apiUrl: "https://open.bigmodel.cn/api/coding/paas/v4/chat/completions",
     defaultModel: "glm-5",
@@ -148,7 +148,7 @@ export const PROVIDERS = [
   },
   {
     id: "aliyun-coding",
-    name: "阿里云 Coding Plan",
+    name: "__T_PROVIDER_ALIYUN_CODING__",
     group: "coding",
     apiUrl: "https://coding.dashscope.aliyuncs.com/v1/chat/completions",
     defaultModel: "qwen3-coder-plus",
@@ -156,7 +156,7 @@ export const PROVIDERS = [
   },
   {
     id: "ark-coding",
-    name: "火山引擎 Coding Plan",
+    name: "__T_PROVIDER_VOLCANO_CODING__",
     group: "coding",
     apiUrl: "https://ark.cn-beijing.volces.com/api/coding/v3/chat/completions",
     defaultModel: "doubao-seed-2.0-pro",
@@ -164,7 +164,7 @@ export const PROVIDERS = [
   },
   {
     id: "tencent-coding",
-    name: "腾讯云 Coding Plan",
+    name: "__T_PROVIDER_TENCENT_CODING__",
     group: "coding",
     apiUrl: "https://api.lkeap.cloud.tencent.com/coding/v3/chat/completions",
     defaultModel: "minimax-m2.5",
@@ -172,7 +172,7 @@ export const PROVIDERS = [
   },
   {
     id: "jdcloud-coding",
-    name: "京东云 Coding Plan",
+    name: "__T_PROVIDER_JD_CODING__",
     group: "coding",
     apiUrl: "https://modelservice.jdcloud.com/coding/openai/v1/chat/completions",
     defaultModel: "Kimi-K2.5",
@@ -180,7 +180,7 @@ export const PROVIDERS = [
   },
   {
     id: "kimi-coding",
-    name: "Kimi Coding Plan",
+    name: "__T_PROVIDER_KIMI_CODING__",
     group: "coding",
     apiUrl: "https://api.kimi.com/coding/v1/chat/completions",
     defaultModel: "kimi-for-coding",
@@ -189,7 +189,7 @@ export const PROVIDERS = [
   // 自定义
   {
     id: "custom",
-    name: "自定义",
+    name: "__T_PROVIDER_CUSTOM__",
     group: "custom",
     apiUrl: "",
     defaultModel: "",
