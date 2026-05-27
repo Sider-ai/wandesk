@@ -8,7 +8,7 @@
 
 [官网](https://wandesk.ai) · [English](README.md) · [Discord](https://discord.gg/VUfTzCvz)
 
-![Wandesk Chat](docs/images/wandesk-chat.png)
+![Wandesk Chat](docs/images/wandesk-chat.webp)
 
 </div>
 
@@ -55,7 +55,7 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 - 所有应用界面风格一致,学一次就会。
 - 笔记就在笔记本里,账本就在账本里,不会被对话埋掉。
 
-![Chat](docs/images/wandesk-chat.png)
+![Chat](docs/images/wandesk-chat.webp)
 
 ### 🪄 App Workshop —— 说一句话,就有一个应用
 
@@ -66,7 +66,7 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 - 用着不顺手?继续跟 AI 说,它接着改。
 - 没有订阅、没有广告、没有云端账号锁定。
 
-![App Workshop](docs/images/wandesk-app-workshop.png)
+![App Workshop](docs/images/wandesk-app-workshop.webp)
 
 ### ⚙️ 每一个应用,都能调用 AI
 
@@ -77,7 +77,7 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 - 互动小说自动续写,主动查询历史设定,保持人物一致性。
 - App Workshop 生成的应用,天生具备 AI 调用能力。
 
-![Ledger](docs/images/wandesk-ledger.png)
+![Ledger](docs/images/wandesk-ledger.webp)
 
 ### 🧠 上下文贯通 —— 你刚说的,应用已经知道
 
@@ -87,7 +87,7 @@ powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.c
 - 不需要剪贴板、不需要 Zapier、不需要 MCP 桥接。
 - 意图 → AI → 应用,中间没有复制粘贴。
 
-![Notebook](docs/images/wandesk-notebook.png)
+![Notebook](docs/images/wandesk-notebook.webp)
 
 ### 📌 记忆沉淀 —— 用得越多,越懂你
 
@@ -98,7 +98,7 @@ Wandesk 会主动记住你的偏好、技能和纠错。
 - 常做的事可以打包成可复用的 **Skill**。
 - 所有记忆都可见,不是黑盒。
 
-![Memory](docs/images/wandesk-memory.png)
+![Memory](docs/images/wandesk-memory.webp)
 
 ### 🤝 Claude Code、Codex —— 都在你的桌面里
 
@@ -108,7 +108,7 @@ Wandesk 会主动记住你的偏好、技能和纠错。
 - 外部 agent 也能原生操作 Wandesk —— 把一个链接发给它,它就能读懂整个桌面。
 - 在真实代码、真实仓库里改文件,不是模拟。
 
-![Claude Code](docs/images/wandesk-claude-code.png)
+![Claude Code](docs/images/wandesk-claude-code.webp)
 
 ---
 
