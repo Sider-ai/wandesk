@@ -5,14 +5,14 @@ type Locale = "en" | "zh";
 
 const texts = {
   en: {
-    welcome_title: "Welcome to AIOS",
+    welcome_title: "Welcome to Wandesk",
     welcome_subline: "Let AI become your operating system. Complete tasks, build your own apps, and create your personal digital workspace.",
     get_key: "Get API Key",
     manual_panel_label: "Model API",
     agents_panel_label: "Code Agent",
-    agents_intro: "You can use external agents such as Claude Code, Codex, and Antigravity to drive AIOS.",
+    agents_intro: "You can use external agents such as Claude Code, Codex, and Antigravity to drive Wandesk.",
     agents_message_hint: "Message to send to the agent",
-    agents_message_template: "Please read the content at the link below to understand the AIOS architecture, available apps, and invocation flow, then take over orchestration and help me complete the following tasks.\n\nhttp://127.0.0.1:9502/welcome",
+    agents_message_template: "Please read the content at the link below to understand the Wandesk architecture, available apps, and invocation flow, then take over orchestration and help me complete the following tasks.\n\nhttp://127.0.0.1:9502/welcome",
     enter_desktop_later: "Set up later and enter desktop",
     provider: "Provider",
     model_label: "Model",
@@ -27,20 +27,20 @@ const texts = {
     err_model_required: "Please enter a model name",
     err_save: "Failed to save model settings",
     err_test: "Model connection test failed",
-    default_intro: "Hello, I am AIOS.\n\nNice to meet you. I am an AI-driven personal operating system that can build apps, run tasks, and manage information for you - all locally, all under your control.\n\nLet us begin.",
+    default_intro: "Hello, I am Wandesk.\n\nNice to meet you. I am an AI-driven personal operating system that can build apps, run tasks, and manage information for you - all locally, all under your control.\n\nLet us begin.",
     prompt_intro: "Generate the initial welcome introduction.",
-    prompt_system: "You are AIOS, an AI-driven personal operating system. This is the first launch after initialization. Write a short self-introduction in 3-5 natural sentences. Tell the user what you can do and what makes you different.",
+    prompt_system: "You are Wandesk, an AI-driven personal operating system. This is the first launch after initialization. Write a short self-introduction in 3-5 natural sentences. Tell the user what you can do and what makes you different.",
     prompt_user: "Follow the requirements above and output only JSON: {\"intro\":\"...\"}"
   },
   zh: {
-    welcome_title: "欢迎使用 AIOS",
+    welcome_title: "欢迎使用 Wandesk",
     welcome_subline: "让 AI 成为你的操作系统。完成各种任务，构建你的专属应用，创造你自己的数字空间。",
     get_key: "获取 API Key",
     manual_panel_label: "大模型 API",
     agents_panel_label: "Code Agent",
-    agents_intro: "你可以用 Claude Code、Codex、Antigravity 等外部 agent 来驱动 AIOS。",
+    agents_intro: "你可以用 Claude Code、Codex、Antigravity 等外部 agent 来驱动 Wandesk。",
     agents_message_hint: "发送给 agent 的消息",
-    agents_message_template: "请读取下面这个链接的内容，了解 AIOS 的系统架构、可用应用和调用方式，然后接管调度，帮我完成后续任务。\n\nhttp://127.0.0.1:9502/welcome",
+    agents_message_template: "请读取下面这个链接的内容，了解 Wandesk 的系统架构、可用应用和调用方式，然后接管调度，帮我完成后续任务。\n\nhttp://127.0.0.1:9502/welcome",
     enter_desktop_later: "稍后设置，进入桌面",
     provider: "供应商",
     model_label: "模型",
@@ -55,9 +55,9 @@ const texts = {
     err_model_required: "请填写模型名称",
     err_save: "模型配置保存失败",
     err_test: "模型连通测试失败",
-    default_intro: "你好，我是 AIOS。\n\n很高兴认识你。我是一个 AI 驱动的个人操作系统，可以根据你的需求构建应用、执行任务、管理信息--一切都在本地运行，属于你。\n\n我们开始吧。",
+    default_intro: "你好,我是 Wandesk。\n\n很高兴认识你。我是一个 AI 驱动的个人操作系统，可以根据你的需求构建应用、执行任务、管理信息--一切都在本地运行，属于你。\n\n我们开始吧。",
     prompt_intro: "生成初始化欢迎介绍。",
-    prompt_system: "你是 AIOS，一个 AI 驱动的个人操作系统。现在是初始化完成后的第一次启动，请做一段简短的自我介绍（3-5句），像第一次见面打招呼一样自然。告诉用户你能做什么、你的特点。",
+    prompt_system: "你是 Wandesk，一个 AI 驱动的个人操作系统。现在是初始化完成后的第一次启动，请做一段简短的自我介绍（3-5句），像第一次见面打招呼一样自然。告诉用户你能做什么、你的特点。",
     prompt_user: "请按上述要求做一段简短的自我介绍，只输出 JSON：{\"intro\":\"...\"}。"
   }
 };
