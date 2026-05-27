@@ -51,3 +51,6 @@ debug/
 .agents
 .agent
 skills-lock.json
+
+# 运行时烘焙产物,不入 git
+/apps/
