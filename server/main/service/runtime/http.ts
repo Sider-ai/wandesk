@@ -4,7 +4,6 @@ import { join, extname } from "path";
 import { handleApiRequest } from "../../api/index.js";
 import { json } from "../../../shared/http/json.js";
 import { isAuthenticated, isConfigured, isPublicApiPath } from "../auth/session.js";
-import { handleWelcome } from "../system/welcome.js";
 const ROOT_DIR = process.cwd();
 const PUBLIC_DIR = join(ROOT_DIR, "gui", "dist");
 const DEV_FRONTEND_ORIGIN = process.env.AIOS_DEV_FRONTEND === "1"
@@ -161,11 +160,6 @@ const httpServer = createServer(async (req, res) => {
   }
   if (url.pathname.startsWith("/api/")) {
     await handleApiRequest(req, res, url);
-    return;
-  }
-  // /welcome 是给外部 agent 用的公开架构图(JSON),不走 SPA fallback
-  if (url.pathname === "/welcome" || url.pathname === "/welcome/") {
-    handleWelcome(req, res);
     return;
   }
   if (DEV_FRONTEND_ORIGIN) {
