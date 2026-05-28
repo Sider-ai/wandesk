@@ -51,7 +51,7 @@ const createMemory = ({ title, description = "", content, enabled = true, pinned
         enabled ? 1 : 0,
         pinned ? 1 : 0
     );
-    return getMemory(ret.lastInsertRowid);
+    return getMemory(Number(ret.lastInsertRowid));
 };
 
 const updateMemory = (id, patch: any = {}) => {

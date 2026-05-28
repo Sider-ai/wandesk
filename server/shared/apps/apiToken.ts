@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -18,7 +18,7 @@ const getApiToken = () => {
     return cached;
   }
   try {
-    const db = new Database(mainDbPath, { readonly: true });
+    const db = new DatabaseSync(mainDbPath, { readOnly: true });
     const row: any = db.prepare("SELECT api_token FROM auth WHERE id = 1").get();
     db.close();
     cached = row?.api_token || "";

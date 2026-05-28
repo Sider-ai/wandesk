@@ -23,10 +23,12 @@
   ],
   "author": "Sider AI",
   "license": "ISC",
+  "engines": {
+    "node": ">=22.5"
+  },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
     "@tailwindcss/vite": "^4.1.18",
-    "better-sqlite3": "^12.6.2",
     "lucide-react": "^0.576.0",
     "marked": "^17.0.2",
     "react": "^19.2.3",
@@ -39,7 +41,6 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.10.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

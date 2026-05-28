@@ -6,7 +6,7 @@ const insertConversation = ({ sessionId, cwd, permissionMode = "default", title 
       "INSERT INTO cc_conversations (session_id, cwd, permission_mode, title) VALUES (?, ?, ?, ?)"
     )
     .run(sessionId, cwd, permissionMode, title);
-  return info.lastInsertRowid;
+  return Number(info.lastInsertRowid);
 };
 
 const getConversationBySessionId = (sessionId) => {
