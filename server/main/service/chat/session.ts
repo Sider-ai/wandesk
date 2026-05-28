@@ -1,10 +1,10 @@
 import { chat } from "../../ai/handler.js";
-import { getSettings } from "../../service/settings/get.js";
-import { buildSystemPrompt } from "../../service/prompt/index.js";
-import { injectAttachmentsMessage } from "../../service/chat/attachments.js";
-import { getMessages, saveMessage } from "../../service/chat/store.js";
-import { hasChat, setChatState } from "../../service/chat/conversations.js";
-import { extractRemark, createRemarkStreamFilter } from "../../service/chat/remarks.js";
+import { getSettings } from "../settings/get.js";
+import { buildSystemPrompt } from "../prompt/index.js";
+import { injectAttachmentsMessage } from "./attachments.js";
+import { getMessages, saveMessage } from "./store.js";
+import { hasChat, setChatState } from "./conversations.js";
+import { extractRemark, createRemarkStreamFilter } from "./remarks.js";
 const createSession = (wsSend) => {
   const conversations = /* @__PURE__ */ new Map();
   const handleMessage = async (data) => {

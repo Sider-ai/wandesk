@@ -139,13 +139,15 @@ export default function WelcomeView() {
       body: JSON.stringify({
         app: "setup",
         title: t.prompt_intro,
-        prompt: t.prompt_intro,
-        schema: { required: ["intro"] },
-        messages: [
-          { role: "system", content: "只输出 JSON：{\"intro\":\"...\"}" },
-          { role: "system", content: t.prompt_system },
-          { role: "user", content: t.prompt_user }
-        ]
+        payload: {
+          prompt: t.prompt_intro,
+          schema: { required: ["intro"] },
+          messages: [
+            { role: "system", content: "只输出 JSON：{\"intro\":\"...\"}" },
+            { role: "system", content: t.prompt_system },
+            { role: "user", content: t.prompt_user }
+          ]
+        }
       })
     });
     const testData = await testRes.json();
