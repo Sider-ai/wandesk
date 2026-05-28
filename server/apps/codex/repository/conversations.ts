@@ -4,7 +4,7 @@ const insertConversation = ({ sessionId, cwd, permissionMode = "workspaceWrite",
   const info = db
     .prepare("INSERT INTO codex_conversations (session_id, cwd, permission_mode, title) VALUES (?, ?, ?, ?)")
     .run(sessionId, cwd, permissionMode, title);
-  return info.lastInsertRowid;
+  return Number(info.lastInsertRowid);
 };
 
 const getConversationBySessionId = (sessionId) => {

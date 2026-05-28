@@ -108,7 +108,7 @@ const seedAppCreationGuideMemory = () => {
   `).run(title, description, content);
   db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)").run(
     APP_CREATION_GUIDE_SEED_KEY,
-    String(ret.lastInsertRowid)
+    String(Number(ret.lastInsertRowid))
   );
 };
 

@@ -25,7 +25,7 @@ const saveNote = (input) => {
   const info = db.prepare(
     "INSERT INTO apps_notes (title, body, pinned, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
   ).run(title, body, pinned, ts, ts);
-  return getNote(info.lastInsertRowid);
+  return getNote(Number(info.lastInsertRowid));
 };
 
 const setPinned = (id, pinned) => {

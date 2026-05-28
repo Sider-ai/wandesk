@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "fs";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
@@ -7,8 +7,8 @@ const root = resolve(__dirname, "..", "..", "..", "..");
 const dir = join(root, "database", "apps");
 mkdirSync(dir, { recursive: true });
 const createAppDb = (filename): any => {
-  const db: any = new Database(join(dir, filename));
-  db.pragma("journal_mode = WAL");
+  const db: any = new DatabaseSync(join(dir, filename));
+  db.exec("PRAGMA journal_mode = WAL");
   return db;
 };
 export {
