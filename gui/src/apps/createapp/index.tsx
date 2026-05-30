@@ -41,36 +41,36 @@ type Template = {
 };
 
 const categories = [
-  { key: "all", icon: Layers3, label: "All", color: "#334155" },
-  { key: "ai", icon: Brain, label: "AI-Powered", color: "#4f46e5" },
-  { key: "tool", icon: Wrench, label: "Tools", color: "#0369a1" },
-  { key: "game", icon: Gamepad2, label: "Games", color: "#7c3aed" },
-  { key: "life", icon: Leaf, label: "Life", color: "#15803d" },
-  { key: "business", icon: BriefcaseBusiness, label: "Business", color: "#b45309" },
-  { key: "productivity", icon: Zap, label: "Productivity", color: "#0e7490" }
+  { key: "all", icon: Layers3, label: "__T_CREATEAPP_CAT_ALL__", color: "#334155" },
+  { key: "ai", icon: Brain, label: "__T_CREATEAPP_CAT_AI__", color: "#4f46e5" },
+  { key: "tool", icon: Wrench, label: "__T_CREATEAPP_CAT_TOOL__", color: "#0369a1" },
+  { key: "game", icon: Gamepad2, label: "__T_CREATEAPP_CAT_GAME__", color: "#7c3aed" },
+  { key: "life", icon: Leaf, label: "__T_CREATEAPP_CAT_LIFE__", color: "#15803d" },
+  { key: "business", icon: BriefcaseBusiness, label: "__T_CREATEAPP_CAT_BUSINESS__", color: "#b45309" },
+  { key: "productivity", icon: Zap, label: "__T_CREATEAPP_CAT_PRODUCTIVITY__", color: "#0e7490" }
 ];
 
 const templates: Template[] = [
-  { cat: "ai", icon: ChartNoAxesCombined, name: "Competitor Analysis", desc: "Create a competitor analysis app that supports entering multiple competitor names, product positioning, pricing, core features, and target users, then automatically generates comparison tables, strengths and weaknesses summaries, differentiation suggestions, and actionable go-to-market angles. The interface should be clear and suitable for strategy work." },
-  { cat: "ai", icon: PenLine, name: "Marketing Copy", desc: "Create an AI copywriting workspace that accepts product details, target users, publishing channels, and tone of voice, then generates headlines, short copy, long copy, selling-point summaries, and multiple rewrite variants. It should also support favorites, copy, and template switching by scenario." },
-  { cat: "ai", icon: ClipboardList, name: "Proposal Generator", desc: "Create a proposal generation app that accepts client background, project goals, budget range, timeline, and execution plan, then organizes them into a structured proposal including project overview, deliverables, schedule, pricing notes, and risk reminders." },
-  { cat: "ai", icon: UsersRound, name: "Mock Interview", desc: "Create an interview assistant app that supports role descriptions, candidate resumes, interview stages, and focus areas, then automatically generates interview questions, follow-up suggestions, scoring dimensions, candidate evaluation notes, and a final conclusion for hiring workflows." },
-  { cat: "ai", icon: Map, name: "Mind Map", desc: "Create a mind map app that can break down a topic into subtopics, key questions, action suggestions, and hierarchy after the user enters a theme. It should support card or tree views, manual node editing, collapse and expand, and outline export." },
-  { cat: "ai", icon: Drama, name: "User Persona", desc: "Create a persona builder app that generates character cards from user segment, age, occupation, spending power, needs, and pain points, including typical scenarios, behavior patterns, decision factors, common objections, and product opportunity areas." },
-  { cat: "tool", icon: KeyRound, name: "Password Generator", desc: "Create a password utility app that supports high-strength password generation, batch generation, custom length and character rules, password strength scoring, template switching, and one-click copy. The interface should feel simple, secure, and efficient." },
-  { cat: "tool", icon: Palette, name: "Color Studio", desc: "Create a color tool app that generates palettes from a primary color, including complementary colors, analogous colors, gradients, light and dark scales, and real UI usage examples for buttons, backgrounds, and text. It should support one-click copy for HEX and RGB values." },
-  { cat: "tool", icon: Regex, name: "Regex Debugger", desc: "Create a regular expression tool app that supports real-time matching against input text and rules, displays matched results, highlighted fragments, group information, and common rule examples, and includes a test area, explanation area, and error states." },
-  { cat: "game", icon: Gamepad2, name: "Snake", desc: "Create a Snake game with keyboard controls, scoring, increasing speed, restart, pause, and basic mobile adaptation. The overall style should feel a bit retro rather than generic, and the controls and animation should be smooth." },
-  { cat: "game", icon: PanelsTopLeft, name: "Memory Match", desc: "Create a memory card game with multiple difficulty levels, a timer, move counts, completion results, and restart support. The cards should look playful, the flip animation should be clear, and the game should suit a light casual scenario." },
-  { cat: "game", icon: Swords, name: "Text Adventure", desc: "Create a text adventure game with character status, branching storylines, item collection, dialogue progression, and key choices. The interface should feel atmospheric so the user feels like they are inside an interactive novel rather than a plain form." },
-  { cat: "life", icon: CookingPot, name: "Recipe Finder", desc: "Create a recipe app that supports filtering by ingredients, flavor, and cooking style, displays steps, prep time, difficulty, quantity lists, and favorites, and also allows users to save their own recipes." },
-  { cat: "life", icon: Timer, name: "Countdown", desc: "Create a countdown app that supports multiple event cards, target date settings, remaining time display, progress bars, reminder copy, and categories for important dates such as birthdays, travel, exams, and project deadlines." },
-  { cat: "business", icon: Package, name: "Inventory Manager", desc: "Create an inventory management app that supports product lists, categories, SKUs, stock in and out, current inventory, stock alerts, supplier info, and search and filtering. It should include clear data tables and smooth create and edit flows." },
-  { cat: "business", icon: ReceiptText, name: "Quote Generator", desc: "Create a quotation app that supports customer info, project name, line items, quantity, tax rate, notes, and validity period, then automatically calculates totals and generates a professional quotation sheet for business communication and pricing." },
-  { cat: "business", icon: UsersRound, name: "Customer Follow-up Board", desc: "Create a customer follow-up app that supports customer profiles, source channels, follow-up stages, owners, next contact times, follow-up notes, and deal status, suitable for day-to-day sales or consulting workflows." },
-  { cat: "productivity", icon: CalendarDays, name: "Planner Calendar", desc: "Create a planning calendar app that supports day, week, and month views, priority, color tags, reminder times, completion states, and quick create and edit. The overall experience should feel lightweight and efficient." },
-  { cat: "productivity", icon: KanbanSquare, name: "Project Board", desc: "Create a project board app with To Do, In Progress, and Done columns, drag-and-drop cards, owners, due dates, labels, and a task detail panel, suitable for personal use or small team project management." },
-  { cat: "productivity", icon: AlarmClock, name: "Pomodoro Focus", desc: "Create a Pomodoro timer app with focus sessions, short breaks, and long breaks, showing today's focus count, total duration, focus history, and reminder status. The interface should feel calm and restrained for long-term use." }
+  { cat: "ai", icon: ChartNoAxesCombined, name: "__T_CREATEAPP_TPL_COMPETITOR_NAME__", desc: "__T_CREATEAPP_TPL_COMPETITOR_DESC__" },
+  { cat: "ai", icon: PenLine, name: "__T_CREATEAPP_TPL_MARKETING_NAME__", desc: "__T_CREATEAPP_TPL_MARKETING_DESC__" },
+  { cat: "ai", icon: ClipboardList, name: "__T_CREATEAPP_TPL_PROPOSAL_NAME__", desc: "__T_CREATEAPP_TPL_PROPOSAL_DESC__" },
+  { cat: "ai", icon: UsersRound, name: "__T_CREATEAPP_TPL_INTERVIEW_NAME__", desc: "__T_CREATEAPP_TPL_INTERVIEW_DESC__" },
+  { cat: "ai", icon: Map, name: "__T_CREATEAPP_TPL_MINDMAP_NAME__", desc: "__T_CREATEAPP_TPL_MINDMAP_DESC__" },
+  { cat: "ai", icon: Drama, name: "__T_CREATEAPP_TPL_PERSONA_NAME__", desc: "__T_CREATEAPP_TPL_PERSONA_DESC__" },
+  { cat: "tool", icon: KeyRound, name: "__T_CREATEAPP_TPL_PASSWORD_NAME__", desc: "__T_CREATEAPP_TPL_PASSWORD_DESC__" },
+  { cat: "tool", icon: Palette, name: "__T_CREATEAPP_TPL_COLOR_NAME__", desc: "__T_CREATEAPP_TPL_COLOR_DESC__" },
+  { cat: "tool", icon: Regex, name: "__T_CREATEAPP_TPL_REGEX_NAME__", desc: "__T_CREATEAPP_TPL_REGEX_DESC__" },
+  { cat: "game", icon: Gamepad2, name: "__T_CREATEAPP_TPL_SNAKE_NAME__", desc: "__T_CREATEAPP_TPL_SNAKE_DESC__" },
+  { cat: "game", icon: PanelsTopLeft, name: "__T_CREATEAPP_TPL_MEMORY_NAME__", desc: "__T_CREATEAPP_TPL_MEMORY_DESC__" },
+  { cat: "game", icon: Swords, name: "__T_CREATEAPP_TPL_ADVENTURE_NAME__", desc: "__T_CREATEAPP_TPL_ADVENTURE_DESC__" },
+  { cat: "life", icon: CookingPot, name: "__T_CREATEAPP_TPL_RECIPE_NAME__", desc: "__T_CREATEAPP_TPL_RECIPE_DESC__" },
+  { cat: "life", icon: Timer, name: "__T_CREATEAPP_TPL_COUNTDOWN_NAME__", desc: "__T_CREATEAPP_TPL_COUNTDOWN_DESC__" },
+  { cat: "business", icon: Package, name: "__T_CREATEAPP_TPL_INVENTORY_NAME__", desc: "__T_CREATEAPP_TPL_INVENTORY_DESC__" },
+  { cat: "business", icon: ReceiptText, name: "__T_CREATEAPP_TPL_QUOTE_NAME__", desc: "__T_CREATEAPP_TPL_QUOTE_DESC__" },
+  { cat: "business", icon: UsersRound, name: "__T_CREATEAPP_TPL_FOLLOWUP_NAME__", desc: "__T_CREATEAPP_TPL_FOLLOWUP_DESC__" },
+  { cat: "productivity", icon: CalendarDays, name: "__T_CREATEAPP_TPL_PLANNER_NAME__", desc: "__T_CREATEAPP_TPL_PLANNER_DESC__" },
+  { cat: "productivity", icon: KanbanSquare, name: "__T_CREATEAPP_TPL_BOARD_NAME__", desc: "__T_CREATEAPP_TPL_BOARD_DESC__" },
+  { cat: "productivity", icon: AlarmClock, name: "__T_CREATEAPP_TPL_POMODORO_NAME__", desc: "__T_CREATEAPP_TPL_POMODORO_DESC__" }
 ];
 
 const categoryColor = (key: string) => categories.find((cat) => cat.key === key)?.color || "#2563eb";
@@ -94,7 +94,7 @@ export default function CreateAppApp() {
     await windowManager.openComponent({
       key: "chat",
       appId: "chat",
-      title: "Chat",
+      title: "__T_CREATEAPP_CHAT_WINDOW_TITLE__",
       icon: "💬",
       component: ChatApp,
       defaultDesktopWindowSize: { w: 900, h: 640 },
@@ -122,8 +122,8 @@ export default function CreateAppApp() {
               <Sparkles className="h-[17px] w-[17px]" strokeWidth={1.9} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[24px] font-semibold leading-tight text-[#102033]">Create New App</h2>
-              <p className="mt-1 text-[13px] leading-[1.55] text-[#607080]">Describe your idea and AI will build it</p>
+              <h2 className="text-[24px] font-semibold leading-tight text-[#102033]">{ "__T_CREATEAPP_HEADING__" }</h2>
+              <p className="mt-1 text-[13px] leading-[1.55] text-[#607080]">{ "__T_CREATEAPP_SUBTITLE__" }</p>
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function CreateAppApp() {
             }}
           />
           <button className="create-button absolute bottom-3 right-3 inline-flex h-8 items-center gap-1.5 px-3.5 text-[12px] font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-35" disabled={!prompt.trim() || composing} onClick={create}>
-            Create <ArrowRight className="h-[13px] w-[13px]" strokeWidth={2} />
+            { "__T_CREATEAPP_CREATE_BUTTON__" } <ArrowRight className="h-[13px] w-[13px]" strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function CreateAppApp() {
             );
           })}
         </div>
-        {!filteredTemplates.length && <div className="py-10 text-center text-[12.5px] text-[#8b99a7]">No ideas in this category yet</div>}
+        {!filteredTemplates.length && <div className="py-10 text-center text-[12.5px] text-[#8b99a7]">{ "__T_CREATEAPP_EMPTY_STATE__" }</div>}
       </div>
     </div>
   );

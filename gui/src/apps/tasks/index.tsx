@@ -68,17 +68,17 @@ const payloadPreview = (payload: unknown) => {
 };
 
 const modeLabel = (mode?: string) => {
-  if (mode === "instant") return "Instant";
-  if (mode === "agent") return "Agent";
+  if (mode === "instant") return "__T_TASKS_MODE_INSTANT__";
+  if (mode === "agent") return "__T_TASKS_MODE_AGENT__";
   return mode || "-";
 };
 
 const statusLabel = (status?: string) => ({
-  pending: "Running",
-  running: "Running",
-  done: "Done",
-  error: "Error",
-  aborted: "Aborted"
+  pending: "__T_TASKS_STATUS_RUNNING__",
+  running: "__T_TASKS_STATUS_RUNNING__",
+  done: "__T_TASKS_STATUS_DONE__",
+  error: "__T_TASKS_STATUS_ERROR__",
+  aborted: "__T_TASKS_STATUS_ABORTED__"
 }[status || ""] || status || "-");
 
 const dotColor = (status?: string) => {
@@ -99,11 +99,11 @@ const isToolCall = (item: TaskMessage) => Array.isArray(item.message?.tool_calls
 
 const roleLabel = (item: TaskMessage) => {
   const role = item.message?.role;
-  if (role === "user") return "User";
-  if (role === "assistant" && isToolCall(item)) return "Tool Call";
-  if (role === "assistant") return "AI";
-  if (role === "tool") return "Tool Result";
-  return "Unknown";
+  if (role === "user") return "__T_TASKS_ROLE_USER__";
+  if (role === "assistant" && isToolCall(item)) return "__T_TASKS_ROLE_TOOL_CALL__";
+  if (role === "assistant") return "__T_TASKS_ROLE_AI__";
+  if (role === "tool") return "__T_TASKS_ROLE_TOOL_RESULT__";
+  return "__T_TASKS_ROLE_UNKNOWN__";
 };
 
 const roleStyle = (item: TaskMessage) => {
@@ -127,7 +127,7 @@ const renderContent = (item: TaskMessage) => {
   if (typeof msg.content === "string" && msg.content.trim()) {
     const text = msg.content;
     if (text.length <= 800) return text;
-    return `${text.slice(0, 560)}\n\nContent is too long. ${text.length - 800} characters were omitted\n\n${text.slice(-240)}`;
+    return `${text.slice(0, 560)}\n\n${"__T_TASKS_CONTENT_TOO_LONG__"} ${text.length - 800} ${"__T_TASKS_CHARS_OMITTED__"}\n\n${text.slice(-240)}`;
   }
   return JSON.stringify(msg, null, 2);
 };
@@ -165,7 +165,7 @@ export default function TasksApp() {
       const data = await request("/api/task?limit=200");
       setTasks(Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : []);
     } catch (err) {
-      setError((err as Error).message || "Failed to load");
+      setError((err as Error).message || "__T_TASKS_ERR_FAILED_TO_LOAD__");
     }
   }, []);
 
@@ -180,7 +180,7 @@ export default function TasksApp() {
       setDetailTask(td.task || task);
       setMessages(Array.isArray(tm.messages) ? tm.messages : []);
     } catch (err) {
-      setDetailError((err as Error).message || "Failed to load");
+      setDetailError((err as Error).message || "__T_TASKS_ERR_FAILED_TO_LOAD__");
     }
   }, [detailTask]);
 
@@ -198,10 +198,10 @@ export default function TasksApp() {
       ? tasks.filter((task) => task.status === "error" || task.status === "aborted").length
       : tasks.filter((task) => task.status === status || (status === "pending" && task.status === "running")).length;
     return [
-      { key: "all", label: "All", count: tasks.length },
-      { key: "pending", label: "Running", count: countBy("pending") },
-      { key: "done", label: "Done", count: countBy("done") },
-      { key: "error", label: "Error", count: countBy("error") }
+      { key: "all", label: "__T_TASKS_TAB_ALL__", count: tasks.length },
+      { key: "pending", label: "__T_TASKS_TAB_RUNNING__", count: countBy("pending") },
+      { key: "done", label: "__T_TASKS_TAB_DONE__", count: countBy("done") },
+      { key: "error", label: "__T_TASKS_TAB_ERROR__", count: countBy("error") }
     ];
   }, [tasks]);
 
@@ -232,17 +232,17 @@ export default function TasksApp() {
       });
       await loadDetail(detailTask);
     } catch (err) {
-      setDetailError((err as Error).message || "Failed to stop");
+      setDetailError((err as Error).message || "__T_TASKS_ERR_FAILED_TO_STOP__");
     } finally {
       setStopping(false);
     }
   };
 
   const detailFacts = detailTask ? [
-    { key: "created", label: "Created at:", value: formatDateTime(detailTask.created_at) },
-    { key: "finished", label: "Finished at:", value: formatDateTime(detailTask.finished_at) },
-    { key: "app", label: "App:", value: detailTask.app || "-" },
-    { key: "mode", label: "Mode", value: modeLabel(detailTask.mode) }
+    { key: "created", label: "__T_TASKS_FACT_CREATED_AT__", value: formatDateTime(detailTask.created_at) },
+    { key: "finished", label: "__T_TASKS_FACT_FINISHED_AT__", value: formatDateTime(detailTask.finished_at) },
+    { key: "app", label: "__T_TASKS_FACT_APP__", value: detailTask.app || "-" },
+    { key: "mode", label: "__T_TASKS_FACT_MODE__", value: modeLabel(detailTask.mode) }
   ] : [];
 
   return (
@@ -265,21 +265,21 @@ export default function TasksApp() {
             <button className="flex h-[26px] w-[26px] items-center justify-center rounded-full border transition hover:bg-[rgba(140,100,60,0.08)]" style={{ borderColor: "rgba(0,0,0,0.08)", background: "#fff" }} onClick={loadTasks}>↻</button>
           </div>
           <div className="grid shrink-0 grid-cols-[1fr_64px_78px_88px] gap-1 border-b px-4 py-[7px] text-[9px] font-bold uppercase tracking-[0.08em]" style={{ borderColor: "rgba(0,0,0,0.05)", background: "rgba(238,232,222,0.5)", color: "rgba(120,80,40,0.5)" }}>
-            <span>Task</span><span>Mode</span><span>Status</span><span>Time</span>
+            <span>{ "__T_TASKS_COL_TASK__" }</span><span>{ "__T_TASKS_COL_MODE__" }</span><span>{ "__T_TASKS_COL_STATUS__" }</span><span>{ "__T_TASKS_COL_TIME__" }</span>
           </div>
           {error && <div className="mx-3 mt-2 rounded-[10px] border px-3 py-2 text-[12px]" style={{ borderColor: "rgba(176,58,32,0.25)", background: "rgba(176,58,32,0.06)", color: "#b03a20" }}>{error}</div>}
           <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
             {!filteredTasks.length ? (
               <div className="flex h-full flex-col items-center justify-center" style={{ color: "rgba(0,0,0,0.35)" }}>
                 <div className="mb-1.5 text-[32px] opacity-35">📭</div>
-                <div className="text-[12px]">No tasks yet</div>
+                <div className="text-[12px]">{ "__T_TASKS_EMPTY_NO_TASKS__" }</div>
               </div>
             ) : filteredTasks.map((task) => (
               <button key={task.id} className="grid w-full grid-cols-[1fr_64px_78px_88px] items-center gap-1 border-b px-4 py-[9px] text-left transition-colors hover:bg-[rgba(140,100,60,0.06)]" style={{ borderColor: "rgba(160,120,80,0.08)" }} onClick={() => openDetail(task)}>
                 <div className="flex min-w-0 items-center gap-[8px]">
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dotColor(task.status) }} />
                   <div className="min-w-0">
-                    <div className="truncate text-[12.5px] font-semibold text-[#2a1f13]">{task.title || "Untitled Task"}</div>
+                    <div className="truncate text-[12.5px] font-semibold text-[#2a1f13]">{task.title || "__T_TASKS_UNTITLED__"}</div>
                     <div className="mt-px text-[10px]" style={{ color: "rgba(120,80,40,0.5)" }}>#{task.id} · {task.app || "-"}</div>
                   </div>
                 </div>
@@ -293,9 +293,9 @@ export default function TasksApp() {
       ) : (
         <>
           <div className="flex shrink-0 items-center gap-2 border-b px-3 py-2" style={{ borderColor: "rgba(0,0,0,0.06)", background: "rgba(247,244,239,0.9)" }}>
-            <button className="flex items-center gap-1 rounded-full px-3 py-[3px] text-[11.5px] font-semibold text-[#5c4332] transition hover:bg-[rgba(140,100,60,0.1)]" onClick={() => { setDetailTask(null); setMessages([]); }}>‹ Back</button>
-            <div className="min-w-0 flex-1 truncate text-[11.5px] font-semibold text-[#2a1f13]">{detailTask.title || "Untitled Task"}</div>
-            {(detailTask.status === "pending" || detailTask.status === "running") && <button className="rounded-full px-3 py-[3px] text-[10.5px] font-semibold transition disabled:opacity-50" style={{ background: "rgba(176,58,32,0.1)", color: "#b03a20" }} disabled={stopping} onClick={stopTask}>{stopping ? "Stopping..." : "Stop Task"}</button>}
+            <button className="flex items-center gap-1 rounded-full px-3 py-[3px] text-[11.5px] font-semibold text-[#5c4332] transition hover:bg-[rgba(140,100,60,0.1)]" onClick={() => { setDetailTask(null); setMessages([]); }}>‹ { "__T_TASKS_BACK__" }</button>
+            <div className="min-w-0 flex-1 truncate text-[11.5px] font-semibold text-[#2a1f13]">{detailTask.title || "__T_TASKS_UNTITLED__"}</div>
+            {(detailTask.status === "pending" || detailTask.status === "running") && <button className="rounded-full px-3 py-[3px] text-[10.5px] font-semibold transition disabled:opacity-50" style={{ background: "rgba(176,58,32,0.1)", color: "#b03a20" }} disabled={stopping} onClick={stopTask}>{stopping ? "__T_TASKS_STOPPING__" : "__T_TASKS_STOP_TASK__"}</button>}
             <button className="flex h-[26px] w-[26px] items-center justify-center rounded-full border transition hover:bg-[rgba(140,100,60,0.08)]" style={{ borderColor: "rgba(0,0,0,0.08)", background: "#fff" }} onClick={() => loadDetail(detailTask)}>↻</button>
           </div>
           {detailError && <div className="mx-3 mt-2 rounded-[10px] border px-3 py-2 text-[12px]" style={{ borderColor: "rgba(176,58,32,0.25)", background: "rgba(176,58,32,0.06)", color: "#b03a20" }}>{detailError}</div>}
@@ -309,16 +309,16 @@ export default function TasksApp() {
               ))}
             </div>
             {payloadPreview(detailTask.payload) && <>
-              <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>Payload</div>
+              <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>{ "__T_TASKS_SECTION_PAYLOAD__" }</div>
               <div className="mb-3 whitespace-pre-wrap break-words rounded-[10px] border px-3 py-2 text-[11.5px] leading-[1.65]" style={{ borderColor: "rgba(160,120,80,0.12)", background: "rgba(255,255,255,0.7)", color: "#3d2f1e" }}>{payloadPreview(detailTask.payload)}</div>
             </>}
             {detailTask.error && <>
-              <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>Error</div>
+              <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>{ "__T_TASKS_SECTION_ERROR__" }</div>
               <div className="mb-3 whitespace-pre-wrap break-words rounded-[10px] border px-3 py-2 text-[11.5px] leading-[1.65]" style={{ borderColor: "rgba(176,58,32,0.25)", background: "rgba(176,58,32,0.05)", color: "#b03a20" }}>{detailTask.error}</div>
             </>}
-            <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>Message History · {messages.length}</div>
+            <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.08em]" style={{ color: "rgba(120,80,40,0.5)" }}>{ "__T_TASKS_SECTION_MESSAGE_HISTORY__" } · {messages.length}</div>
             {!messages.length ? (
-              <div className="rounded-[10px] border border-dashed py-10 text-center text-[12px]" style={{ borderColor: "rgba(160,120,80,0.2)", background: "rgba(255,255,255,0.5)", color: "rgba(0,0,0,0.35)" }}>No messages yet</div>
+              <div className="rounded-[10px] border border-dashed py-10 text-center text-[12px]" style={{ borderColor: "rgba(160,120,80,0.2)", background: "rgba(255,255,255,0.5)", color: "rgba(0,0,0,0.35)" }}>{ "__T_TASKS_EMPTY_NO_MESSAGES__" }</div>
             ) : (
               <div className="space-y-1.5">
                 {[...messages].reverse().map((item, index) => (

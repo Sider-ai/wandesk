@@ -32,15 +32,15 @@ export default function FinanceHeader({
       </div>
       <div className="summary-box flex justify-between gap-3 rounded border-2 border-dashed border-[rgba(82,113,255,0.4)] bg-white/60 px-3 py-2 shadow-[inset_0_0_10px_rgba(0,0,0,0.02)] sm:gap-[30px] sm:px-6 sm:py-3">
         <div className="flex flex-col items-end">
-          <span className="mb-0.5 text-[10px] text-gray-500 sm:mb-1 sm:text-xs">Income</span>
+          <span className="mb-0.5 text-[10px] text-gray-500 sm:mb-1 sm:text-xs">{ "__T_FINANCE_SUMMARY_INCOME__" }</span>
           <span className="text-sm font-bold text-green-700 sm:text-lg">+ {fmtAmt(totalIncome)}</span>
         </div>
         <div className="flex flex-col items-end border-l border-dashed border-[rgba(82,113,255,0.3)] pl-3 sm:pl-[30px]">
-          <span className="mb-0.5 text-[10px] text-gray-500 sm:mb-1 sm:text-xs">Expense</span>
+          <span className="mb-0.5 text-[10px] text-gray-500 sm:mb-1 sm:text-xs">{ "__T_FINANCE_SUMMARY_EXPENSE__" }</span>
           <span className="text-sm font-bold text-red-700 sm:text-lg">- {fmtAmt(totalExpense)}</span>
         </div>
         <div className="flex flex-col items-end border-l border-dashed border-[rgba(82,113,255,0.3)] pl-3 sm:pl-[30px]">
-          <span className="mb-0.5 text-[10px] font-bold text-blue-900 sm:mb-1 sm:text-xs">Balance</span>
+          <span className="mb-0.5 text-[10px] font-bold text-blue-900 sm:mb-1 sm:text-xs">{ "__T_FINANCE_SUMMARY_BALANCE__" }</span>
           <span className="text-base font-black text-black underline decoration-double sm:text-2xl">{fmtAmt(endingBalance)}</span>
         </div>
       </div>

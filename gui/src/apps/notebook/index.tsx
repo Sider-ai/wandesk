@@ -75,7 +75,7 @@ export default function NotebookApp() {
         return;
       }
     } catch (err) {
-      setError((err as Error).message || "Failed to load");
+      setError((err as Error).message || "__T_NOTEBOOK_ERR_LOAD__");
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ export default function NotebookApp() {
       await fetchNotes(1);
       backToList();
     } catch (err) {
-      setError((err as Error).message || "Failed to save");
+      setError((err as Error).message || "__T_NOTEBOOK_ERR_SAVE__");
     } finally {
       setSaving(false);
     }
@@ -131,7 +131,7 @@ export default function NotebookApp() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await fetchNotes(page);
     } catch (err) {
-      setError((err as Error).message || "Failed to delete");
+      setError((err as Error).message || "__T_NOTEBOOK_ERR_DELETE__");
     }
   };
 
@@ -158,7 +158,7 @@ export default function NotebookApp() {
       if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
       setAiResult(data.result || "");
     } catch (err) {
-      setError((err as Error).message || "Assist failed");
+      setError((err as Error).message || "__T_NOTEBOOK_ERR_ASSIST__");
       setAiDrawerOpen(false);
     } finally {
       setAiLoading(false);
@@ -170,10 +170,10 @@ export default function NotebookApp() {
     const date = new Date(value.replace(" ", "T"));
     if (Number.isNaN(date.getTime())) return value;
     const diff = Date.now() - date.getTime();
-    if (diff < 60000) return "Just now";
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
-    if (diff < 604800000) return `${Math.floor(diff / 86400000)} days ago`;
+    if (diff < 60000) return "__T_NOTEBOOK_TIME_JUST_NOW__";
+    if (diff < 3600000) return `${Math.floor(diff / 60000)} __T_NOTEBOOK_TIME_MINUTES_AGO__`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} __T_NOTEBOOK_TIME_HOURS_AGO__`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)} __T_NOTEBOOK_TIME_DAYS_AGO__`;
     return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
   };
 

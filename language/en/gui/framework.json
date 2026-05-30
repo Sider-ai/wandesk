@@ -38,5 +38,16 @@
   "wallpaper_dusk_rock_shore": "Dusk Rock Shore",
   "wallpaper_linen_warm_paper": "Warm Linen Paper",
   "wallpaper_amber_clouds": "Pastel Dream",
-  "wallpaper_snowlight_peak": "Deep Sea Glow"
+  "wallpaper_snowlight_peak": "Deep Sea Glow",
+  "app_name_chat": "Chat",
+  "app_name_tasks": "Tasks",
+  "app_name_memory": "Memory",
+  "app_name_files": "Files",
+  "app_name_notebook": "Notebook",
+  "app_name_ledger": "Ledger",
+  "app_name_ghtrending": "Open Source Radar",
+  "app_name_createapp": "App Workshop",
+  "app_name_claude_code": "Claude Code",
+  "app_name_codex": "Codex",
+  "app_name_settings": "Settings"
 }

@@ -75,7 +75,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
   };
 
   if (loading) {
-    return <div className="flex h-full items-center justify-center bg-[#faf8f4] text-[12.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>Loading file list...</div>;
+    return <div className="flex h-full items-center justify-center bg-[#faf8f4] text-[12.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>{ "__T_FILES_VIEWER_LOADING__" }</div>;
   }
 
   if (errorMessage) {
@@ -104,7 +104,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
           <span className="text-[10.5px] tabular-nums" style={{ color: "rgba(0,0,0,0.35)" }}>{content.length} __T_FILES_VIEWER_CHAR_UNIT__</span>
           <div className="flex-1" />
           <button className="rounded-full px-4 text-[11.5px] font-semibold text-white transition disabled:opacity-40" style={{ height: 22, background: "#5c4332", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }} disabled={saving || !dirty} onClick={saveFile}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? "__T_FILES_VIEWER_SAVING__" : "__T_FILES_VIEWER_SAVE__"}
           </button>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function FileViewer({ path }: { path?: unknown }) {
       <div className="text-[40px] opacity-40">📄</div>
       <div className="text-[13px] font-semibold text-[#2a1f13]">{fileName}</div>
       <div className="text-[11.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>__T_FILES_VIEWER_UNSUPPORTED__</div>
-      <button className="mt-1 rounded-full px-4 py-1.5 text-[11.5px] font-semibold text-white" style={{ background: "#5c4332", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }} onClick={downloadFile}>Download</button>
+      <button className="mt-1 rounded-full px-4 py-1.5 text-[11.5px] font-semibold text-white" style={{ background: "#5c4332", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }} onClick={downloadFile}>{ "__T_FILES_VIEWER_DOWNLOAD__" }</button>
     </div>
   );
 }

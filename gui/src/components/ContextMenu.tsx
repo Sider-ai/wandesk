@@ -49,13 +49,13 @@ export default function ContextMenu({ menu, dark, onClose, onWallpaper }: Contex
         style={{ left: menu.x, top: menu.y }}
         onClick={(event) => event.stopPropagation()}
       >
-        {item("💬", "New Chat", () => openApp("chat"))}
-        {item("➕", "New App", () => openApp("createapp"))}
+        {item("💬", "__T_SHELL_MENU_NEW_CHAT__", () => openApp("chat"))}
+        {item("➕", "__T_SHELL_MENU_NEW_APP__", () => openApp("createapp"))}
         <div className={`mx-2 my-1 h-px ${dividerClass}`} />
-        {item("🔄", "Refresh", refresh)}
+        {item("🔄", "__T_SHELL_MENU_REFRESH__", refresh)}
         <div className={`mx-2 my-1 h-px ${dividerClass}`} />
-        {item("🖼️", "Change Wallpaper", () => { onClose(); onWallpaper(); })}
-        {item("⚙️", "System Settings", () => openApp("settings"))}
+        {item("🖼️", "__T_SHELL_MENU_CHANGE_WALLPAPER__", () => { onClose(); onWallpaper(); })}
+        {item("⚙️", "__T_SHELL_MENU_SYSTEM_SETTINGS__", () => openApp("settings"))}
       </div>
     </div>,
     document.body

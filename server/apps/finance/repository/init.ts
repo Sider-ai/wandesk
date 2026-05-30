@@ -8,11 +8,11 @@ const daysAgo = (days, hour, minute) => {
 };
 
 const FINANCE_SEEDS: any[] = [
-  ["income",  88e4, "Sold a family heirloom meteorite from my hometown. The appraisal said it came from Mars.", () => daysAgo(30, 9, 15)],
-  ["income",  52e3, "Designed matching square-dance uniforms for the elderly neighbor's team and got flooded with orders.", () => daysAgo(20, 11, 0)],
-  ["income",  15e3, "Taught the cafe owner downstairs how to pour latte art, and he paid per cup.", () => daysAgo(12, 8, 30)],
-  ["expense", 14e4, "Impulse-bought a retired racehorse because I said I wanted a running partner.", () => daysAgo(5, 14, 30)],
-  ["expense", 299,  "Bought myself a copy of \"How to Stop Spending Money Randomly\".", () => daysAgo(1, 15, 30)]
+  ["income",  88e4, "__T_FINANCE_SEED_NOTE_1__", () => daysAgo(30, 9, 15)],
+  ["income",  52e3, "__T_FINANCE_SEED_NOTE_2__", () => daysAgo(20, 11, 0)],
+  ["income",  15e3, "__T_FINANCE_SEED_NOTE_3__", () => daysAgo(12, 8, 30)],
+  ["expense", 14e4, "__T_FINANCE_SEED_NOTE_4__", () => daysAgo(5, 14, 30)],
+  ["expense", 299,  "__T_FINANCE_SEED_NOTE_5__", () => daysAgo(1, 15, 30)]
 ];
 
 const initFinanceTables = () => {

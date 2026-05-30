@@ -141,10 +141,10 @@ export default function SettingsApp() {
       });
 
       saveProviderConfigs({ ...providerConfigs, [provider]: { apiUrl, apiKey, model } });
-      setSaveNotice({ type: "success", message: "Configuration saved" });
+      setSaveNotice({ type: "success", message: "__T_SETTINGS_SAVED_OK__" });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setSaveNotice({ type: "error", message: `Failed to save: ${message}` });
+      setSaveNotice({ type: "error", message: `__T_SETTINGS_SAVE_FAILED__${message}` });
     }
   };
 
@@ -169,7 +169,7 @@ export default function SettingsApp() {
   return (
     <div className="flex h-full min-w-0 overflow-hidden" style={{ background: "#f5f3ef" }}>
       <div className="flex w-[160px] shrink-0 flex-col border-r py-4" style={{ background: "#ede9e2", borderColor: "rgba(0,0,0,0.07)" }}>
-        <div className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-widest" style={{ color: "rgba(0,0,0,0.3)" }}>Settings</div>
+        <div className="mb-3 px-4 text-[11px] font-semibold uppercase tracking-widest" style={{ color: "rgba(0,0,0,0.3)" }}>__T_SETTINGS_SIDEBAR_TITLE__</div>
         {tabs.map((tab) => (
           <button key={tab.key} className={`mx-2 mb-0.5 flex items-center gap-2 rounded-[9px] px-3 py-2 text-left text-[13px] font-medium transition-all ${activeTab === tab.key ? "shadow-[0_1px_3px_rgba(0,0,0,0.1)]" : "hover:bg-black/[0.05]"}`} style={activeTab === tab.key ? { background: "#fff", color: "#3d2f1e" } : { color: "rgba(0,0,0,0.5)" }} onClick={() => setActiveTab(tab.key)}>
             <span className="text-[14px]">{tab.icon}</span>

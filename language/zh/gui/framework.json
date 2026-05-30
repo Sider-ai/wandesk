@@ -38,5 +38,16 @@
   "wallpaper_dusk_rock_shore": "暮色岩岸",
   "wallpaper_linen_warm_paper": "亚麻暖纸",
   "wallpaper_amber_clouds": "粉彩梦境",
-  "wallpaper_snowlight_peak": "深海荧光"
+  "wallpaper_snowlight_peak": "深海荧光",
+  "app_name_chat": "聊天",
+  "app_name_tasks": "任务",
+  "app_name_memory": "记忆",
+  "app_name_files": "文件",
+  "app_name_notebook": "笔记本",
+  "app_name_ledger": "记账",
+  "app_name_ghtrending": "开源雷达",
+  "app_name_createapp": "应用工坊",
+  "app_name_claude_code": "Claude Code",
+  "app_name_codex": "Codex",
+  "app_name_settings": "设置"
 }

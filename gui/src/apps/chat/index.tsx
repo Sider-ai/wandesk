@@ -39,7 +39,7 @@ export default function ChatApp({
             onClick={newChat}
           >
             <Plus className="h-3.5 w-3.5" />
-            New Chat
+            {"__T_CHAT_NEW_CHAT_BUTTON__"}
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-1.5 py-1.5 [scrollbar-width:thin]">
