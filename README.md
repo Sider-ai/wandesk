@@ -14,31 +14,20 @@ An open-source AI desktop where you build the apps you need just by describing t
 
 ---
 
-## 🚀 Install
+## 🚀 Run from source
 
-> Prerequisites: Git, Node.js 20+, and npm.
-
-**macOS**
+> Prerequisites: Git and Node.js 22.5+ (Wandesk uses Node's built-in `node:sqlite`, stable since 22.5).
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-macos.sh | sh
+git clone https://github.com/Sider-ai/wandesk.git
+cd wandesk
+npm install
+npm run dev
 ```
 
-**Linux**
+Then open <http://localhost:9502>.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-linux.sh | sh
-```
-
-**Windows PowerShell**
-
-```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-windows.ps1 | iex"
-```
-
-After installation, open <http://localhost:9502>.
-
-> Prefer a packaged desktop app instead of `localhost`? Grab the macOS / Windows builds at **[wandesk.ai](https://wandesk.ai)**.
+> Just want to use it, not run from source? Download the packaged macOS / Windows desktop app at **[wandesk.ai](https://wandesk.ai)** — no Node, no terminal, just open and go.
 
 ---
 

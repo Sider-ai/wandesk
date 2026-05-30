@@ -14,31 +14,20 @@
 
 ---
 
-## 🚀 安装
+## 🚀 从源码运行
 
-> 前置要求:Git、Node.js 20+ 和 npm。
-
-**macOS**
+> 前置要求:Git 和 Node.js 22.5+(Wandesk 用 Node 内置的 `node:sqlite`,22.5 起稳定)。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-macos.sh | sh
+git clone https://github.com/Sider-ai/wandesk.git
+cd wandesk
+npm install
+npm run dev
 ```
 
-**Linux**
+然后打开 <http://localhost:9502>。
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-linux.sh | sh
-```
-
-**Windows PowerShell**
-
-```powershell
-powershell -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/Sider-ai/wandesk/main/install-windows.ps1 | iex"
-```
-
-安装完成后,打开 <http://localhost:9502>。
-
-> 想要打包好的桌面应用版,不用跑 `localhost`?到 **[wandesk.cn](https://wandesk.cn)** 下载 macOS / Windows 安装包。
+> 只想用,不想跑源码?到 **[wandesk.cn](https://wandesk.cn)** 下载打包好的 macOS / Windows 桌面应用——不用装 Node、不用开终端,下载即用。
 
 ---
 
