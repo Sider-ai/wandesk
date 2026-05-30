@@ -93,7 +93,7 @@ export default function HistoryPanel({
 
   return (
     <div className="flex flex-col gap-0.5">
-      {!chats.length && <div className="py-12 text-center text-sm" style={emptyStyle}>No chat history yet</div>}
+      {!chats.length && <div className="py-12 text-center text-sm" style={emptyStyle}>{"__T_CHAT_HISTORY_EMPTY__"}</div>}
 
       {chats.map((chat) => {
         const active = activeId === chat.conversation_id;
@@ -136,7 +136,7 @@ export default function HistoryPanel({
                         event.stopPropagation();
                         startRename(chat);
                       }}
-                      title="Rename"
+                      title="__T_CHAT_RENAME__"
                       className="flex h-6 w-6 items-center justify-center rounded-[6px] border-none bg-transparent transition-all"
                       style={{ background: "transparent", color: actionColor }}
                       onMouseOver={(event) => {
@@ -151,13 +151,13 @@ export default function HistoryPanel({
                       <Pencil className="h-3 w-3" />
                     </button>
                   )}
-                  {deletingId === chat.conversation_id && <span className="px-1 text-[10px] text-red-500">Confirm delete?</span>}
+                  {deletingId === chat.conversation_id && <span className="px-1 text-[10px] text-red-500">{"__T_CHAT_CONFIRM_DELETE_PROMPT__"}</span>}
                   <button
                     onClick={(event) => {
                       event.stopPropagation();
                       confirmDelete(chat.conversation_id);
                     }}
-                    title={deletingId === chat.conversation_id ? "Click to confirm" : "Delete"}
+                    title={deletingId === chat.conversation_id ? "__T_CHAT_CLICK_TO_CONFIRM__" : "__T_CHAT_DELETE__"}
                     className="flex h-6 w-6 items-center justify-center rounded-[6px] border-none transition-all"
                     style={deletingId === chat.conversation_id ? { background: "#dc2626", color: "#fff" } : { background: "transparent", color: actionColor }}
                     onMouseOver={(event) => {

@@ -26,7 +26,7 @@ type HistoryItem = {
 };
 
 const langs = ["JavaScript", "TypeScript", "Python", "Rust", "Go", "Java", "C++", "Swift", "Kotlin"];
-const timeFilters = [{ id: "weekly", label: "This Week" }, { id: "monthly", label: "This Month" }];
+const timeFilters = [{ id: "weekly", label: "__T_GHTRENDING_TIME_WEEKLY__" }, { id: "monthly", label: "__T_GHTRENDING_TIME_MONTHLY__" }];
 const langClr = (language?: string) => ({
   JavaScript: "#f1e05a",
   TypeScript: "#3178c6",
@@ -114,7 +114,7 @@ export default function GithubTrendingApp() {
       });
       setAnalyses((prev) => ({ ...prev, [String(repo.id)]: data.analysis || "" }));
     } catch {
-      setAnalyses((prev) => ({ ...prev, [String(repo.id)]: "Failed" }));
+      setAnalyses((prev) => ({ ...prev, [String(repo.id)]: "__T_GHTRENDING_FAILED__" }));
     } finally {
       setAnalyzingId(null);
     }
@@ -131,7 +131,7 @@ export default function GithubTrendingApp() {
       });
       setDigestText(data.analysis || "");
     } catch {
-      setDigestText("Failed");
+      setDigestText("__T_GHTRENDING_FAILED__");
     } finally {
       setDigesting(false);
     }
@@ -147,7 +147,7 @@ export default function GithubTrendingApp() {
     setView("history");
   };
 
-  const headerTitle = useMemo(() => view === "history" ? null : "Open Source Radar", [view]);
+  const headerTitle = useMemo(() => view === "history" ? null : "__T_GHTRENDING_HEADER_TITLE__", [view]);
 
   return (
     <div className="flex h-full flex-col bg-[#0d1117] text-[#c9d1d9]" style={{ fontFamily: "-apple-system,'PingFang SC',sans-serif" }}>
@@ -158,14 +158,14 @@ export default function GithubTrendingApp() {
               <GitHubMark />
             </div>
             {view === "history" ? (
-              <button onClick={() => setView("list")} className="text-[13px] font-medium text-[#8b949e] transition-colors hover:text-[#c9d1d9]">← Back</button>
+              <button onClick={() => setView("list")} className="text-[13px] font-medium text-[#8b949e] transition-colors hover:text-[#c9d1d9]">← { "__T_GHTRENDING_BACK__" }</button>
             ) : (
               <span className="text-[15px] font-bold tracking-wide text-white">{headerTitle}</span>
             )}
           </div>
           {view !== "history" && (
             <button onClick={loadHistory} className="flex items-center gap-1.5 rounded-full border border-[#30363d]/50 bg-[#21262d]/50 px-3 py-1.5 text-[11px] font-medium text-[#8b949e] shadow-sm transition-colors hover:bg-[#30363d] hover:text-white">
-              ◷ Insight History
+              ◷ { "__T_GHTRENDING_INSIGHT_HISTORY__" }
             </button>
           )}
         </div>
@@ -183,7 +183,7 @@ export default function GithubTrendingApp() {
               <div className="flex min-w-max items-center gap-2 pr-2">
                 {["", ...langs].map((item) => (
                   <button key={item || "all"} type="button" onClick={() => setLanguage(item)} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all ${language === item ? "border-[#388bfd]/40 bg-[#388bfd]/10 text-[#58a6ff]" : "border-[#30363d] bg-[#161b22] text-[#8b949e] hover:border-[#8b949e] hover:text-[#c9d1d9]"}`}>
-                    {item || "All languages"}
+                    {item || "__T_GHTRENDING_ALL_LANGUAGES__"}
                   </button>
                 ))}
               </div>
@@ -194,23 +194,23 @@ export default function GithubTrendingApp() {
 
       {view === "list" ? (
         <div className="flex-1 overflow-y-auto">
-          {loading ? <div className="py-16 text-center text-sm text-[#484f58]">Loading...</div> : (
+          {loading ? <div className="py-16 text-center text-sm text-[#484f58]">{ "__T_GHTRENDING_LOADING__" }</div> : (
             <div className="space-y-3 p-4">
               <div className="mb-3">
                 {!digestText ? (
                   <div className="flex items-center justify-between rounded-xl border border-[#388bfd]/20 bg-[#388bfd]/10 p-4">
                     <div>
-                      <div className="mb-1 text-[13px] font-bold text-[#58a6ff]">Open Source Radar Digest</div>
-                      <div className="text-[11px] text-[#58a6ff]/70">Summarize the most noteworthy open source projects in the current time range and highlight their core strengths with one click</div>
+                      <div className="mb-1 text-[13px] font-bold text-[#58a6ff]">{ "__T_GHTRENDING_DIGEST_TITLE__" }</div>
+                      <div className="text-[11px] text-[#58a6ff]/70">{ "__T_GHTRENDING_DIGEST_DESC__" }</div>
                     </div>
                     <button onClick={doDigest} disabled={digesting} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#238636] px-4 py-2 text-[12px] font-medium text-white transition-all active:scale-95 disabled:opacity-40 hover:bg-[#2ea043]">
-                      <span>{digesting ? "⟳" : "✦"}</span>{digesting ? "Generating..." : "AI Digest"}
+                      <span>{digesting ? "⟳" : "✦"}</span>{digesting ? "__T_GHTRENDING_GENERATING__" : "__T_GHTRENDING_AI_DIGEST__"}
                     </button>
                   </div>
                 ) : (
                   <div className="rounded-xl border border-[#21262d] bg-[#161b22] p-5 text-xs leading-relaxed text-[#8b949e]">
                     <div className="mb-4 flex items-center justify-between border-b border-[#21262d] pb-3">
-                      <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#58a6ff]"><span className="text-[14px]">✦</span> AI Digest</span>
+                      <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#58a6ff]"><span className="text-[14px]">✦</span> { "__T_GHTRENDING_AI_DIGEST__" }</span>
                       <button onClick={() => setDigestText("")} className="text-[12px] text-[#484f58] transition-colors hover:text-[#c9d1d9]">✕</button>
                     </div>
                     <div className="prose prose-sm prose-invert max-w-none text-[#8b949e]" dangerouslySetInnerHTML={renderMd(digestText)} />
@@ -232,11 +232,11 @@ export default function GithubTrendingApp() {
                       </div>
                     </div>
                     <button onClick={() => analyzeRepo(repo)} disabled={analyzingId === repo.id || Boolean(analyses[String(repo.id)])} className={`shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-all disabled:opacity-40 ${analyses[String(repo.id)] ? "bg-[#238636]/15 text-[#3fb950]" : "bg-[#21262d] text-[#8b949e] hover:bg-[#388bfd]/10 hover:text-[#58a6ff]"}`}>
-                      {analyses[String(repo.id)] ? "✦ Analyzed" : "✦ AI Insight"}
+                      {analyses[String(repo.id)] ? "✦ __T_GHTRENDING_ANALYZED__" : "✦ __T_GHTRENDING_AI_INSIGHT__"}
                     </button>
                   </div>
                   {analyzingId === repo.id && !analyses[String(repo.id)] ? (
-                    <div className="mt-4 flex items-center gap-2 border-t border-[#21262d] pt-4 text-xs text-[#8b949e]"><span className="animate-spin">⟳</span><span className="animate-pulse">Analyzing repository details...</span></div>
+                    <div className="mt-4 flex items-center gap-2 border-t border-[#21262d] pt-4 text-xs text-[#8b949e]"><span className="animate-spin">⟳</span><span className="animate-pulse">{ "__T_GHTRENDING_ANALYZING__" }</span></div>
                   ) : analyses[String(repo.id)] ? (
                     <div className="mt-3 border-t border-[#21262d] pt-3 text-xs leading-relaxed text-[#8b949e]" dangerouslySetInnerHTML={renderMd(analyses[String(repo.id)])} />
                   ) : null}
@@ -247,7 +247,7 @@ export default function GithubTrendingApp() {
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          {!historyItems.length ? <div className="py-16 text-center text-sm text-[#484f58]">No insight history yet</div> : (
+          {!historyItems.length ? <div className="py-16 text-center text-sm text-[#484f58]">{ "__T_GHTRENDING_NO_HISTORY__" }</div> : (
             <div className="space-y-3 p-4">
               {historyItems.map((item) => (
                 <div key={item.id} className="rounded-xl border border-[#21262d] bg-[#161b22] p-4">

@@ -63,20 +63,20 @@ export default function FilesApp() {
   const breadcrumbs = useMemo(() => {
     const parts = String(currentPath || "").split("/").filter(Boolean);
     return [
-      { name: "Files", icon: "🗂", path: "" },
+      { name: "__T_FILES_BREADCRUMB_ROOT__", icon: "🗂", path: "" },
       ...parts.map((name, index) => ({ name, icon: "📁", path: parts.slice(0, index + 1).join("/") }))
     ];
   }, [currentPath]);
 
   const statusText = useMemo(() => {
-    if (loading) return "Loading...";
+    if (loading) return "__T_FILES_STATUS_LOADING__";
     const dirs = items.filter((item) => item.type === "dir").length;
     const files = items.filter((item) => item.type === "file").length;
     const parts = [];
-    if (dirs) parts.push(`${dirs} folders`);
-    if (files) parts.push(`${files} files`);
-    if (selectedItem) parts.push(`Selected:${selectedItem.name}`);
-    return parts.join("　·　") || "Empty folder";
+    if (dirs) parts.push(`${dirs} __T_FILES_STATUS_FOLDERS__`);
+    if (files) parts.push(`${files} __T_FILES_STATUS_FILES__`);
+    if (selectedItem) parts.push(`__T_FILES_STATUS_SELECTED__${selectedItem.name}`);
+    return parts.join("　·　") || "__T_FILES_STATUS_EMPTY__";
   }, [items, loading, selectedItem]);
 
   const closeContextMenu = () => setContextMenu({ visible: false, x: 0, y: 0, item: null });
@@ -90,7 +90,7 @@ export default function FilesApp() {
       setSelectedItem(null);
       closeContextMenu();
     } catch (err) {
-      toast.show((err as Error).message || "Failed to load files", { type: "error" });
+      toast.show((err as Error).message || "__T_FILES_ERR_LOAD__", { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -178,7 +178,7 @@ export default function FilesApp() {
 
   const createDir = async () => {
     closeContextMenu();
-    const name = await openPrompt({ title: "Enter the new folder name" });
+    const name = await openPrompt({ title: "__T_FILES_PROMPT_NEW_FOLDER__" });
     if (!name?.trim()) return;
     try {
       await request("/api/fs/mkdir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root: FS_ROOT, path: buildPath(name.trim()) }) });
@@ -190,7 +190,7 @@ export default function FilesApp() {
 
   const createFile = async () => {
     closeContextMenu();
-    const name = await openPrompt({ title: "Enter the new file name (for example note.md)" });
+    const name = await openPrompt({ title: "__T_FILES_PROMPT_NEW_FILE__" });
     if (!name?.trim()) return;
     try {
       await request("/api/fs/write", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root: FS_ROOT, path: buildPath(name.trim()), content: "", create: true }) });
@@ -224,7 +224,7 @@ export default function FilesApp() {
 
   const deleteFile = async (item: FsItem) => {
     closeContextMenu();
-    const ok = await openConfirm({ title: `Delete file "${item.name}"?`, danger: true });
+    const ok = await openConfirm({ title: `__T_FILES_CONFIRM_DELETE_PREFIX__"${item.name}"__T_FILES_CONFIRM_DELETE_SUFFIX__`, danger: true });
     if (!ok) return;
     try {
       await request("/api/fs/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ root: FS_ROOT, path: item.path }) });
@@ -269,12 +269,12 @@ export default function FilesApp() {
         }}
       >
         {loading ? (
-          <div className="py-16 text-center text-[13px]" style={{ color: "rgba(0,0,0,0.35)" }}>Loading file list...</div>
+          <div className="py-16 text-center text-[13px]" style={{ color: "rgba(0,0,0,0.35)" }}>{ "__T_FILES_LOADING_LIST__" }</div>
         ) : !items.length ? (
           <div className="flex h-full flex-col items-center justify-center py-16">
             <div className="text-[40px] opacity-40">📁</div>
-            <div className="mt-3 text-[15px] font-semibold text-[#2a1f13]">This directory is still empty</div>
-            <div className="mt-1 text-[12.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>You can upload files through chat first, or come back later to check again.</div>
+            <div className="mt-3 text-[15px] font-semibold text-[#2a1f13]">{ "__T_FILES_EMPTY_TITLE__" }</div>
+            <div className="mt-1 text-[12.5px]" style={{ color: "rgba(0,0,0,0.4)" }}>{ "__T_FILES_EMPTY_DESC__" }</div>
           </div>
         ) : (
           <div className="grid content-start justify-start" style={{ gridTemplateColumns: "repeat(auto-fill,88px)", gap: "6px 4px" }}>
@@ -304,28 +304,28 @@ export default function FilesApp() {
         <div className="fixed z-50 overflow-hidden border p-1 backdrop-blur" style={{ minWidth: 180, borderRadius: 13, borderColor: "rgba(0,0,0,0.1)", background: "rgba(250,247,242,0.97)", boxShadow: "0 2px 8px rgba(0,0,0,0.08),0 16px 48px rgba(0,0,0,0.16)", left: contextMenu.x, top: contextMenu.y }} onClick={(event) => event.stopPropagation()}>
           {!contextMenu.item ? (
             <>
-              <ContextRow onClick={createDir}>📁 New Folder</ContextRow>
-              <ContextRow onClick={createFile}>📄 New File</ContextRow>
+              <ContextRow onClick={createDir}>📁 { "__T_FILES_MENU_NEW_FOLDER__" }</ContextRow>
+              <ContextRow onClick={createFile}>📄 { "__T_FILES_MENU_NEW_FILE__" }</ContextRow>
               <ContextSep />
-              <ContextRow onClick={triggerUpload}>⬆ Upload</ContextRow>
+              <ContextRow onClick={triggerUpload}>⬆ { "__T_FILES_MENU_UPLOAD__" }</ContextRow>
             </>
           ) : contextMenu.item.type === "dir" ? (
             <>
-              <ContextRow onClick={() => handleOpen(contextMenu.item!)}>📂 Open</ContextRow>
+              <ContextRow onClick={() => handleOpen(contextMenu.item!)}>📂 { "__T_FILES_MENU_OPEN__" }</ContextRow>
               <ContextSep />
-              <ContextRow onClick={createDir}>📁 New Folder</ContextRow>
-              <ContextRow onClick={createFile}>📄 New File</ContextRow>
+              <ContextRow onClick={createDir}>📁 { "__T_FILES_MENU_NEW_FOLDER__" }</ContextRow>
+              <ContextRow onClick={createFile}>📄 { "__T_FILES_MENU_NEW_FILE__" }</ContextRow>
               <ContextSep />
-              <ContextRow onClick={triggerUpload}>⬆ Upload</ContextRow>
+              <ContextRow onClick={triggerUpload}>⬆ { "__T_FILES_MENU_UPLOAD__" }</ContextRow>
               <ContextSep />
-              <ContextRow danger onClick={() => deleteFile(contextMenu.item!)}>🗑 Delete</ContextRow>
+              <ContextRow danger onClick={() => deleteFile(contextMenu.item!)}>🗑 { "__T_FILES_MENU_DELETE__" }</ContextRow>
             </>
           ) : (
             <>
-              <ContextRow onClick={() => handleOpen(contextMenu.item!)}>👁 Preview</ContextRow>
-              <ContextRow onClick={() => downloadFile(contextMenu.item!)}>⬇ Download</ContextRow>
+              <ContextRow onClick={() => handleOpen(contextMenu.item!)}>👁 { "__T_FILES_MENU_PREVIEW__" }</ContextRow>
+              <ContextRow onClick={() => downloadFile(contextMenu.item!)}>⬇ { "__T_FILES_MENU_DOWNLOAD__" }</ContextRow>
               <ContextSep />
-              <ContextRow danger onClick={() => deleteFile(contextMenu.item!)}>🗑 Delete</ContextRow>
+              <ContextRow danger onClick={() => deleteFile(contextMenu.item!)}>🗑 { "__T_FILES_MENU_DELETE__" }</ContextRow>
             </>
           )}
         </div>
@@ -353,8 +353,8 @@ export default function FilesApp() {
               )}
             </div>
             <div className="flex items-center justify-end gap-2 border-t px-5 py-3" style={{ borderColor: "rgba(92,67,50,0.1)" }}>
-              <button type="button" className="rounded-[9px] border px-4 py-[6px] text-[12px] font-semibold transition-colors hover:bg-black/[0.03]" style={{ borderColor: "rgba(92,67,50,0.16)", background: "#fff", color: "rgba(61,47,30,0.6)" }} onClick={() => closeModal(modal.type === "prompt" ? null : false)}>Cancel</button>
-              <button type="button" className="rounded-[9px] px-4 py-[6px] text-[12px] font-semibold text-white transition-all hover:brightness-110" style={{ background: modal.danger ? "#b03a20" : "#5c4332" }} onClick={submitModal}>Confirm</button>
+              <button type="button" className="rounded-[9px] border px-4 py-[6px] text-[12px] font-semibold transition-colors hover:bg-black/[0.03]" style={{ borderColor: "rgba(92,67,50,0.16)", background: "#fff", color: "rgba(61,47,30,0.6)" }} onClick={() => closeModal(modal.type === "prompt" ? null : false)}>{ "__T_FILES_MODAL_CANCEL__" }</button>
+              <button type="button" className="rounded-[9px] px-4 py-[6px] text-[12px] font-semibold text-white transition-all hover:brightness-110" style={{ background: modal.danger ? "#b03a20" : "#5c4332" }} onClick={submitModal}>{ "__T_FILES_MODAL_CONFIRM__" }</button>
             </div>
           </div>
         </div>

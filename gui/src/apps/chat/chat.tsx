@@ -81,10 +81,10 @@ const mapToolCallMessage = (toolCall: any, key?: string): MessageItem => {
   if (name === "shell" && args) {
     return { type: "tool_call", shell: true, toolCall, title: args.reason || "shell", command: args.command || "", _key: key, expanded: false };
   }
-  return { type: "tool_call", toolCall, title: name || "Tool Call", detail: args ? JSON.stringify(args, null, 2) : "", _key: key, expanded: false };
+  return { type: "tool_call", toolCall, title: name || "__T_CHAT_TOOL_CALL__", detail: args ? JSON.stringify(args, null, 2) : "", _key: key, expanded: false };
 };
 
-const buildChatTitleFromFirstMessage = (text = "") => String(text).replace(/\s+/g, " ").trim().slice(0, 20) || "New Chat";
+const buildChatTitleFromFirstMessage = (text = "") => String(text).replace(/\s+/g, " ").trim().slice(0, 20) || "__T_CHAT_NEW_CHAT_TITLE__";
 
 const fileExtFromMime = (type = "") => {
   if (type === "image/jpeg") return "jpg";
@@ -97,7 +97,7 @@ const fileExtFromMime = (type = "") => {
 const toDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader();
   reader.onload = () => resolve(String(reader.result || ""));
-  reader.onerror = () => reject(new Error("Failed to read file"));
+  reader.onerror = () => reject(new Error("__T_CHAT_FILE_READ_FAILED__"));
   reader.readAsDataURL(file);
 });
 
@@ -263,7 +263,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
     streamingAssistantKeyRef.current = "";
   }, [setMessagesSynced, updateCurrentConversationId]);
 
-  const createNewChat = useCallback(async (title = "New Chat") => {
+  const createNewChat = useCallback(async (title = "__T_CHAT_NEW_CHAT_TITLE__") => {
     const data = await request<{ conversationId: string }>("/api/chat/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -315,7 +315,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
         onConversationChange(null);
         return;
       }
-      setMessagesSynced((items) => [...items, { role: "assistant", content: `Error: ${error.message}` }]);
+      setMessagesSynced((items) => [...items, { role: "assistant", content: `${"__T_CHAT_ERROR_PREFIX__"}${error.message}` }]);
     }
   }, [loadChatPage, onConversationChange, resetState, saveLastChatId, scrollToBottom, setMessagesSynced]);
 
@@ -327,12 +327,12 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
     try {
       await ensureConnected();
     } catch {
-      setMessagesSynced((items) => [...items, { role: "assistant", content: "Error: WebSocket is not connected. Check whether the service has started." }]);
+      setMessagesSynced((items) => [...items, { role: "assistant", content: "__T_CHAT_WS_NOT_CONNECTED__" }]);
       setIsSending(false);
       return;
     }
 
-    const content = text || "Please read the attachment first and summarize the key information.";
+    const content = text || "__T_CHAT_ATTACHMENT_DEFAULT_PROMPT__";
     const outgoingAttachments = pendingFilesRef.current.map((file) => ({ type: "file", name: file.name, path: file.path, size: file.size }));
 
     ensureChatId(text).then((id) => {
@@ -350,7 +350,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
         onHistoryChange();
       });
     }).catch((error) => {
-      setMessagesSynced((items) => [...items, { role: "assistant", content: `Error: ${error.message}` }]);
+      setMessagesSynced((items) => [...items, { role: "assistant", content: `${"__T_CHAT_ERROR_PREFIX__"}${error.message}` }]);
     }).finally(() => {
       setIsSending(false);
     });
@@ -424,7 +424,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
         setPendingFiles(pendingFilesRef.current);
       }
     } catch (error: any) {
-      setUploadError(error.message || "Upload failed");
+      setUploadError(error.message || "__T_CHAT_UPLOAD_FAILED__");
     } finally {
       setUploading(false);
     }
@@ -585,7 +585,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
         if (data.conversationId !== currentConversationIdRef.current) return;
         const key = `ws:${Date.now()}:error`;
         seenKeysRef.current.add(key);
-        setMessagesSynced((items) => [...items, { role: "assistant", content: `Error: ${data.content}`, _key: key }]);
+        setMessagesSynced((items) => [...items, { role: "assistant", content: `${"__T_CHAT_ERROR_PREFIX__"}${data.content}`, _key: key }]);
         streamingAssistantKeyRef.current = "";
       }),
       on("aborted", (data) => {
@@ -629,13 +629,13 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
             {!messages.length ? (
               <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
                 <div className="mb-4 text-[40px]">💬</div>
-                <h2 className="mb-2 text-xl font-bold" style={{ color: "#2a1f13" }}>How can I help?</h2>
-                <p className="max-w-[320px] text-[13px] leading-relaxed" style={{ color: "rgba(0,0,0,0.38)" }}>Start a conversation with anything. Auto-execute commands or manual confirmation mode are both supported.</p>
+                <h2 className="mb-2 text-xl font-bold" style={{ color: "#2a1f13" }}>{"__T_CHAT_EMPTY_TITLE__"}</h2>
+                <p className="max-w-[320px] text-[13px] leading-relaxed" style={{ color: "rgba(0,0,0,0.38)" }}>{"__T_CHAT_EMPTY_DESC__"}</p>
                 {quickMessages.length > 0 && <div className="mt-5 flex flex-wrap justify-center gap-2">{quickMessages.map((msg) => <button key={msg} className="rounded-full border px-3 py-1.5 text-[12px]" style={{ borderColor: "rgba(160,120,80,0.18)", color: "#5c4332" }} onClick={() => sendQuick(msg)}>{msg}</button>)}</div>}
               </div>
             ) : (
               <>
-                {hasMore && <div className="py-2 text-center text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>Load more...</div>}
+                {hasMore && <div className="py-2 text-center text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>{"__T_CHAT_LOAD_MORE__"}</div>}
                 {messages.map((message, index) => (
                   <div key={message._key || index} className="mb-5" data-message-key={message._key || ""}>
                     {message.role === "user" && (
@@ -675,8 +675,8 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
                         <div className="min-w-0 flex-1 overflow-hidden rounded-xl" style={{ border: "1px solid rgba(160,120,80,0.18)", background: "#fff" }}>
                           <button type="button" className="flex w-full cursor-pointer items-center gap-2 border-none px-3 py-2 text-left transition-colors" style={{ background: "rgba(160,120,80,0.05)" }} onClick={() => setMessagesSynced((items) => items.map((item) => item === message ? { ...item, expanded: !item.expanded } : item))}>
                             <ChevronRight className={`h-3 w-3 shrink-0 transition-transform ${message.expanded ? "rotate-90" : ""}`} style={{ color: "rgba(0,0,0,0.35)" }} />
-                            <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs" style={{ color: "#3d2f1e" }}>{message.title || "Tool Call"}</span>
-                            {message.result && <span className="shrink-0 text-[11px]" style={{ color: "rgba(0,0,0,0.35)" }}>Done</span>}
+                            <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs" style={{ color: "#3d2f1e" }}>{message.title || "__T_CHAT_TOOL_CALL__"}</span>
+                            {message.result && <span className="shrink-0 text-[11px]" style={{ color: "rgba(0,0,0,0.35)" }}>{"__T_CHAT_DONE__"}</span>}
                           </button>
                           {message.expanded && (
                             <div style={{ borderTop: "1px solid rgba(160,120,80,0.12)" }}>
@@ -696,7 +696,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
                     )}
                   </div>
                 ))}
-                {busy && <div className="flex items-start"><div className="py-2 text-sm" style={{ color: "rgba(160,120,80,0.6)" }}>Thinking<span className="animate-pulse">...</span></div></div>}
+                {busy && <div className="flex items-start"><div className="py-2 text-sm" style={{ color: "rgba(160,120,80,0.6)" }}>{"__T_CHAT_THINKING__"}<span className="animate-pulse">...</span></div></div>}
               </>
             )}
           </div>
@@ -717,7 +717,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
               onDrop={onDropFiles}
             >
               <input ref={fileInputRef} type="file" className="hidden" multiple onChange={onPickFiles} />
-              {dragActive && <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed px-6 text-center text-sm font-semibold" style={{ borderColor: "rgba(160,120,80,0.4)", background: "rgba(160,120,80,0.04)", color: "#5c4332" }}>{uploading ? "Uploading..." : "Drag files here to add attachments"}</div>}
+              {dragActive && <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed px-6 text-center text-sm font-semibold" style={{ borderColor: "rgba(160,120,80,0.4)", background: "rgba(160,120,80,0.04)", color: "#5c4332" }}>{uploading ? "__T_CHAT_UPLOADING__" : "__T_CHAT_DRAG_FILES_HINT__"}</div>}
               {!!pendingFiles.length && <div className="flex flex-wrap gap-1.5 px-3.5 pb-0 pt-2.5">{pendingFiles.map((file, index) => <div key={`${file.path}-${index}`} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px]" style={{ border: "1px solid rgba(160,120,80,0.2)", background: "rgba(160,120,80,0.06)", color: "#3d2f1e" }}><span className="max-w-[220px] overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</span><button type="button" className="border-none bg-transparent text-xs" style={{ color: "rgba(0,0,0,0.35)" }} onClick={() => removePendingFile(index)}>x</button></div>)}</div>}
               {uploadError && <p className="px-3.5 pb-0 pt-2 text-xs text-red-500">{uploadError}</p>}
 
@@ -726,7 +726,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
                 value={input}
                 rows={1}
                 disabled={busy}
-                placeholder={busy ? "In progress..." : "Type a message..."}
+                placeholder={busy ? "__T_CHAT_INPUT_BUSY_PLACEHOLDER__" : "__T_CHAT_INPUT_PLACEHOLDER__"}
                 className="min-h-[52px] max-h-[200px] w-full resize-none overflow-y-auto border-none bg-transparent px-4 pb-3 pt-3.5 pr-12 text-sm leading-relaxed outline-none disabled:opacity-50"
                 style={{ color: "#2a1f13" }}
                 onInput={autoResize}
@@ -752,7 +752,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
               <div className="flex items-center px-3.5 pb-2.5">
                 <button type="button" disabled={busy || uploading} className="inline-flex h-7 cursor-pointer items-center gap-1 rounded-lg border-none bg-transparent px-2.5 text-xs transition-all disabled:cursor-not-allowed disabled:opacity-50" style={{ color: "rgba(160,120,80,0.6)" }} onClick={() => { setUploadError(""); fileInputRef.current?.click(); }}>
                   <Paperclip className="h-3.5 w-3.5" />
-                  {uploading ? "Uploading..." : "Upload File"}
+                  {uploading ? "__T_CHAT_UPLOADING__" : "__T_CHAT_UPLOAD_FILE__"}
                 </button>
               </div>
 
@@ -771,7 +771,7 @@ const ChatCore = forwardRef<ChatCoreHandle, ChatCoreProps>(function ChatCore({
           </div>
           <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px]" style={{ color: "rgba(0,0,0,0.3)" }}>
             <span className={`h-1.5 w-1.5 rounded-full ${wsStatus === "connected" ? "bg-emerald-500" : wsStatus === "connecting" ? "animate-pulse bg-amber-400" : "bg-red-400"}`} />
-            <span>{wsStatus === "connected" ? "Connected" : wsStatus === "connecting" ? "Connecting..." : "Disconnected"}</span>
+            <span>{wsStatus === "connected" ? "__T_CHAT_STATUS_CONNECTED__" : wsStatus === "connecting" ? "__T_CHAT_STATUS_CONNECTING__" : "__T_CHAT_STATUS_DISCONNECTED__"}</span>
           </div>
         </div>
       </div>

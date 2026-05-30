@@ -1,25 +1,25 @@
 import CodeWorkspace from "../codeworkspace";
 
 const tabs = [
-  { id: "chat", icon: "💬", label: "Chat" },
-  { id: "projects", icon: "🗂", label: "Sessions" },
+  { id: "chat", icon: "💬", label: "__T_CODEX_TAB_CHAT__" },
+  { id: "projects", icon: "🗂", label: "__T_CODEX_TAB_SESSIONS__" },
   { id: "memory", icon: "🤖", label: "AGENTS.md" },
-  { id: "history", icon: "🕐", label: "History" },
-  { id: "skills", icon: "✨", label: "Skills" },
+  { id: "history", icon: "🕐", label: "__T_CODEX_TAB_HISTORY__" },
+  { id: "skills", icon: "✨", label: "__T_CODEX_TAB_SKILLS__" },
   { id: "mcp", icon: "🌐", label: "MCP" },
-  { id: "settings", icon: "⚙️", label: "Settings" },
-  { id: "account", icon: "👤", label: "Account" }
+  { id: "settings", icon: "⚙️", label: "__T_CODEX_TAB_SETTINGS__" },
+  { id: "account", icon: "👤", label: "__T_CODEX_TAB_ACCOUNT__" }
 ];
 
 const permissionModes = [
-  { id: "workspaceWrite", label: "workspace", description: "Workspace-write mode. Requests confirmation when needed; suitable for most coding changes." },
-  { id: "readOnly", label: "readOnly", description: "Read-only mode for inspection and analysis. It does not modify files directly." },
-  { id: "fullAuto", label: "fullAuto", description: "Low-friction automatic execution, equivalent to Codex --full-auto." },
-  { id: "neverAsk", label: "neverAsk", description: "Workspace-write mode with approval disabled where possible." },
-  { id: "dangerFullAccess", label: "danger", description: "Full disk write access. High risk; use only in fully controlled environments." },
-  { id: "bypassPermissions", label: "bypass", description: "Bypasses approvals and sandboxing. Highest risk." }
+  { id: "workspaceWrite", label: "workspace", description: "__T_CODEX_PERM_WORKSPACE_DESC__" },
+  { id: "readOnly", label: "readOnly", description: "__T_CODEX_PERM_READONLY_DESC__" },
+  { id: "fullAuto", label: "fullAuto", description: "__T_CODEX_PERM_FULLAUTO_DESC__" },
+  { id: "neverAsk", label: "neverAsk", description: "__T_CODEX_PERM_NEVERASK_DESC__" },
+  { id: "dangerFullAccess", label: "danger", description: "__T_CODEX_PERM_DANGER_DESC__" },
+  { id: "bypassPermissions", label: "bypass", description: "__T_CODEX_PERM_BYPASS_DESC__" }
 ];
 
 export default function CodexApp() {
-  return <CodeWorkspace basePath="/apps/codex" title="Codex" emptyIcon="🤖" memoryLabel="Global Codex instructions" projectLabel="Codex session directories" tabs={tabs} defaultPermissionMode="workspaceWrite" permissionModes={permissionModes} />;
+  return <CodeWorkspace basePath="/apps/codex" title="Codex" emptyIcon="🤖" memoryLabel="__T_CODEX_MEMORY_LABEL__" projectLabel="__T_CODEX_PROJECT_LABEL__" tabs={tabs} defaultPermissionMode="workspaceWrite" permissionModes={permissionModes} />;
 }

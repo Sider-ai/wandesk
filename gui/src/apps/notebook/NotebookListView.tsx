@@ -72,7 +72,7 @@ export default function NotebookListView({
               <div className="pointer-events-none absolute -top-2.5 left-1/2 z-10 h-5 w-[50px] border-x-2 border-dashed border-white/60 bg-white/35 shadow-sm backdrop-blur-[1px]" style={{ transform: `translateX(-50%) rotate(${index % 2 ? 5 : -5}deg)` }} />
             )}
             <div className={`line-clamp-[8] whitespace-pre-wrap break-words px-3 font-['Comic_Sans_MS','Chalkboard_SE',cursive] text-base leading-[25px] ${style.textCls}`}>
-              {note.content || "(Empty)"}
+              {note.content || "__T_NOTEBOOK_NOTE_EMPTY__"}
             </div>
             <div className="absolute bottom-2 right-2.5 font-mono text-[10px] font-bold text-black/40">
               {formatTime(note.updated_at || note.created_at)}
@@ -82,7 +82,7 @@ export default function NotebookListView({
         );
       })}
 
-      {loading && !notes.length && <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white/70">Loading...</div>}
+      {loading && !notes.length && <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white/70">{ "__T_NOTEBOOK_LOADING__" }</div>}
       <div className="h-10 w-full" />
 
       {totalPages > 1 && (

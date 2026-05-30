@@ -22,10 +22,10 @@ export default function MemoryApp() {
   const canSave = editTitle.trim() && editContent.trim();
 
   const tabs = useMemo(() => [
-    { key: "all", label: "All", count: items.length },
-    { key: "pinned", label: "Pinned", count: pinned.length },
-    { key: "enabled", label: "Starred", count: enabled.length },
-    { key: "disabled", label: "Stored", count: disabled.length }
+    { key: "all", label: "__T_MEMORY_TAB_ALL__", count: items.length },
+    { key: "pinned", label: "__T_MEMORY_TAB_PINNED__", count: pinned.length },
+    { key: "enabled", label: "__T_MEMORY_TAB_STARRED__", count: enabled.length },
+    { key: "disabled", label: "__T_MEMORY_TAB_STORED__", count: disabled.length }
   ], [disabled.length, enabled.length, items.length, pinned.length]);
 
   const filteredItems = useMemo(() => {
@@ -50,7 +50,7 @@ export default function MemoryApp() {
       const data = await request("/api/memory/list");
       setItems(Array.isArray(data.items) ? data.items : []);
     } catch (err) {
-      toast.show((err as Error).message || "Failed to load memory", { type: "error" });
+      toast.show((err as Error).message || "__T_MEMORY_TOAST_LOAD_FAILED__", { type: "error" });
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function MemoryApp() {
         setItems((list) => list.map((it) => it.id === item.id ? { ...it, pinned: isPinned(item) ? 0 : 1 } : it));
       }
     } catch (err) {
-      toast.show((err as Error).message || "Failed to update memory", { type: "error" });
+      toast.show((err as Error).message || "__T_MEMORY_TOAST_UPDATE_FAILED__", { type: "error" });
     }
   };
 
@@ -95,17 +95,17 @@ export default function MemoryApp() {
       await post("/api/memory/update", payload);
       setItems((list) => list.map((it) => it.id === item.id ? { ...it, enabled: nextEnabled ? 1 : 0, pinned: !nextEnabled ? 0 : it.pinned } : it));
     } catch (err) {
-      toast.show((err as Error).message || "Failed to update memory", { type: "error" });
+      toast.show((err as Error).message || "__T_MEMORY_TOAST_UPDATE_FAILED__", { type: "error" });
     }
   };
 
   const deleteItem = async (item: MemoryItem) => {
-    if (!window.confirm(`Delete "${item.title}"? This cannot be undone.`)) return;
+    if (!window.confirm(`__T_MEMORY_CONFIRM_DELETE__`.replace("{title}", String(item.title)))) return;
     try {
       await post("/api/memory/delete", { id: item.id });
       setItems((list) => list.filter((it) => it.id !== item.id));
     } catch (err) {
-      toast.show((err as Error).message || "Failed to delete memory", { type: "error" });
+      toast.show((err as Error).message || "__T_MEMORY_TOAST_DELETE_FAILED__", { type: "error" });
     }
   };
 
@@ -139,7 +139,7 @@ export default function MemoryApp() {
       setEditorOpen(false);
       await loadItems();
     } catch (err) {
-      toast.show((err as Error).message || "Failed to save memory", { type: "error" });
+      toast.show((err as Error).message || "__T_MEMORY_TOAST_SAVE_FAILED__", { type: "error" });
     } finally {
       setSaving(false);
     }
@@ -165,7 +165,7 @@ export default function MemoryApp() {
         </div>
         <div className="flex items-center gap-1.5">
           <button className="flex h-8 w-8 items-center justify-center rounded-lg text-[16px] transition-all hover:bg-[rgba(92,67,50,0.07)]" style={{ color: "rgba(42,31,19,0.35)" }} onClick={loadItems}>↻</button>
-          <button className="rounded-[20px] border-2 border-dashed px-[18px] py-[7px] text-[17px] font-semibold transition-all hover:scale-[1.03] hover:border-[rgba(140,120,80,0.5)] hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(140,120,80,0.3)", background: "rgba(255,255,255,0.5)", color: "rgba(100,75,40,0.6)", fontFamily: "'Caveat','Segoe Print',cursive", backdropFilter: "blur(4px)" }} onClick={() => openEditor(null)}>+ New</button>
+          <button className="rounded-[20px] border-2 border-dashed px-[18px] py-[7px] text-[17px] font-semibold transition-all hover:scale-[1.03] hover:border-[rgba(140,120,80,0.5)] hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(140,120,80,0.3)", background: "rgba(255,255,255,0.5)", color: "rgba(100,75,40,0.6)", fontFamily: "'Caveat','Segoe Print',cursive", backdropFilter: "blur(4px)" }} onClick={() => openEditor(null)}>{ "__T_MEMORY_NEW_BTN__" }</button>
         </div>
       </div>
 
@@ -175,13 +175,13 @@ export default function MemoryApp() {
         ) : !items.length ? (
           <div className="flex flex-col items-center px-6 py-16 text-center">
             <div className="mb-3 text-[52px] opacity-65">📒</div>
-            <div className="mb-1 text-[22px] font-bold" style={{ color: "rgba(80,55,30,0.5)", fontFamily: "'Caveat','Segoe Print',cursive" }}>No memories yet</div>
-            <div className="mb-5 text-[16px]" style={{ color: "rgba(140,120,90,0.4)", fontFamily: "'Caveat','Segoe Print',cursive" }}>Memories help AI remember your preferences, conventions and decisions</div>
-            <button className="rounded-[20px] border-2 border-dashed px-5 py-2 text-[17px] font-semibold transition-all hover:scale-[1.03] hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(140,120,80,0.3)", background: "rgba(255,255,255,0.5)", color: "rgba(100,75,40,0.6)", fontFamily: "'Caveat','Segoe Print',cursive" }} onClick={() => openEditor(null)}>Create your first memory</button>
+            <div className="mb-1 text-[22px] font-bold" style={{ color: "rgba(80,55,30,0.5)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_EMPTY_TITLE__" }</div>
+            <div className="mb-5 text-[16px]" style={{ color: "rgba(140,120,90,0.4)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_EMPTY_DESC__" }</div>
+            <button className="rounded-[20px] border-2 border-dashed px-5 py-2 text-[17px] font-semibold transition-all hover:scale-[1.03] hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(140,120,80,0.3)", background: "rgba(255,255,255,0.5)", color: "rgba(100,75,40,0.6)", fontFamily: "'Caveat','Segoe Print',cursive" }} onClick={() => openEditor(null)}>{ "__T_MEMORY_EMPTY_CREATE_BTN__" }</button>
           </div>
         ) : !filteredItems.length ? (
           <div className="flex flex-col items-center px-6 py-14 text-center">
-            <div className="text-[16px] font-semibold" style={{ color: "rgba(80,55,30,0.4)", fontFamily: "'Caveat','Segoe Print',cursive" }}>No memories in this category</div>
+            <div className="text-[16px] font-semibold" style={{ color: "rgba(80,55,30,0.4)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_EMPTY_CATEGORY__" }</div>
           </div>
         ) : (
           <div className="flex flex-wrap items-start gap-4">
@@ -198,31 +198,31 @@ export default function MemoryApp() {
         <div className="absolute inset-0 z-30 flex items-center justify-center px-5 py-6" style={{ background: "rgba(60,45,25,0.25)", backdropFilter: "blur(8px)" }} onClick={(event) => { if (event.target === event.currentTarget) setEditorOpen(false); }}>
           <div className="relative flex w-full max-w-[500px] flex-col overflow-hidden rounded-[6px]" style={{ background: "#fef9e8", boxShadow: "0 20px 60px rgba(60,40,10,0.2),0 0 0 1px rgba(0,0,0,0.04)", maxHeight: "85%", backgroundImage: "repeating-linear-gradient(0deg,transparent 0px,transparent 27px,rgba(0,0,0,0.025) 27px,rgba(0,0,0,0.025) 28px)" }}>
             <div className="flex items-center justify-between px-6 pb-3 pt-5" style={{ borderBottom: "1px solid rgba(170,150,120,0.12)" }}>
-              <div className="text-[22px] font-bold" style={{ color: "rgba(80,55,30,0.7)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{editId ? "Edit Memory" : "New Memory"}</div>
+              <div className="text-[22px] font-bold" style={{ color: "rgba(80,55,30,0.7)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{editId ? "__T_MEMORY_EDITOR_TITLE_EDIT__" : "__T_MEMORY_EDITOR_TITLE_NEW__"}</div>
               <button className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] transition-all hover:bg-[rgba(0,0,0,0.06)]" style={{ color: "rgba(100,80,50,0.4)", background: "rgba(0,0,0,0.04)" }} onClick={() => setEditorOpen(false)}>×</button>
             </div>
             <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto px-6 py-4 [scrollbar-width:thin]">
               <div>
-                <div className="mb-1 text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>Title</div>
+                <div className="mb-1 text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_FIELD_TITLE__" }</div>
                 <input className="w-full rounded-md border-[1.5px] px-3.5 py-2.5 text-[22px] font-bold outline-none transition-all focus:border-[rgba(170,150,100,0.4)] focus:shadow-[0_0_0_3px_rgba(170,150,100,0.08)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.6)", color: "rgba(60,40,15,0.85)", fontFamily: "'Caveat','Segoe Print',cursive" }} value={editTitle} onChange={(event) => setEditTitle(event.target.value)} placeholder="__T_MEMORY_EDIT_NAME_PLACEHOLDER__" autoFocus />
               </div>
               <div>
-                <div className="mb-1 text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>Description</div>
+                <div className="mb-1 text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_FIELD_DESCRIPTION__" }</div>
                 <input className="w-full rounded-md border-[1.5px] px-3.5 py-2 text-[17px] outline-none transition-all focus:border-[rgba(170,150,100,0.4)] focus:shadow-[0_0_0_3px_rgba(170,150,100,0.08)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.6)", color: "rgba(60,40,15,0.85)", fontFamily: "'Caveat','Segoe Print',cursive" }} value={editDescription} onChange={(event) => setEditDescription(event.target.value)} placeholder="__T_MEMORY_EDIT_SUMMARY_PLACEHOLDER__" />
-                <div className="mt-1 text-[12px]" style={{ color: "rgba(140,120,80,0.3)", fontFamily: "'Caveat','Segoe Print',cursive" }}>When starred, AI sees only the title and description. Pin it for the full content.</div>
+                <div className="mt-1 text-[12px]" style={{ color: "rgba(140,120,80,0.3)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_DESCRIPTION_HINT__" }</div>
               </div>
               <div className="flex min-h-0 flex-1 flex-col">
                 <div className="mb-1 flex items-center justify-between">
-                  <div className="text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>Content</div>
-                  <div className="text-[12px] tabular-nums" style={{ color: "rgba(140,120,80,0.25)", fontFamily: "'Caveat',cursive" }}>{editContent.length} chars</div>
+                  <div className="text-[14px] font-semibold" style={{ color: "rgba(120,100,60,0.45)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_FIELD_CONTENT__" }</div>
+                  <div className="text-[12px] tabular-nums" style={{ color: "rgba(140,120,80,0.25)", fontFamily: "'Caveat',cursive" }}>{editContent.length} { "__T_MEMORY_CHARS_SUFFIX__" }</div>
                 </div>
-                <textarea className="w-full flex-1 resize-y rounded-md border-[1.5px] px-3.5 py-2.5 text-[16px] leading-[1.7] outline-none transition-all focus:border-[rgba(170,150,100,0.4)] focus:shadow-[0_0_0_3px_rgba(170,150,100,0.08)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.6)", color: "rgba(60,40,15,0.85)", fontFamily: "'Caveat','Segoe Print',cursive", minHeight: 180 }} value={editContent} onChange={(event) => setEditContent(event.target.value)} placeholder={"Write what you want AI to remember...\nMarkdown supported"} />
-                <div className="mt-1 text-[12px]" style={{ color: "rgba(140,120,80,0.28)", fontFamily: "'Caveat','Segoe Print',cursive" }}>AI reads full content only when this memory is pinned</div>
+                <textarea className="w-full flex-1 resize-y rounded-md border-[1.5px] px-3.5 py-2.5 text-[16px] leading-[1.7] outline-none transition-all focus:border-[rgba(170,150,100,0.4)] focus:shadow-[0_0_0_3px_rgba(170,150,100,0.08)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.6)", color: "rgba(60,40,15,0.85)", fontFamily: "'Caveat','Segoe Print',cursive", minHeight: 180 }} value={editContent} onChange={(event) => setEditContent(event.target.value)} placeholder={"__T_MEMORY_CONTENT_PLACEHOLDER__"} />
+                <div className="mt-1 text-[12px]" style={{ color: "rgba(140,120,80,0.28)", fontFamily: "'Caveat','Segoe Print',cursive" }}>{ "__T_MEMORY_CONTENT_HINT__" }</div>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 px-6 pb-5 pt-3" style={{ borderTop: "1px solid rgba(170,150,120,0.1)" }}>
-              <button className="rounded-[20px] border-[1.5px] px-[18px] py-[7px] text-[16px] font-semibold transition-all hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.5)", color: "rgba(100,80,50,0.5)", fontFamily: "'Caveat','Segoe Print',cursive" }} onClick={() => setEditorOpen(false)}>Cancel</button>
-              <button className="rounded-[20px] border-none px-[22px] py-[8px] text-[16px] font-bold transition-all hover:translate-y-[-1px] disabled:opacity-30" style={{ background: "rgba(120,85,45,0.75)", color: "#fef6e0", boxShadow: "0 2px 6px rgba(100,70,30,0.2)", fontFamily: "'Caveat','Segoe Print',cursive" }} disabled={!canSave || saving} onClick={saveEdit}>{saving ? "Saving..." : "Save"}</button>
+              <button className="rounded-[20px] border-[1.5px] px-[18px] py-[7px] text-[16px] font-semibold transition-all hover:bg-[rgba(255,255,255,0.8)]" style={{ borderColor: "rgba(170,150,100,0.2)", background: "rgba(255,255,255,0.5)", color: "rgba(100,80,50,0.5)", fontFamily: "'Caveat','Segoe Print',cursive" }} onClick={() => setEditorOpen(false)}>{ "__T_MEMORY_BTN_CANCEL__" }</button>
+              <button className="rounded-[20px] border-none px-[22px] py-[8px] text-[16px] font-bold transition-all hover:translate-y-[-1px] disabled:opacity-30" style={{ background: "rgba(120,85,45,0.75)", color: "#fef6e0", boxShadow: "0 2px 6px rgba(100,70,30,0.2)", fontFamily: "'Caveat','Segoe Print',cursive" }} disabled={!canSave || saving} onClick={saveEdit}>{saving ? "__T_MEMORY_BTN_SAVING__" : "__T_MEMORY_BTN_SAVE__"}</button>
             </div>
           </div>
         </div>

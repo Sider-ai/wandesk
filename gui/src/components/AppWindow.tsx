@@ -139,7 +139,7 @@ export default function AppWindow({ win }: { win: WindowState }) {
           onPointerDown={(event) => event.stopPropagation()}
           onDoubleClick={(event) => event.stopPropagation()}
           onClick={(event) => { event.stopPropagation(); windowManager.minimize(win.id); }}
-          title="Minimize"
+          title="__T_SHELL_WINDOW_MINIMIZE__"
         />
         <button
           data-window-control
@@ -147,7 +147,7 @@ export default function AppWindow({ win }: { win: WindowState }) {
           onPointerDown={(event) => event.stopPropagation()}
           onDoubleClick={(event) => event.stopPropagation()}
           onClick={(event) => { event.stopPropagation(); windowManager.maximize(win.id); }}
-          title="Maximize"
+          title="__T_SHELL_WINDOW_MAXIMIZE__"
         />
         <button
           data-window-control
@@ -155,7 +155,7 @@ export default function AppWindow({ win }: { win: WindowState }) {
           onPointerDown={(event) => event.stopPropagation()}
           onDoubleClick={(event) => event.stopPropagation()}
           onClick={(event) => { event.stopPropagation(); windowManager.close(win.id); }}
-          title="Close"
+          title="__T_SHELL_WINDOW_CLOSE__"
         />
       </div>
       <div className="flex h-[calc(100%-40px)] min-h-0 flex-col overflow-hidden">

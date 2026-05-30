@@ -10,5 +10,8 @@
   "notebook_assist_prompt_draft": "- 如果表达已经完整，仅做表达层面的优化，保持原意不变。",
   "notebook_assist_prompt_polish": "- 除非用户的笔记明确要求其他语言，否则使用中文。",
   "notebook_assist_prompt_output": "完成后，只输出最终的笔记正文，不要前缀、不要解释、不要 markdown 标题。",
-  "notebook_assist_prompt_content_label": "[用户在笔记里写下的内容]"
+  "notebook_assist_prompt_content_label": "[用户在笔记里写下的内容]",
+  "notebook_seed_1": "自由笔记\n\n想到什么就写什么，不用纠结结构。\n点右下角的 [辅助]，AI 会结合系统上下文帮你续写、润色或展开。\n\nWandesk 也能看到你在这里写的东西。\n当你聊天时，它知道你在想什么、在关注什么，\n回答也就更像是真正为你而写。",
+  "notebook_seed_2": "碎片也值得留下\n\n灵感不会等你准备好。\n一个词、半句话、一个还没想完的念头——\n先丢进来，别管它完不完整。\n\n有时候几周后回头看，\n会发现当初随手写下的那一行，\n正是你现在需要的答案。",
+  "notebook_seed_3": "值得慢慢想的事\n\n怎样的一天，结束时不会觉得空？\n有什么是只有你能做的？\n什么时候你最像你自己？\n\n现在不必回答。\n写下来，留着就好。"
 }

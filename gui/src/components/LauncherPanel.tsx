@@ -50,7 +50,7 @@ export default function LauncherPanel({ onOpen, onClose }: { onOpen: (appId: str
           className={`flex h-[26px] items-center rounded-[6px] px-2 transition-colors disabled:opacity-40 ${dark ? "text-white/42 hover:bg-white/[0.08] hover:text-white" : "text-black/[0.4] hover:bg-black/[0.06] hover:text-[#222]"}`}
           disabled={restarting}
           onClick={() => void restart()}
-          title="Restart App Service"
+          title="__T_SHELL_RESTART_APP_SERVICE__"
         >
           <RotateCcw className={`h-[13px] w-[13px] ${restarting ? "animate-spin" : ""}`} />
         </button>

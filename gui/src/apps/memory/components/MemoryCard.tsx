@@ -79,7 +79,7 @@ export default function MemoryCard({
           style={{ fontSize: 18, fontWeight: 700, color: "rgba(0,0,0,0.72)", fontFamily: "'Caveat','Segoe Print','Comic Sans MS',cursive" }}
           onClick={() => onEdit(item)}
         >
-          {item.title || "Untitled memory"}
+          {item.title || "__T_MEMORY_CARD_UNTITLED__"}
         </div>
         {item.description && (
           <div
@@ -98,17 +98,17 @@ export default function MemoryCard({
               style={enabled ? { background: "rgba(255,255,255,0.5)", color: "rgba(30,120,55,0.65)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", fontFamily: "'Caveat',cursive" } : { background: "rgba(255,255,255,0.3)", color: "rgba(0,0,0,0.22)", fontFamily: "'Caveat',cursive" }}
               onClick={() => onToggleEnable(item)}
             >
-              {enabled ? "✓ Starred" : "○ Stored"}
+              {enabled ? <>{"✓ "}{"__T_MEMORY_CARD_STARRED__"}</> : <>{"○ "}{"__T_MEMORY_CARD_STORED__"}</>}
             </button>
             <button
               className="rounded-xl px-2 py-[2px] text-[11px] font-semibold transition-all hover:brightness-[0.93]"
               style={pinned ? { background: "rgba(255,255,255,0.5)", color: "rgba(180,110,20,0.7)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", fontFamily: "'Caveat',cursive" } : { background: "rgba(255,255,255,0.3)", color: "rgba(0,0,0,0.22)", fontFamily: "'Caveat',cursive" }}
               onClick={() => onTogglePin(item)}
             >
-              {pinned ? "📌 Pinned" : "☆ Pinned"}
+              {pinned ? <>{"📌 "}{"__T_MEMORY_CARD_PINNED__"}</> : <>{"☆ "}{"__T_MEMORY_CARD_PINNED__"}</>}
             </button>
             <button className="rounded-xl px-2 py-[2px] text-[11px] font-semibold transition-all hover:brightness-[0.93]" style={{ background: "rgba(255,255,255,0.3)", color: "rgba(200,60,60,0.3)", fontFamily: "'Caveat',cursive" }} onClick={() => onDelete(item)}>
-              Delete
+              { "__T_MEMORY_CARD_DELETE__" }
             </button>
           </div>
         </div>
