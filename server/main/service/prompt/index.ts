@@ -7,6 +7,7 @@ import { memory as memorySection } from "./memory.js";
 import { model as modelSection } from "./model.js";
 import { remarks as remarksSection } from "./remarks.js";
 import { systemDocs as systemDocsSection } from "./system-docs.js";
+import { tasks as tasksSection } from "./tasks.js";
 import { tools as toolsSection } from "./tools.js";
 
 const instruction = (settings) => String(settings.systemPrompt || "").trim() || DEFAULT_SYSTEM_PROMPT;
@@ -43,6 +44,7 @@ const buildSystemPrompt = (currentConversationId = "", { appContext = "" }: any 
   });
   prompt += appsSection();
   prompt += chatsSection(currentConversationId);
+  prompt += tasksSection();
   prompt += remarksSection(currentConversationId);
   prompt += systemDocsSection();
   prompt += memorySection();
