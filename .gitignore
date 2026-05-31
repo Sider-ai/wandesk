@@ -55,5 +55,3 @@ skills-lock.json
 # 运行时烘焙产物,不入 git
 /apps/
 
-# wandesk-test 一次性运行副本(干净运行用,不入库)
-/wandesk-test/run/
