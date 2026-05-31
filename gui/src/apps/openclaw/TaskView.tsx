@@ -5,6 +5,7 @@ type Job = {
   id: string;
   name?: string;
   message?: string;
+  prompt?: string;
   schedule?: Schedule;
   lastRunAt?: number | string;
   state?: { lastStatus?: string };
@@ -66,6 +67,7 @@ export default function TaskView() {
   const [runBusy, setRunBusy] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
+  const [lastOutput, setLastOutput] = useState("");
   const [name, setName] = useState("");
   const [schedType, setSchedType] = useState<SchedType>("cron");
   const [schedValue, setSchedValue] = useState("");
@@ -95,7 +97,10 @@ export default function TaskView() {
     try {
       const data = await post("cron/run", { jobId });
       if (data.success === false) setError(data.message || "");
-      else await loadCron();
+      else {
+        setLastOutput(data.output || "");
+        await loadCron();
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -160,7 +165,7 @@ export default function TaskView() {
                     <div className="mt-px font-mono text-[9px] text-[#9a8a68]">{scheduleText(job)}</div>
                   </div>
                 </div>
-                {job.message && <div className="mt-1.5 line-clamp-2 text-[11px] italic leading-relaxed text-[#6a5838]">{job.message}</div>}
+                {(job.message || job.prompt) && <div className="mt-1.5 line-clamp-2 text-[11px] italic leading-relaxed text-[#6a5838]">{job.message || job.prompt}</div>}
               </div>
             </button>
           ))
@@ -173,7 +178,7 @@ export default function TaskView() {
         style={{ background: "linear-gradient(180deg,#c8a050,#a07828)", border: "1px solid #7a5818", textShadow: "0 1px 1px rgba(0,0,0,0.3)", boxShadow: "0 3px 8px rgba(90,50,10,0.4),0 1px 0 #5a3a08,inset 0 1px 1px rgba(255,230,160,0.25)" }}
       >+</button>
 
-      {selected && <DetailPanel job={selected} idx={selectedIdx} runBusy={runBusy} onBack={() => setSelected(null)} onRun={doRun} onDelete={doDelete} />}
+      {selected && <DetailPanel job={selected} idx={selectedIdx} runBusy={runBusy} lastOutput={lastOutput} onBack={() => setSelected(null)} onRun={doRun} onDelete={doDelete} />}
 
       {showNew && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-5" style={{ background: "rgba(30,20,12,0.7)", backdropFilter: "blur(4px)" }} onClick={(event) => { if (event.target === event.currentTarget) setShowNew(false); }}>
@@ -223,8 +228,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function DetailPanel({ job, idx, runBusy, onBack, onRun, onDelete }: {
-  job: Job; idx: number; runBusy: boolean;
+function DetailPanel({ job, idx, runBusy, lastOutput, onBack, onRun, onDelete }: {
+  job: Job; idx: number; runBusy: boolean; lastOutput: string;
   onBack: () => void; onRun: (id: string) => void; onDelete: (id: string) => void;
 }) {
   const lastRun = job.lastRunAt ? new Date(job.lastRunAt).toLocaleString() : "";
@@ -243,9 +248,10 @@ function DetailPanel({ job, idx, runBusy, onBack, onRun, onDelete }: {
               <div className="mt-0.5 font-mono text-[11px] text-[#9a8a68]">{scheduleText(job)}</div>
             </div>
           </div>
-          {job.message && <div className="mt-1.5 border-t border-dashed border-[rgba(160,140,100,0.2)] py-2 text-xs italic leading-relaxed text-[#5a4830]">{job.message}</div>}
+          {(job.message || job.prompt) && <div className="mt-1.5 border-t border-dashed border-[rgba(160,140,100,0.2)] py-2 text-xs italic leading-relaxed text-[#5a4830]">{job.message || job.prompt}</div>}
           {lastRun && <div className="mt-1.5 text-[10px] text-[#9a8a68]">{"__T_OPENCLAW_LAST_RUN__"} {lastRun}</div>}
           {job.state?.lastStatus && <div className={`mt-0.5 text-[10px] ${job.state.lastStatus === "error" ? "text-[#c05040]" : "text-[#4a8a40]"}`}>{job.state.lastStatus}</div>}
+          {lastOutput && <div className="mt-2 rounded-sm border border-[#9a875d]/25 bg-[#fff7df]/45 px-2.5 py-2 font-mono text-[10px] leading-relaxed text-[#5a3b18]">{lastOutput}</div>}
           <div className="mt-2.5 flex gap-1.5 border-t border-dashed border-[rgba(160,140,100,0.2)] pt-2">
             <button onClick={() => onRun(job.id)} disabled={runBusy} className="cursor-pointer rounded px-3.5 py-1.5 text-[9px] font-bold transition-transform active:translate-y-0.5 disabled:opacity-50" style={{ background: "linear-gradient(180deg,#5a9a50,#408838)", border: "1px solid #2a6a20", color: "#d8f0d0", boxShadow: "0 2px 0 rgba(0,0,0,0.12)" }}>{runBusy ? "__T_OPENCLAW_RUNNING__" : "▶ __T_OPENCLAW_RUN__"}</button>
             <button onClick={() => onDelete(job.id)} className="cursor-pointer rounded px-3.5 py-1.5 text-[9px] font-bold text-white transition-transform active:translate-y-0.5" style={{ background: "linear-gradient(180deg,#c0a090,#a88878)", border: "1px solid #8a6858", boxShadow: "0 2px 0 rgba(0,0,0,0.12)" }}>{"__T_OPENCLAW_DELETE__"}</button>

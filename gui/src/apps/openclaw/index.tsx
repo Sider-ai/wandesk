@@ -1,36 +1,61 @@
 import { useEffect, useState } from "react";
 import ChatView from "./ChatView";
+import ControlView from "./ControlView";
 import TaskView from "./TaskView";
 
-type Status = { online: boolean; version?: string | null; gateway?: boolean };
-type Tab = "tasks" | "chat";
+type Status = {
+  online: boolean;
+  version?: string | null;
+  gateway?: boolean;
+  gatewayUrl?: string;
+  serviceStatus?: string;
+  authCapability?: string;
+  bind?: string;
+  model?: string;
+  modelConfigured?: boolean;
+  sessionsCount?: number;
+  gatewayIssue?: string;
+  modelIssue?: string;
+};
+type Tab = "control" | "tasks" | "chat";
 
 const BASE = "/apps/openclaw";
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: "control", label: "__T_OPENCLAW_TAB_CONTROL__" },
   { id: "tasks", label: "__T_OPENCLAW_TAB_TASKS__" },
   { id: "chat", label: "__T_OPENCLAW_TAB_CHAT__" }
 ];
 
 export default function OpenClawApp() {
   const [status, setStatus] = useState<Status>({ online: false, version: null, gateway: false });
-  const [tab, setTab] = useState<Tab>("tasks");
+  const [checked, setChecked] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [tab, setTab] = useState<Tab>("control");
 
   const recheck = async () => {
+    setChecking(true);
     try {
       const res = await fetch(`${BASE}/status`);
       setStatus(await res.json());
     } catch {
       setStatus({ online: false, version: null, gateway: false });
+    } finally {
+      setChecked(true);
+      setChecking(false);
     }
   };
 
   useEffect(() => { recheck(); }, []);
 
-  const statusLabel = status.online
+  const statusLabel = checking
+    ? "__T_OPENCLAW_DETECTING__"
+    : status.online
     ? (status.gateway ? "__T_OPENCLAW_ONLINE__" : "__T_OPENCLAW_NO_GATEWAY__")
     : "__T_OPENCLAW_OFFLINE__";
-  const dotBg = status.online
+  const dotBg = checking
+    ? "radial-gradient(circle,#f1c75d,#9b7224)"
+    : status.online
     ? (status.gateway ? "radial-gradient(circle,#60b848,#388020)" : "radial-gradient(circle,#d4a840,#a08020)")
     : "#6a4a3a";
 
@@ -63,7 +88,22 @@ export default function OpenClawApp() {
           </div>
         </div>
 
-        {!status.online ? (
+        {!checked ? (
+          <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+            <div className="relative mb-5 flex h-[72px] w-[96px] items-center justify-center rounded-sm" style={{ background: "linear-gradient(180deg,#4b3320,#2d1b10)", border: "1px solid #1a0e06", boxShadow: "inset 0 2px 7px rgba(0,0,0,0.55),0 1px 0 rgba(255,224,150,0.06)" }}>
+              <div className="absolute left-3 top-3 h-2 w-2 rounded-full" style={{ background: "radial-gradient(circle,#f2d27b,#8a651f)", boxShadow: "0 0 10px rgba(242,210,123,0.42)" }} />
+              <div className="absolute right-3 top-3 h-2 w-2 rounded-full" style={{ background: "radial-gradient(circle,#b99048,#4f3212)" }} />
+              <div className="text-4xl">🦞</div>
+              <div className="absolute bottom-3 flex gap-1">
+                {[0, 1, 2].map((item) => (
+                  <span key={item} className="h-1.5 w-1.5 rounded-full" style={{ background: item === 1 ? "#f0d99a" : "#8d7750", boxShadow: item === 1 ? "0 0 8px rgba(240,217,154,0.45)" : "none" }} />
+                ))}
+              </div>
+            </div>
+            <div className="mb-2 text-sm font-bold text-[#3a2810]">{"__T_OPENCLAW_DETECTING_TITLE__"}</div>
+            <div className="max-w-[280px] text-xs leading-relaxed text-[rgba(60,40,20,0.5)]">{"__T_OPENCLAW_DETECTING_DESC__"}</div>
+          </div>
+        ) : !status.online ? (
           <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
             <div className="mb-4 text-4xl">🦞</div>
             <div className="mb-2 text-sm font-bold text-[#3a2810]">{"__T_OPENCLAW_NOT_INSTALLED_TITLE__"}</div>
@@ -80,6 +120,7 @@ export default function OpenClawApp() {
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
+            <div className={tab === "control" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ControlView status={status} onRefresh={recheck} /></div>
             <div className={tab === "tasks" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><TaskView /></div>
             <div className={tab === "chat" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ChatView /></div>
           </div>

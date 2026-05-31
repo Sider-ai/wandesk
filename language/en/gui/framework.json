@@ -50,5 +50,6 @@
   "app_name_claude_code": "Claude Code",
   "app_name_codex": "Codex",
   "app_name_settings": "Settings",
-  "app_name_openclaw": "OpenClaw"
+  "app_name_openclaw": "OpenClaw",
+  "app_name_hermes": "Hermes"
 }

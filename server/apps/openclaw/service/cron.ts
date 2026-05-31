@@ -1,17 +1,8 @@
-import { runCmd } from "./exec.js";
+import { runOpenClaw, runOpenClawJson } from "./openclaw.js";
 
 const run = async (args: string[]): Promise<string> => {
-  const res = await runCmd("openclaw", args, { timeout: 10000 });
-  if (!res.ok) throw new Error(res.stderr?.trim() || `openclaw ${args.join(" ")} 执行失败`);
+  const res = await runOpenClaw(args, 20000);
   return res.stdout.trim();
-};
-
-const parseJson = (str: string): any => {
-  try {
-    return JSON.parse(str);
-  } catch {
-    return null;
-  }
 };
 
 const normalizeJob = (job: any) => {
@@ -29,22 +20,24 @@ const normalizeJob = (job: any) => {
   return {
     ...job,
     schedule,
-    prompt: String(job?.payload?.message || ""),
+    message: String(job?.message || job?.payload?.message || ""),
+    prompt: String(job?.payload?.message || job?.message || ""),
     lastRunAt
   };
 };
 
 const listCron = async () => {
-  let out: string;
   try {
-    out = await run(["cron", "list", "--json"]);
+    const { data } = await runOpenClawJson(["cron", "list", "--json"], 20000);
+    const rawJobs = Array.isArray(data) ? data : Array.isArray(data.jobs) ? data.jobs : [];
+    return {
+      success: true,
+      jobs: rawJobs.map(normalizeJob),
+      total: Number(data?.total ?? rawJobs.length) || 0
+    };
   } catch (err: any) {
     return { status: 500, message: err?.message || "openclaw cron list 执行失败" };
   }
-  const data = parseJson(out);
-  if (!data) return { status: 500, message: "openclaw cron list 输出解析失败" };
-  const rawJobs = Array.isArray(data) ? data : Array.isArray(data.jobs) ? data.jobs : [];
-  return { success: true, jobs: rawJobs.map(normalizeJob) };
 };
 
 type Schedule = { cron?: string; at?: string; every?: number };

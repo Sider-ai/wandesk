@@ -1,24 +1,37 @@
 ---
 name: openclaw
-description: OpenClaw app that wraps the local openclaw CLI and Gateway in an AIOS chat interface.
+description: OpenClaw desk for the local CLI, Gateway, agent sessions, models, and scheduled work.
 backend: server/apps/openclaw
 ---
 
 # openclaw
 
-- Role: detect the local OpenClaw CLI, forward chat to the OpenClaw Gateway, and manage OpenClaw cron jobs.
+- Role: detect the local OpenClaw CLI, drive `openclaw agent`, inspect Gateway/model/session state, and manage OpenClaw cron jobs.
 - Backend: `server/apps/openclaw`
 - Data: none locally — all state lives on the OpenClaw side (CLI + Gateway).
 - Runtime dependency: local `openclaw` CLI and the OpenClaw Gateway listening on `localhost:18789`.
-- Auth: chat requests read the bearer token from `~/.openclaw/openclaw.json` (`gateway.auth.token`) when present.
+- Auth: Wandesk shells out to the local CLI. The CLI is responsible for Gateway tokens, model auth, and fallback behavior.
 
 ## Entry points
 
 ### `GET /apps/openclaw/status`
-Detects the CLI and Gateway.
-- Response: `{ online: boolean, version: string | null, gateway: boolean }`
+Detects the CLI, Gateway, default model, and recent session count.
+- Response includes `online`, `version`, `gateway`, `serviceStatus`, `authCapability`, `model`, `modelConfigured`, `sessionsCount`, and dashboard URL.
 - `online` is `false` (version `null`, "not installed") when `openclaw --version` fails.
-- `gateway` is `true` when `http://localhost:18789/` responds (status `< 500`).
+- `gateway` is `true` when `openclaw gateway status --json` or the local dashboard probe succeeds.
+
+### `GET /apps/openclaw/models`
+Lists OpenClaw models via `openclaw models list --json`.
+- Response: `{ success: true, count: number, models: Model[] }`.
+
+### `POST /apps/openclaw/models/set`
+Sets the default OpenClaw model via `openclaw models set <model>`.
+- Body: `{ model: string }`
+- Response: `{ success: true, output: string }`.
+
+### `GET /apps/openclaw/sessions`
+Lists recent OpenClaw sessions via `openclaw sessions --json --limit 20`.
+- Response: `{ success: true, count: number, sessions: Session[] }`.
 
 ### `GET /apps/openclaw/cron/list`
 Lists OpenClaw cron jobs via `openclaw cron list --json`.
@@ -43,8 +56,9 @@ Deletes a cron job via `openclaw cron delete <jobId>`.
 - Response: `{ success: true, output: string }`.
 
 ### `POST /apps/openclaw/chat`
-Forwards a chat to the OpenClaw Gateway (`POST http://localhost:18789/v1/chat/completions`, model `openclaw:main`, non-streaming).
-- Body: `{ message: string, history?: { role, content }[] }`
+Runs one OpenClaw agent turn through the local CLI.
+- Command: `openclaw agent --agent main --session-key <sessionKey> --message <message> --json`
+- Body: `{ message: string, sessionKey?: string, agentId?: string, model?: string, thinking?: string, timeout?: number }`
 - `message` is required (`400` otherwise).
-- Response: `{ success: true, reply: string }`.
-- Gateway errors are surfaced as `{ success: false, message }` with the upstream status.
+- Response: `{ success: true, reply: string, meta }`.
+- Gateway pairing issues can still be handled by OpenClaw's embedded fallback when its local provider auth is valid.

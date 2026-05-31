@@ -6,7 +6,8 @@ const appLoaders = [
   () => import("./notes/index.js"),
   () => import("./claude-code/index.js"),
   () => import("./codex/index.js"),
-  () => import("./openclaw/index.js")
+  () => import("./openclaw/index.js"),
+  () => import("./hermes/index.js")
 ];
 export {
   appLoaders
