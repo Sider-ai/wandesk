@@ -1,9 +1,9 @@
 # Wandesk — Developer Guide (AGENTS.md)
 
-Wandesk is an **AI desktop / local workbench**: a graphical workspace where the user describes an app and the AI builds it locally, alongside chat, files, tasks, and memory. This repo (`wandesk/`) is the **open-source product AND the upstream baseline** — shared code is developed here first, then synced to the desktop client and the cloud build.
+Wandesk is an **AI desktop / local workbench**: a graphical workspace where the user describes an app and the AI builds it locally, alongside chat, files, tasks, and memory. This repo (`wandesk/`) is the **open-source product and upstream baseline** for shared runtime code.
 
-- Remotes: GitHub `github.com/Sider-ai/wandesk.git` (origin) + Gitee `gitee.com/realuckyang/wandesk.git`. Push both for releases.
-- Cross-repo collaboration: `../CLAUDE.md` (workspace guide) and `../wandesk-dev/doc/three-repo-sync.md` (sync rules).
+- Public upstream: `github.com/Sider-ai/wandesk.git`.
+- Maintainer mirrors may exist, but do not document private remotes, credentials, or deployment details here.
 - Commit messages in this OSS upstream repo must be written in English.
 
 ---
@@ -56,14 +56,14 @@ apps/                   BAKING OUTPUT (apps/<app>/APP.md) — NOT committed (.gi
 
 ## Running (don't pollute the source)
 
-`npm run dev` **bakes in place** — it replaces `__T_` tokens in the source with literals, so running it in the repo root dirties tracked files. For maintenance, use the sibling **`../wandesk-test/`** harness, which rsyncs the repo into a disposable copy (`run/`), bakes and runs there, leaving the source clean (tokens intact):
+`npm run dev` **bakes in place** — it replaces `__T_` tokens in the source with literals, so running it in the repo root dirties tracked files. For maintenance, run from a disposable copy outside the repo root, bake and run there, and keep the source tree clean (tokens intact):
 
 ```bash
-cd ../wandesk-test
-node test.js r3                 # first time: sync + npm install + start (English)
-node test.js r1                 # day-to-day: sync + start
-node test.js r2                 # sync + clear db + start
-AIOS_LANG=zh node test.js r1    # bake Chinese
+rsync -a --delete --exclude node_modules --exclude .git ./ /tmp/wandesk-run/
+cd /tmp/wandesk-run
+npm install
+npm run dev                     # English
+AIOS_LANG=zh npm run dev        # Chinese
 # open http://localhost:9502
 ```
 
@@ -189,4 +189,4 @@ Inter-process auth via `AIOS_API_TOKEN` (shared). `AIOS_LANG` selects the bake l
 
 ## Baseline discipline (cross-repo)
 
-This repo is upstream. Develop shared code here (gui apps, server, prompt, i18n, seeds) → sync **OSS → client** (clean copy) and **OSS → cloud** (adapt: cloud has `basePath` URL wrapping, LiteLLM-managed model via `settings/*.ts`, default HOST `0.0.0.0`, no WelcomeView). Never edit shared code in the client first and back-port to OSS — that causes drift. Desktop-packaging (`tauri/`, `build/`) is client-only; cloud runtime is cloud-only. Full rules: `../wandesk-dev/doc/three-repo-sync.md`.
+This repo is upstream for shared runtime code: GUI apps, server, prompt, i18n, seeds, and local skills. Downstream packages or deployment variants should consume clean copies of shared code and keep packaging/deployment-only files outside this repo. Do not back-port shared behavior from a downstream package into OSS unless the same change belongs here as the single source of truth.
