@@ -82,6 +82,8 @@ export default function CreateAppApp() {
   const [selectedTpl, setSelectedTpl] = useState<string | null>(null);
 
   const filteredTemplates = useMemo(() => activeCategory === "all" ? templates : templates.filter((item) => item.cat === activeCategory), [activeCategory]);
+  const selectedTemplate = useMemo(() => templates.find((item) => item.name === selectedTpl) || null, [selectedTpl]);
+  const boardAccent = selectedTemplate ? categoryColor(selectedTemplate.cat) : "#9b6a35";
 
   const selectTemplate = (template: Template) => {
     setPrompt(template.desc);
@@ -115,46 +117,55 @@ export default function CreateAppApp() {
 
   return (
     <div className="createapp-shell flex h-full flex-col text-[#18242f]">
-      <div className="shrink-0 px-7 pb-5 pt-7">
-        <div className="mx-auto max-w-[640px]">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-[#102033] text-white shadow-[0_8px_22px_rgba(16,32,51,0.18)]">
+      <div className="createapp-top shrink-0 px-7 pb-5 pt-7">
+        <div className="mx-auto max-w-[700px]">
+          <div className="createapp-masthead flex items-start gap-3.5">
+            <div className="createapp-emblem flex h-10 w-10 shrink-0 items-center justify-center rounded-[9px] text-[#fff8e9]">
               <Sparkles className="h-[17px] w-[17px]" strokeWidth={1.9} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[24px] font-semibold leading-tight text-[#102033]">{ "__T_CREATEAPP_HEADING__" }</h2>
-              <p className="mt-1 text-[13px] leading-[1.55] text-[#607080]">{ "__T_CREATEAPP_SUBTITLE__" }</p>
+              <h2 className="text-[24px] font-semibold leading-tight text-[#2b2117]">{ "__T_CREATEAPP_HEADING__" }</h2>
+              <p className="mt-1 text-[13px] leading-[1.55] text-[#756452]">{ "__T_CREATEAPP_SUBTITLE__" }</p>
             </div>
           </div>
-        </div>
-        <div className="prompt-box relative mx-auto mt-5 max-w-[640px]">
-          <textarea
-            value={prompt}
-            rows={3}
-            className="prompt-input w-full resize-none border bg-white px-4 py-3.5 pr-[120px] text-[13.5px] leading-[1.65] text-[#17212b] outline-none transition placeholder:text-[#9aa7b4]"
-            placeholder="__T_CREATEAPP_INPUT_PLACEHOLDER__"
-            onChange={(event) => setPrompt(event.target.value)}
-            onCompositionStart={() => setComposing(true)}
-            onCompositionEnd={() => setComposing(false)}
-            onKeyDown={(event) => {
-              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                event.preventDefault();
-                create();
-              }
-            }}
-          />
-          <button className="create-button absolute bottom-3 right-3 inline-flex h-8 items-center gap-1.5 px-3.5 text-[12px] font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-35" disabled={!prompt.trim() || composing} onClick={create}>
-            { "__T_CREATEAPP_CREATE_BUTTON__" } <ArrowRight className="h-[13px] w-[13px]" strokeWidth={2} />
-          </button>
+          <div className={`prompt-box createapp-board relative mt-5 ${selectedTemplate ? "has-template" : ""}`} style={{ "--accent": boardAccent } as CSSProperties}>
+            <span className="createapp-board-clip" />
+            <span className="createapp-board-pin createapp-board-pin-left" />
+            <span className="createapp-board-pin createapp-board-pin-right" />
+            <textarea
+              value={prompt}
+              rows={3}
+              className="prompt-input w-full resize-none border px-5 py-4 pr-[128px] text-[13.5px] leading-[1.65] text-[#2b2117] outline-none transition placeholder:text-[#a39482]"
+              placeholder="__T_CREATEAPP_INPUT_PLACEHOLDER__"
+              onChange={(event) => setPrompt(event.target.value)}
+              onCompositionStart={() => setComposing(true)}
+              onCompositionEnd={() => setComposing(false)}
+              onKeyDown={(event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault();
+                  create();
+                }
+              }}
+            />
+            {selectedTemplate && (
+              <span className="createapp-template-tag absolute left-5 top-3 inline-flex max-w-[calc(100%-170px)] items-center gap-1.5 truncate px-2 py-1 text-[11px] font-semibold">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full" />
+                <span className="truncate">{selectedTemplate.name}</span>
+              </span>
+            )}
+            <button className="create-button absolute bottom-3.5 right-3.5 inline-flex h-8 items-center gap-1.5 px-3.5 text-[12px] font-semibold text-[#fff7e7] transition disabled:cursor-not-allowed disabled:opacity-40" disabled={!prompt.trim() || composing} onClick={create}>
+              { "__T_CREATEAPP_CREATE_BUTTON__" } <ArrowRight className="h-[13px] w-[13px]" strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="shrink-0 px-7 pb-3">
-        <div className="category-group mx-auto flex max-w-[640px] flex-wrap gap-1.5">
+        <div className="category-group mx-auto flex max-w-[700px] flex-wrap gap-1.5">
           {categories.map((cat) => {
             const Icon = cat.icon;
             return (
-              <button key={cat.key} className={`category-button inline-flex items-center gap-1.5 border px-2.5 py-[5px] text-[11.5px] font-medium transition ${activeCategory === cat.key ? "is-active" : ""}`} style={{ "--accent": cat.color } as CSSProperties} onClick={() => setActiveCategory(cat.key)}>
+              <button key={cat.key} className={`category-button inline-flex items-center gap-1.5 border px-2.5 py-[5px] text-[11.5px] font-semibold transition ${activeCategory === cat.key ? "is-active" : ""}`} style={{ "--accent": cat.color } as CSSProperties} onClick={() => setActiveCategory(cat.key)}>
                 <span className="category-mark"><Icon className="h-[12px] w-[12px]" strokeWidth={2} /></span>{cat.label}
               </button>
             );
@@ -163,16 +174,16 @@ export default function CreateAppApp() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-8 pt-1 [scrollbar-width:thin]">
-        <div className="mx-auto grid max-w-[640px] grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2.5">
+        <div className="mx-auto grid max-w-[700px] grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
           {filteredTemplates.map((template) => {
             const Icon = template.icon;
             return (
-              <button key={template.name} className={`template-card group relative flex min-h-[116px] flex-col border bg-white px-3.5 pb-3.5 pt-3 text-left transition ${selectedTpl === template.name ? "is-selected" : ""}`} style={{ "--accent": categoryColor(template.cat) } as CSSProperties} onClick={() => selectTemplate(template)}>
+              <button key={template.name} className={`template-card group relative flex min-h-[124px] flex-col border px-3.5 pb-3.5 pt-3 text-left transition ${selectedTpl === template.name ? "is-selected" : ""}`} style={{ "--accent": categoryColor(template.cat) } as CSSProperties} onClick={() => selectTemplate(template)}>
                 <div className="mb-2 flex items-center gap-2">
                   <span className="template-icon flex h-8 w-8 shrink-0 items-center justify-center"><Icon className="h-[16px] w-[16px]" strokeWidth={1.9} /></span>
-                  <span className="min-w-0 truncate text-[13px] font-semibold text-[#15212d]">{template.name}</span>
+                  <span className="min-w-0 truncate text-[13px] font-semibold text-[#2c241a]">{template.name}</span>
                 </div>
-                <p className="line-clamp-3 text-[11.5px] leading-[1.62] text-[#647485]">{template.desc}</p>
+                <p className="line-clamp-3 text-[11.5px] leading-[1.62] text-[#766857]">{template.desc}</p>
               </button>
             );
           })}
