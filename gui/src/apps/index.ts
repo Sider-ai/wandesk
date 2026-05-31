@@ -9,6 +9,7 @@ import GithubTrendingApp from "./ghtrending";
 import CreateAppApp from "./createapp";
 import ClaudeCodeApp from "./claude-code";
 import CodexApp from "./codex";
+import OpenClawApp from "./openclaw";
 import SettingsApp from "./settings";
 
 export const apps: AppDefinition[] = [
@@ -22,6 +23,7 @@ export const apps: AppDefinition[] = [
   { id: "createapp", name: "__T_APP_NAME_CREATEAPP__", icon: "🪄", component: CreateAppApp, defaultDesktopWindowSize: { w: 720, h: 640 } },
   { id: "claude-code", name: "__T_APP_NAME_CLAUDE_CODE__", icon: "🐙", component: ClaudeCodeApp, defaultDesktopWindowSize: { w: 1100, h: 720 } },
   { id: "codex", name: "__T_APP_NAME_CODEX__", icon: "💻", component: CodexApp, defaultDesktopWindowSize: { w: 1100, h: 720 } },
+  { id: "openclaw", name: "__T_APP_NAME_OPENCLAW__", icon: "🦞", component: OpenClawApp, defaultDesktopWindowSize: { w: 480, h: 720 }, minDesktopWindowSize: { w: 380, h: 560 } },
   { id: "settings", name: "__T_APP_NAME_SETTINGS__", icon: "⚙️", component: SettingsApp, defaultDesktopWindowSize: { w: 750, h: 520 } }
 ];
 
