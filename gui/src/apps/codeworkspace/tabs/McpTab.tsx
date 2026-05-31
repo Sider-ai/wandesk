@@ -4,12 +4,12 @@ export function McpTab({ basePath, data, loading }: { basePath: string; data: an
   const isCodex = basePath.includes("codex");
   const items = data?.configured || [];
   return (
-    <GenericShell title="MCP Servers" subtitle={`Data from ${isCodex ? "codex mcp list" : "claude mcp list"}`}>
-      {loading || !data ? <EmptyText text="Loading..." /> : !data.available ? <EmptyText text={data.error || "-"} bad /> : data.empty ? (
+    <GenericShell title="__T_CODEWORKSPACE_MCP_TITLE__" subtitle={isCodex ? "__T_CODEWORKSPACE_MCP_SUBTITLE_CODEX__" : "__T_CODEWORKSPACE_MCP_SUBTITLE_CLAUDE__"}>
+      {loading || !data ? <EmptyText text="__T_COMMON_LOADING__" /> : !data.available ? <EmptyText text={data.error || "-"} bad /> : data.empty ? (
         <div className="rounded-xl py-10 text-center" style={{ border: "1px dashed rgba(140,100,60,0.25)", background: "rgba(255,255,255,0.4)" }}>
           <div className="mb-2 text-[40px]">🌐</div>
-          <div className="mb-1 text-[14px] font-bold">No MCP server connected yet</div>
-          <div className="mx-auto max-w-md text-[11.5px]" style={{ color: "#6b5a46" }}>{isCodex ? "Use codex mcp add to add one." : "MCP lets Claude access external capabilities like browser, desktop, databases, and scheduled tasks."}</div>
+          <div className="mb-1 text-[14px] font-bold">__T_CODEWORKSPACE_MCP_EMPTY_TITLE__</div>
+          <div className="mx-auto max-w-md text-[11.5px]" style={{ color: "#6b5a46" }}>{isCodex ? "__T_CODEWORKSPACE_MCP_EMPTY_CODEX__" : "__T_CODEWORKSPACE_MCP_EMPTY_CLAUDE__"}</div>
         </div>
       ) : (
         <div className="space-y-2">
@@ -21,7 +21,7 @@ export function McpTab({ basePath, data, loading }: { basePath: string; data: an
                 {item.auth && <span className="rounded-full px-1.5 py-0.5 text-[10px]" style={{ background: "rgba(140,100,60,.1)", color: "#6b5a46" }}>{item.auth}</span>}
               </div>
               <div className="cc-mono mt-1 truncate text-[11px]" style={{ color: "#6b5a46" }}>{item.target || `${item.command || ""} ${item.args || ""}`}</div>
-              {item.cwd && <div className="cc-mono mt-0.5 truncate text-[10px]" style={{ color: "#8a7965" }}>cwd: {item.cwd}</div>}
+              {item.cwd && <div className="cc-mono mt-0.5 truncate text-[10px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_CWD_LABEL__: {item.cwd}</div>}
             </div>
           ))}
         </div>

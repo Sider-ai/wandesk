@@ -50,5 +50,6 @@
   "hermes_wait": "Wait",
   "hermes_send": "Send",
   "hermes_session_ledger": "Session Ledger",
-  "hermes_session_ledger_desc": "Open any Hermes session and continue the thread."
+  "hermes_session_ledger_desc": "Open any Hermes session and continue the thread.",
+  "hermes_token_unit": "tokens"
 }

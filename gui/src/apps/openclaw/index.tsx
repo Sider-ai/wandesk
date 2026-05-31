@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AgentGuideView from "../agent-guide/AgentGuideView";
 import ChatView from "./ChatView";
 import ControlView from "./ControlView";
 import TaskView from "./TaskView";
@@ -17,11 +18,12 @@ type Status = {
   gatewayIssue?: string;
   modelIssue?: string;
 };
-type Tab = "control" | "tasks" | "chat";
+type Tab = "takeover" | "control" | "tasks" | "chat";
 
 const BASE = "/apps/openclaw";
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: "takeover", label: "__T_AGENT_TAKEOVER_TAB__" },
   { id: "control", label: "__T_OPENCLAW_TAB_CONTROL__" },
   { id: "tasks", label: "__T_OPENCLAW_TAB_TASKS__" },
   { id: "chat", label: "__T_OPENCLAW_TAB_CHAT__" }
@@ -31,7 +33,8 @@ export default function OpenClawApp() {
   const [status, setStatus] = useState<Status>({ online: false, version: null, gateway: false });
   const [checked, setChecked] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [tab, setTab] = useState<Tab>("control");
+  const [tab, setTab] = useState<Tab>("takeover");
+  const [chatSessionKey, setChatSessionKey] = useState("");
 
   const recheck = async () => {
     setChecking(true);
@@ -47,6 +50,11 @@ export default function OpenClawApp() {
   };
 
   useEffect(() => { recheck(); }, []);
+
+  const openChat = (sessionKey = "") => {
+    setChatSessionKey(sessionKey);
+    setTab("chat");
+  };
 
   const statusLabel = checking
     ? "__T_OPENCLAW_DETECTING__"
@@ -120,9 +128,10 @@ export default function OpenClawApp() {
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className={tab === "control" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ControlView status={status} onRefresh={recheck} /></div>
+            <div className={tab === "takeover" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><AgentGuideView agentName="OpenClaw" variant="brass" /></div>
+            <div className={tab === "control" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ControlView status={status} onRefresh={recheck} onOpenChat={openChat} /></div>
             <div className={tab === "tasks" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><TaskView /></div>
-            <div className={tab === "chat" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ChatView /></div>
+            <div className={tab === "chat" ? "flex min-h-0 flex-1 flex-col" : "hidden"}><ChatView initialSessionKey={chatSessionKey} /></div>
           </div>
         )}
       </div>

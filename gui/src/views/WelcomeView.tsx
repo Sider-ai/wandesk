@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createProviderCatalog } from "../data/providers";
+import { buildTakeoverPrompt, resolveTakeoverGuidePath } from "../system/takeoverGuide";
 
 type Locale = "en" | "zh";
 
@@ -12,7 +13,8 @@ const texts = {
     agents_panel_label: "Code Agent",
     agents_intro: "You can use external agents such as Claude Code, Codex, and Antigravity to drive Wandesk.",
     agents_message_hint: "Message to send to the agent",
-    agents_message_template: "Wandesk is installed and running on this machine. Read its agent guide to understand how it works, then take over and help me with my tasks.\n\nAgent guide:\n  macOS:   ~/Library/Application Support/ai.wandesk.client/workspace/AGENTS.md\n  Windows: %APPDATA%\\ai.wandesk.client\\workspace\\AGENTS.md",
+    agents_message_path_fallback: "current Wandesk workspace/WANDESK_TAKEOVER.md",
+    agents_message_template: "Wandesk is installed and running on this machine. Read its takeover guide, then take over and help me with my tasks.\n\nTakeover guide:\n  {{WANDESK_TAKEOVER_PATH}}",
     enter_desktop_later: "Set up later and enter desktop",
     provider: "Provider",
     model_label: "Model",
@@ -40,7 +42,8 @@ const texts = {
     agents_panel_label: "Code Agent",
     agents_intro: "你可以用 Claude Code、Codex、Antigravity 等外部 agent 来驱动 Wandesk。",
     agents_message_hint: "发送给 agent 的消息",
-    agents_message_template: "Wandesk 已经安装并运行在这台机器上。读它的 agent 指南了解工作方式,然后接管帮我完成任务。\n\nAgent 指南位置:\n  macOS:   ~/Library/Application Support/ai.wandesk.client/workspace/AGENTS.md\n  Windows: %APPDATA%\\ai.wandesk.client\\workspace\\AGENTS.md",
+    agents_message_path_fallback: "当前 Wandesk 工作区/WANDESK_TAKEOVER.md",
+    agents_message_template: "Wandesk 已经安装并运行在这台机器上。请阅读它的接管文档，然后接管并帮我完成任务。\n\n接管文档位置:\n  {{WANDESK_TAKEOVER_PATH}}",
     enter_desktop_later: "稍后设置，进入桌面",
     provider: "供应商",
     model_label: "模型",
@@ -78,6 +81,7 @@ export default function WelcomeView() {
   const [displayedText, setDisplayedText] = useState("");
   const [typing, setTyping] = useState(false);
   const [entering, setEntering] = useState(false);
+  const [takeoverGuidePath, setTakeoverGuidePath] = useState("");
   const typeTimer = useRef<number | null>(null);
 
   const catalog = useMemo(() => createProviderCatalog(), []);
@@ -93,6 +97,10 @@ export default function WelcomeView() {
 
   const t = texts[LOCALE] || texts.zh;
   const currentKeyUrl = catalog.getProvider(model.provider)?.keyUrl || "";
+  const agentMessage = useMemo(
+    () => buildTakeoverPrompt(t.agents_message_template, t.agents_message_path_fallback, takeoverGuidePath),
+    [takeoverGuidePath, t]
+  );
 
   const patchModel = (patch: Partial<typeof model>) => {
     setModel((current) => ({ ...current, ...patch }));
@@ -230,6 +238,18 @@ export default function WelcomeView() {
     };
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    resolveTakeoverGuidePath()
+      .then((path) => {
+        if (mounted) setTakeoverGuidePath(path);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f7f3ee] [font-family:'Barlow',system-ui,sans-serif] text-[#222]">
       <style>{`.welcome-cursor{display:inline-block;width:2px;height:1.1em;background:#222;vertical-align:text-bottom;margin-left:2px;animation:welcome-blink .9s step-end infinite}@keyframes welcome-blink{0%,100%{opacity:1}50%{opacity:0}}`}</style>
@@ -313,7 +333,7 @@ export default function WelcomeView() {
                     ))}
                   </div>
                   <div className="mb-[5px] text-[10px] font-bold uppercase tracking-[0.1em] text-black/35">{t.agents_message_hint}</div>
-                  <div className="mb-5 select-all whitespace-pre-wrap rounded-[10px] border border-black/[0.08] bg-black/[0.03] px-3 py-[10px] text-[12px] leading-[1.65] text-[#222] [overflow-wrap:anywhere]" style={{ fontFamily: "'SF Mono','Menlo','Consolas',monospace" }}>{t.agents_message_template}</div>
+                  <div className="mb-5 select-all whitespace-pre-wrap rounded-[10px] border border-black/[0.08] bg-black/[0.03] px-3 py-[10px] text-[12px] leading-[1.65] text-[#222] [overflow-wrap:anywhere]" style={{ fontFamily: "'SF Mono','Menlo','Consolas',monospace" }}>{agentMessage}</div>
                   <button type="button" className="inline-flex w-full items-center justify-center rounded-full border border-black/[0.12] bg-white/70 px-5 py-[10px] text-[13px] font-semibold text-black/60 transition-all hover:-translate-y-px hover:border-black/[0.22] hover:bg-white hover:text-[#222] disabled:cursor-not-allowed disabled:opacity-45 disabled:transform-none" disabled={pending} onClick={skipToDesktop}>{t.enter_desktop_later}</button>
                 </div>
               )}

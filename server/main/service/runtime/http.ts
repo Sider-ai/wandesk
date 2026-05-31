@@ -44,6 +44,9 @@ const proxyAppsRequest = async (req, res, url) => {
   delete headers["transfer-encoding"];
   delete headers.te;
   delete headers.trailer;
+  if (process.env.AIOS_API_TOKEN) {
+    headers["x-aios-internal-token"] = process.env.AIOS_API_TOKEN;
+  }
   const method = req.method || "GET";
   const hasBody = method !== "GET" && method !== "HEAD";
   const body = hasBody ? await readRawBody(req) : void 0;

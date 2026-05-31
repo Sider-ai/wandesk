@@ -17,10 +17,10 @@
   "settings_tool_loop_limit_enable": "Enable tool max loop limit",
   "settings_tool_max_rounds": "Tool max loop count",
   "settings_tool_max_rounds_hint": "Default 50, range 1 - 500",
-  "settings_about_title": "About AIOS",
-  "settings_about_desc": "AIOS believes AI should be more than a tool. It should be an operating system for each person. It understands your intent, builds apps for you, executes tasks, and manages information locally so it all stays yours.",
-  "settings_about_lab": "From Sider AI Lab",
-  "settings_about_more": "Learn More",
+  "settings_about_title": "About Wandesk",
+  "settings_about_desc": "Wandesk is an open-source AI desktop and local workbench. Build apps by describing them, run tasks in context, manage personal information locally, and bring external agents such as Claude Code, Codex, OpenClaw, and Hermes into one desktop.",
+  "settings_about_lab": "Created by Sider AI",
+  "settings_about_more": "Visit wandesk.ai",
   "settings_skills_title": "Skill List",
   "settings_skills_hint": "Shows which skill sources are currently injected into the system prompt.",
   "settings_skills_refresh": "Refresh",
@@ -55,5 +55,7 @@
   "settings_chat_quick_1": "What is the current model configuration",
   "settings_chat_quick_2": "Help me switch models",
   "settings_chat_quick_3": "What settings can be configured",
-  "launcher_search_placeholder": "Search apps"
+  "launcher_search_placeholder": "Search apps",
+  "settings_sidebar_title": "Settings",
+  "settings_saved_ok": "Configuration saved"
 }

@@ -23,5 +23,21 @@
   "gh_chat_quick_3": "解释一下这个热门项目",
   "gh_digest_title": "开源新知速览",
   "gh_digest_desc": "一键总结当前时间段内最值得关注的开源项目及其核心亮点",
-  "app_sidebar_ghtrending": "开源新知"
+  "app_sidebar_ghtrending": "开源新知",
+  "ghtrending_time_weekly": "本周",
+  "ghtrending_time_monthly": "本月",
+  "ghtrending_failed": "失败",
+  "ghtrending_header_title": "开源雷达",
+  "ghtrending_back": "返回",
+  "ghtrending_insight_history": "洞察历史",
+  "ghtrending_all_languages": "全部语言",
+  "ghtrending_loading": "加载中...",
+  "ghtrending_digest_title": "开源雷达摘要",
+  "ghtrending_digest_desc": "一键总结当前时间范围内最值得关注的开源项目，提炼各自的核心亮点",
+  "ghtrending_generating": "生成中...",
+  "ghtrending_ai_digest": "AI 摘要",
+  "ghtrending_analyzed": "已分析",
+  "ghtrending_ai_insight": "AI 洞察",
+  "ghtrending_analyzing": "正在分析仓库详情...",
+  "ghtrending_no_history": "暂无洞察历史"
 }

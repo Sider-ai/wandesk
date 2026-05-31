@@ -1,7 +1,9 @@
 import { runOpenClawJson } from "./openclaw.js";
+import { normalizeSessionKey } from "./sessionKey.js";
 
 const normalizeSession = (item: any) => ({
   key: String(item?.key || ""),
+  sessionKey: normalizeSessionKey(item?.key || item?.sessionKey || item?.sessionId),
   sessionId: String(item?.sessionId || ""),
   agentId: String(item?.agentId || "main"),
   model: [item?.modelProvider, item?.model].filter(Boolean).join("/"),

@@ -21,14 +21,14 @@ function PlanCard({ basePath, plan }: { basePath: string; plan: any }) {
     try {
       const result = await fetchJson(`${basePath}/plans/file?slug=${encodeURIComponent(plan.slug)}`);
       if (!result.ok) {
-        setError(result.error || "Failed to load");
+        setError(result.error || "__T_CODEWORKSPACE_FAILED_TO_LOAD__");
         setExpanded(true);
         return;
       }
       setFull(result.content || "");
       setExpanded(true);
     } catch (err) {
-      setError((err as Error).message || "Failed to load");
+      setError((err as Error).message || "__T_CODEWORKSPACE_FAILED_TO_LOAD__");
       setExpanded(true);
     } finally {
       setLoading(false);
@@ -41,7 +41,7 @@ function PlanCard({ basePath, plan }: { basePath: string; plan: any }) {
           <div className="text-[13px] font-bold">{plan.title}</div>
           <div className="cc-mono mt-1 text-[10.5px]" style={{ color: "#8a7965" }}>{plan.slug}.md · {formatTime(plan.modified)} · {Math.round(Number(plan.sizeBytes || 0) / 1024)}KB</div>
         </div>
-        <button className="shrink-0 rounded-md border bg-white px-2.5 py-1 text-[11px] hover:bg-[#fdf7e8]" style={{ borderColor: "rgba(140,100,60,0.18)", color: "#4a3826" }} disabled={loading} onClick={toggle}>{loading ? "Loading..." : expanded ? "Collapse" : "Expand"}</button>
+        <button className="shrink-0 rounded-md border bg-white px-2.5 py-1 text-[11px] hover:bg-[#fdf7e8]" style={{ borderColor: "rgba(140,100,60,0.18)", color: "#4a3826" }} disabled={loading} onClick={toggle}>{loading ? "__T_COMMON_LOADING__" : expanded ? "__T_CODEWORKSPACE_COLLAPSE__" : "__T_CODEWORKSPACE_EXPAND__"}</button>
       </div>
       {expanded && <div className="mt-3">{error && <div className="mb-2 text-[11.5px]" style={{ color: "#b03a20" }}>{error}</div>}{full && <pre className="cc-mono max-h-[500px] overflow-auto whitespace-pre-wrap rounded-md p-3 text-[11.5px]" style={{ background: "#faf7f0", color: "#2a1f13" }}>{full}</pre>}</div>}
     </div>
@@ -51,8 +51,8 @@ function PlanCard({ basePath, plan }: { basePath: string; plan: any }) {
 export function PlansTab({ basePath, data, loading }: { basePath: string; data: any; loading?: boolean }) {
   const items = data?.items || [];
   return (
-    <GenericShell title="Plans" subtitle="From ~/.claude/plans/">
-      {loading || !data ? <EmptyText text="Loading..." /> : !items.length ? <EmptyText text="No plans yet" /> : <div className="space-y-3">{items.map((plan: any) => <PlanCard key={plan.slug} basePath={basePath} plan={plan} />)}</div>}
+    <GenericShell title="__T_CODEWORKSPACE_PLANS_TITLE__" subtitle="__T_CODEWORKSPACE_PLANS_SUBTITLE__">
+      {loading || !data ? <EmptyText text="__T_COMMON_LOADING__" /> : !items.length ? <EmptyText text="__T_CODEWORKSPACE_NO_PLANS__" /> : <div className="space-y-3">{items.map((plan: any) => <PlanCard key={plan.slug} basePath={basePath} plan={plan} />)}</div>}
     </GenericShell>
   );
 }

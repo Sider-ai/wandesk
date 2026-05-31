@@ -1,5 +1,6 @@
 import { runCmd } from "./exec.js";
 import { runOpenClawJson } from "./openclaw.js";
+import { normalizeSessionKey } from "./sessionKey.js";
 
 const GATEWAY = "http://localhost:18789";
 const DASHBOARD_URL = "http://127.0.0.1:18789/";
@@ -64,6 +65,7 @@ const readSessionSummary = async () => {
       count: Number(data?.count ?? data?.totalCount ?? sessions.length) || 0,
       sessions: sessions.slice(0, 4).map((item: any) => ({
         key: String(item?.key || ""),
+        sessionKey: normalizeSessionKey(item?.key || item?.sessionKey || item?.sessionId),
         model: [item?.modelProvider, item?.model].filter(Boolean).join("/"),
         updatedAt: item?.updatedAt || null,
         totalTokens: item?.totalTokens || 0

@@ -24,13 +24,13 @@ function MemoryFileCard({ basePath, file, onRefresh }: { basePath: string; file:
         body: JSON.stringify({ name: file.name, content: draft })
       });
       if (!result.ok) {
-        setError(result.error || "Save failed");
+        setError(result.error || "__T_CODEWORKSPACE_SAVE_FAILED__");
         return;
       }
       setEditing(false);
       onRefresh();
     } catch (err) {
-      setError((err as Error).message || "Save failed");
+      setError((err as Error).message || "__T_CODEWORKSPACE_SAVE_FAILED__");
     } finally {
       setSaving(false);
     }
@@ -44,14 +44,14 @@ function MemoryFileCard({ basePath, file, onRefresh }: { basePath: string; file:
         <div className="ml-auto flex items-center gap-1">
           {!editing ? (
             <>
-              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={() => setExpanded((value) => !value)}>{expanded ? "Collapse" : "Expand"}</button>
-              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={startEdit}>Edit</button>
+              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={() => setExpanded((value) => !value)}>{expanded ? "__T_CODEWORKSPACE_COLLAPSE__" : "__T_CODEWORKSPACE_EXPAND__"}</button>
+              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={startEdit}>__T_COMMON_EDIT__</button>
             </>
           ) : (
             <>
               {error && <span className="text-[10.5px]" style={{ color: "#b03a20" }}>{error}</span>}
-              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#8a7965" }} disabled={saving} onClick={() => setEditing(false)}>Cancel</button>
-              <button className="cc-btn-primary rounded-md px-2.5 py-0.5 text-[11px] font-semibold" disabled={saving} onClick={save}>{saving ? "Saving..." : "Save"}</button>
+              <button className="rounded-md px-2 py-0.5 text-[11px] hover:bg-black/5" style={{ color: "#8a7965" }} disabled={saving} onClick={() => setEditing(false)}>__T_COMMON_CANCEL__</button>
+              <button className="cc-btn-primary rounded-md px-2.5 py-0.5 text-[11px] font-semibold" disabled={saving} onClick={save}>{saving ? "__T_CODEWORKSPACE_SAVING__" : "__T_COMMON_SAVE__"}</button>
             </>
           )}
         </div>
@@ -59,9 +59,9 @@ function MemoryFileCard({ basePath, file, onRefresh }: { basePath: string; file:
       {editing ? (
         <textarea className="cc-mono mt-2 w-full rounded-md p-3 text-[11.5px] outline-none" style={{ minHeight: 320, resize: "vertical", border: "1px solid rgba(140,100,60,0.18)", background: "#faf7f0", color: "#2a1f13" }} value={draft} disabled={saving} onChange={(event) => setDraft(event.target.value)} />
       ) : expanded ? (
-        <pre className="cc-mono mt-2 max-h-[400px] overflow-auto whitespace-pre-wrap rounded-md p-3 text-[11.5px]" style={{ background: "#faf7f0", color: "#2a1f13" }}>{file.content}{file.truncated ? "\n\n... (truncated)" : ""}</pre>
+        <pre className="cc-mono mt-2 max-h-[400px] overflow-auto whitespace-pre-wrap rounded-md p-3 text-[11.5px]" style={{ background: "#faf7f0", color: "#2a1f13" }}>{file.content}{file.truncated ? "\n\n__T_CODEWORKSPACE_TRUNCATED_MARK__" : ""}</pre>
       ) : (
-        <div className="mt-2 max-h-10 overflow-hidden text-[11.5px]" style={{ color: "#6b5a46" }}>{preview || "(empty)"}</div>
+        <div className="mt-2 max-h-10 overflow-hidden text-[11.5px]" style={{ color: "#6b5a46" }}>{preview || "__T_CODEWORKSPACE_EMPTY_VALUE__"}</div>
       )}
     </div>
   );
@@ -73,13 +73,13 @@ export function MemoryTab({ basePath, title, subtitle, data, loading, onRefresh 
   const createFile = async () => {
     setCreating(true);
     try {
-      const seed = `# ${fileName}\n\nWrite global ${title} constraints and personal preferences here. It will be loaded on every launch.\n`;
+      const seed = `# ${fileName}\n\n__T_CODEWORKSPACE_MEMORY_SEED_PREFIX__${title}__T_CODEWORKSPACE_MEMORY_SEED_SUFFIX__\n`;
       const result = await fetchJson(`${basePath}/memory/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: fileName, content: seed })
       });
-      if (!result.ok) window.alert(result.error || "Create failed");
+      if (!result.ok) window.alert(result.error || "__T_CODEWORKSPACE_CREATE_FAILED__");
       onRefresh();
     } finally {
       setCreating(false);
@@ -93,13 +93,13 @@ export function MemoryTab({ basePath, title, subtitle, data, loading, onRefresh 
           <div className="text-[17px] font-bold">{fileName}</div>
           <div className="text-[11.5px]" style={{ color: "#6b5a46" }}>{subtitle} · <span className="cc-mono">{data?.dir || ""}</span></div>
         </div>
-        <button className="rounded-md border bg-white px-2.5 py-1 text-[11px] hover:bg-[#fdf7e8]" style={{ borderColor: "rgba(140,100,60,0.18)", color: "#4a3826" }} onClick={onRefresh}>Refresh</button>
+        <button className="rounded-md border bg-white px-2.5 py-1 text-[11px] hover:bg-[#fdf7e8]" style={{ borderColor: "rgba(140,100,60,0.18)", color: "#4a3826" }} onClick={onRefresh}>__T_COMMON_REFRESH__</button>
       </div>
-      {loading || !data ? <div className="text-[12px]" style={{ color: "#8a7965" }}>Loading...</div> : !files.length ? (
+      {loading || !data ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_COMMON_LOADING__</div> : !files.length ? (
         <div className="rounded-xl py-12 text-center" style={{ border: "1px dashed rgba(140,100,60,0.25)", background: "rgba(255,255,255,0.4)" }}>
-          <div className="mb-1 text-[14px] font-bold">{fileName} has not been created yet</div>
-          <div className="mx-auto max-w-md text-[11.5px]" style={{ color: "#6b5a46" }}>{title} loads it on every launch. Put personal preferences, conventions, or hard rules here.</div>
-          <button className="cc-btn-primary mt-4 rounded-lg px-4 py-2 text-[12.5px] font-semibold disabled:opacity-50" disabled={creating} onClick={createFile}>{creating ? "Creating..." : `Create ${fileName}`}</button>
+          <div className="mb-1 text-[14px] font-bold">{fileName} __T_CODEWORKSPACE_MEMORY_MISSING_SUFFIX__</div>
+          <div className="mx-auto max-w-md text-[11.5px]" style={{ color: "#6b5a46" }}>{title} __T_CODEWORKSPACE_MEMORY_USAGE_DESC__</div>
+          <button className="cc-btn-primary mt-4 rounded-lg px-4 py-2 text-[12.5px] font-semibold disabled:opacity-50" disabled={creating} onClick={createFile}>{creating ? "__T_CODEWORKSPACE_CREATING__" : `__T_CODEWORKSPACE_CREATE__ ${fileName}`}</button>
         </div>
       ) : <div className="space-y-3">{files.map((file: any) => <MemoryFileCard key={file.path || file.name} basePath={basePath} file={file} onRefresh={onRefresh} />)}</div>}
     </div>

@@ -5,6 +5,8 @@ const aboutCopy = {
   more: "__T_SETTINGS_ABOUT_MORE__"
 };
 
+const WANDESK_URL = "https://wandesk.ai";
+
 export default function AboutTab() {
   return (
     <section>
@@ -13,7 +15,7 @@ export default function AboutTab() {
         <div className="mt-2 text-[13px] font-medium leading-relaxed" style={{ color: "rgba(0,0,0,0.5)" }}>{aboutCopy.desc}</div>
         <div className="mt-4 h-px w-full" style={{ background: "rgba(0,0,0,0.08)" }} />
         <div className="mt-4 text-[12px]" style={{ color: "rgba(0,0,0,0.42)" }}>{aboutCopy.lab}</div>
-        <a href="https://github.com/yanglongyun/AIOS" target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[12px] underline underline-offset-4 transition-colors" style={{ color: "rgba(0,0,0,0.4)", textDecorationColor: "rgba(0,0,0,0.2)" }}>{aboutCopy.more}</a>
+        <a href={WANDESK_URL} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[12px] underline underline-offset-4 transition-colors" style={{ color: "rgba(0,0,0,0.4)", textDecorationColor: "rgba(0,0,0,0.2)" }}>{aboutCopy.more}</a>
       </div>
     </section>
   );

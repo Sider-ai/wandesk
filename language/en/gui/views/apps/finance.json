@@ -30,5 +30,17 @@
   "finance_chat_quick_2": "What spending can I cut back on?",
   "finance_chat_quick_3": "Generate a financial summary for this month",
   "app_sidebar_finance": "Ledger",
-  "finance_ledger_note_placeholder": "Summary..."
+  "finance_ledger_note_placeholder": "Summary...",
+  "finance_summary_income": "Income",
+  "finance_summary_expense": "Expense",
+  "finance_summary_balance": "Balance",
+  "finance_col_date": "Date",
+  "finance_col_summary": "Summary",
+  "finance_col_expense": "Expense",
+  "finance_col_deposit": "Deposit",
+  "finance_col_action": "Action",
+  "finance_default_note_deposit": "Deposit",
+  "finance_default_note_expense": "Expense",
+  "finance_action_delete": "Delete",
+  "finance_action_save": "Save"
 }

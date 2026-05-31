@@ -55,10 +55,10 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
       {!currentPath ? (
         <>
           <div>
-            <div className="text-[17px] font-bold">{isCodex ? "Session Archive" : "Projects"}</div>
-            <div className="text-[11.5px]" style={{ color: "#6b5a46" }}>{subtitle} · {roots.length} items</div>
+            <div className="text-[17px] font-bold">{isCodex ? "__T_CODEWORKSPACE_SESSION_ARCHIVE__" : "__T_CODEWORKSPACE_PROJECTS_TITLE__"}</div>
+            <div className="text-[11.5px]" style={{ color: "#6b5a46" }}>{subtitle} · {roots.length} __T_CODEWORKSPACE_ITEMS_UNIT__</div>
           </div>
-          {loading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>Loading...</div> : !roots.length ? <div className="text-[12px]" style={{ color: "#8a7965" }}>No sessions yet</div> : (
+          {loading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_COMMON_LOADING__</div> : !roots.length ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_NO_SESSIONS__</div> : (
             <div className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "rgba(140,100,60,0.12)" }}>
               {roots.map((item: any) => {
                 const segment = String(item.dirName || item.year || item.name || "");
@@ -68,7 +68,7 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
                       <div className="truncate text-[12.5px] font-medium" style={{ color: "#2a1f13" }}>{isCodex ? `📅 ${item.year || segment}` : `📁 ${item.cwd || segment}`}</div>
                       {!isCodex && <div className="cc-mono mt-0.5 truncate text-[10px]" style={{ color: "#8a7965" }}>{segment}</div>}
                     </div>
-                    <div className="cc-mono text-right text-[11px]" style={{ color: "#4a3826" }}>{item.sessionCount || 0} sessions</div>
+                    <div className="cc-mono text-right text-[11px]" style={{ color: "#4a3826" }}>{item.sessionCount || 0} __T_CODEWORKSPACE_SESSIONS_UNIT__</div>
                     {!isCodex && <div className="cc-mono text-right text-[10.5px]" style={{ color: "#8a7965" }}>{formatSize(item.totalSize)}</div>}
                     <div className="cc-mono text-right text-[10.5px]" style={{ color: "#8a7965" }}>{formatTime(item.lastActivity)}</div>
                     <div style={{ color: "#8a7965" }}>›</div>
@@ -81,7 +81,7 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-1 text-[12px]">
-            <button className="hover:underline" style={{ color: "#5c4332" }} onClick={() => { setCurrentPath(null); setDirData(null); setFileName(""); setFileData(null); }}>{isCodex ? "📁 Session Archive" : "📁 Projects"}</button>
+            <button className="hover:underline" style={{ color: "#5c4332" }} onClick={() => { setCurrentPath(null); setDirData(null); setFileName(""); setFileData(null); }}>{isCodex ? "📁 __T_CODEWORKSPACE_SESSION_ARCHIVE__" : "📁 __T_CODEWORKSPACE_PROJECTS_TITLE__"}</button>
             {currentPath.map((segment, index) => (
               <span key={`${segment}-${index}`} className="contents">
                 <span style={{ color: "#8a7965" }}>/</span>
@@ -91,19 +91,19 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
             {fileName && <><span style={{ color: "#8a7965" }}>/</span><span className="cc-mono max-w-[260px] truncate font-semibold" style={{ color: "#2a1f13" }}>{fileName}</span></>}
           </div>
           {fileName ? (
-            fileLoading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>Reading...</div> : !fileData?.ok ? <div className="text-[12px]" style={{ color: "#b03a20" }}>{fileData?.error || "Failed to load"}</div> : (
+            fileLoading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_READING__</div> : !fileData?.ok ? <div className="text-[12px]" style={{ color: "#b03a20" }}>{fileData?.error || "__T_CODEWORKSPACE_FAILED_TO_LOAD__"}</div> : (
               <div className="overflow-hidden rounded-xl border bg-white" style={{ borderColor: "rgba(140,100,60,0.12)" }}>
                 <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "rgba(140,100,60,0.08)", background: "#fffaf2" }}>
                   <div className="min-w-0 flex-1">
                     <div className="cc-mono truncate text-[12.5px] font-semibold" style={{ color: "#2a1f13" }}>{fileData.path}</div>
-                    <div className="cc-mono mt-0.5 text-[10.5px]" style={{ color: "#8a7965" }}>{formatSize(fileData.size)}{fileData.truncated ? " · showing only the first 2MB" : ""}</div>
+                    <div className="cc-mono mt-0.5 text-[10.5px]" style={{ color: "#8a7965" }}>{formatSize(fileData.size)}{fileData.truncated ? " · __T_CODEWORKSPACE_TRUNCATED_HINT__" : ""}</div>
                   </div>
-                  <button className="rounded-md px-2.5 py-1 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={copyFile}>{copied ? "Copied" : "Copy"}</button>
+                  <button className="rounded-md px-2.5 py-1 text-[11px] hover:bg-black/5" style={{ color: "#5c4332" }} onClick={copyFile}>{copied ? "__T_CODEWORKSPACE_COPIED__" : "__T_CODEWORKSPACE_COPY__"}</button>
                 </div>
                 <div className="max-h-[720px] overflow-auto cc-thin-scroll">
                   {String(fileName).toLowerCase().endsWith(".jsonl") ? (
                     <div className="space-y-2 px-4 py-3">
-                      {!entries.length ? <div className="text-[12px]" style={{ color: "#8a7965" }}>No structured entries.</div> : entries.map((entry) => (
+                      {!entries.length ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_NO_STRUCTURED_ENTRIES__</div> : entries.map((entry) => (
                         <button key={entry.key} className="w-full rounded-xl border px-3 py-2 text-left transition-colors hover:bg-[#fffaf2]" style={{ borderColor: "rgba(140,100,60,0.16)", background: "rgba(255,252,246,0.9)" }} onClick={() => setExpanded((prev) => ({ ...prev, [entry.key]: !prev[entry.key] }))}>
                           <div className="flex items-start gap-3">
                             <div className="cc-mono min-w-[26px] text-[10px]" style={{ color: "#8a7965" }}>{entry.index}</div>
@@ -112,7 +112,7 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
                               <div className="mt-1 text-[12px] leading-relaxed" style={{ color: "#2a1f13" }}>{entry.summary}</div>
                               {expanded[entry.key] && <pre className="cc-mono mt-2 overflow-x-auto whitespace-pre-wrap rounded-lg px-3 py-2 text-[11px]" style={{ background: "#f6efe2", color: "#4a3826" }}>{entry.pretty}</pre>}
                             </div>
-                            <div className="text-[11px]" style={{ color: "#8a7965" }}>{expanded[entry.key] ? "Collapse" : "Expand"}</div>
+                            <div className="text-[11px]" style={{ color: "#8a7965" }}>{expanded[entry.key] ? "__T_CODEWORKSPACE_COLLAPSE__" : "__T_CODEWORKSPACE_EXPAND__"}</div>
                           </div>
                         </button>
                       ))}
@@ -121,13 +121,13 @@ export function ProjectsTab({ basePath, title, subtitle, data, loading }: { base
                 </div>
               </div>
             )
-          ) : dirLoading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>Loading...</div> : !dirData?.ok ? <div className="text-[12px]" style={{ color: "#b03a20" }}>{dirData?.error || "Failed to load"}</div> : (
+          ) : dirLoading ? <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_COMMON_LOADING__</div> : !dirData?.ok ? <div className="text-[12px]" style={{ color: "#b03a20" }}>{dirData?.error || "__T_CODEWORKSPACE_FAILED_TO_LOAD__"}</div> : (
             <>
-              {dirData?.isRootProject && <div><div className="truncate text-[15px] font-bold">{String(dirData.cwd || "").split("/").filter(Boolean).pop() || dirData.cwd}</div><div className="cc-mono mt-0.5 text-[10.5px]" style={{ color: "#8a7965" }}>decoded cwd: {dirData.cwd}</div></div>}
-              {!!subdirs.length && <ProjectRows title={`Directories (${subdirs.length})`} rows={subdirs} icon="📁" onClick={(item) => enterDir([...(currentPath || []), item.name])} />}
-              {!!sessions.length && <ProjectRows title={`Sessions (${sessions.length})`} rows={sessions} icon="💬" onClick={(item) => openFile(item.name || `${item.sessionId}.jsonl`)} session />}
-              {!!files.length && <ProjectRows title={`Other Files (${files.length})`} rows={files} icon="📄" onClick={(item) => openFile(item.name)} />}
-              {!subdirs.length && !sessions.length && !files.length && <div className="text-[12px]" style={{ color: "#8a7965" }}>This directory is empty</div>}
+              {dirData?.isRootProject && <div><div className="truncate text-[15px] font-bold">{String(dirData.cwd || "").split("/").filter(Boolean).pop() || dirData.cwd}</div><div className="cc-mono mt-0.5 text-[10.5px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_DECODED_CWD__: {dirData.cwd}</div></div>}
+              {!!subdirs.length && <ProjectRows title={`__T_CODEWORKSPACE_DIRECTORIES__ (${subdirs.length})`} rows={subdirs} icon="📁" onClick={(item) => enterDir([...(currentPath || []), item.name])} />}
+              {!!sessions.length && <ProjectRows title={`__T_CODEWORKSPACE_SESSIONS__ (${sessions.length})`} rows={sessions} icon="💬" onClick={(item) => openFile(item.name || `${item.sessionId}.jsonl`)} session />}
+              {!!files.length && <ProjectRows title={`__T_CODEWORKSPACE_OTHER_FILES__ (${files.length})`} rows={files} icon="📄" onClick={(item) => openFile(item.name)} />}
+              {!subdirs.length && !sessions.length && !files.length && <div className="text-[12px]" style={{ color: "#8a7965" }}>__T_CODEWORKSPACE_DIRECTORY_EMPTY__</div>}
             </>
           )}
         </>
@@ -145,7 +145,7 @@ function ProjectRows({ title, rows, icon, onClick, session }: { title: string; r
           <button key={item.name || item.sessionId} className="flex w-full items-center gap-3 border-b bg-white px-4 py-2.5 text-left transition-colors last:border-b-0 hover:bg-[#fdf7e8]" style={{ borderColor: "rgba(140,100,60,0.08)" }} onClick={() => onClick(item)}>
             <span>{icon}</span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[12.5px] font-medium" style={{ color: "#2a1f13" }}>{session ? (item.firstPrompt || item.threadName || item.name || "(untitled)") : item.name}</div>
+              <div className="truncate text-[12.5px] font-medium" style={{ color: "#2a1f13" }}>{session ? (item.firstPrompt || item.threadName || item.name || "__T_CODEWORKSPACE_UNTITLED__") : item.name}</div>
               {session && <div className="cc-mono truncate text-[10px]" style={{ color: "#8a7965" }}>{String(item.sessionId || "").slice(0, 8)} · {item.model || item.name || ""}</div>}
             </div>
             <span className="cc-mono text-[10.5px]" style={{ color: "#8a7965" }}>{formatSize(item.size || item.sizeBytes)}</span>

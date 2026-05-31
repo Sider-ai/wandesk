@@ -15,6 +15,7 @@ type Status = {
 
 type Session = {
   key: string;
+  sessionKey?: string;
   sessionId?: string;
   agentId?: string;
   model?: string;
@@ -56,7 +57,7 @@ const formatTime = (value?: number | string | null) => {
 
 const shortModel = (model?: string) => String(model || "").replace(/^claude-cli\//, "").replace(/^openai\//, "");
 
-export default function ControlView({ status, onRefresh }: { status: Status; onRefresh: () => void }) {
+export default function ControlView({ status, onRefresh, onOpenChat }: { status: Status; onRefresh: () => void; onOpenChat: (sessionKey?: string) => void }) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
@@ -171,14 +172,14 @@ export default function ControlView({ status, onRefresh }: { status: Status; onR
           ) : (
             <div className="grid gap-2">
               {sessions.map((item) => (
-                <div key={item.key || item.sessionId} className="rounded-sm border border-[#7a5a22]/20 bg-[#fff7df]/40 px-2.5 py-2">
-                  <div className="truncate font-mono text-[10px] text-[#5b3a12]">{item.key || item.sessionId}</div>
+                <button key={item.key || item.sessionId} className="w-full cursor-pointer rounded-sm border border-[#7a5a22]/20 bg-[#fff7df]/40 px-2.5 py-2 text-left transition-transform active:translate-y-0.5" onClick={() => onOpenChat(item.sessionKey || item.key || item.sessionId)}>
+                  <div className="truncate text-[12px] font-bold text-[#5b3a12]">{(item.sessionKey || item.key || item.sessionId || "").replace(/^wandesk-?/, "") || "__T_OPENCLAW_NEW_CONVERSATION__"}</div>
                   <div className="mt-1 flex items-center justify-between gap-2 text-[10px] text-[#8b7650]">
                     <span className="truncate">{shortModel(item.model)}</span>
                     <span className="shrink-0 tabular-nums">{item.totalTokens || 0} __T_OPENCLAW_TOKEN_UNIT__</span>
                   </div>
                   {formatTime(item.updatedAt) && <div className="mt-0.5 text-[9px] text-[#a08a5f]">{formatTime(item.updatedAt)}</div>}
-                </div>
+                </button>
               ))}
             </div>
           )}

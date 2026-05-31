@@ -28,5 +28,20 @@
   "app_sidebar_codex": "Codex",
   "app_top_chat": "对话",
   "chat_side_title": "在{app}中与AI聊天",
-  "chat_side_context_hint": "当前在 {app} 中，可以直接提问相关问题"
+  "chat_side_context_hint": "当前在 {app} 中，可以直接提问相关问题",
+  "chat_history_empty": "暂无聊天记录",
+  "chat_rename": "重命名",
+  "chat_confirm_delete_prompt": "确认删除?",
+  "chat_click_to_confirm": "点击确认",
+  "chat_delete": "删除",
+  "chat_new_chat_title": "新对话",
+  "chat_error_prefix": "错误:",
+  "chat_ws_not_connected": "错误:WebSocket 未连接,请检查服务是否已启动。",
+  "chat_attachment_default_prompt": "请先阅读附件,并总结其中的关键信息。",
+  "chat_drag_files_hint": "将文件拖到这里添加附件",
+  "chat_input_busy_placeholder": "处理中…",
+  "chat_status_connected": "已连接",
+  "chat_status_connecting": "连接中…",
+  "chat_status_disconnected": "已断开",
+  "chat_new_chat_button": "新对话"
 }
