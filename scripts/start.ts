@@ -12,7 +12,7 @@
  *      - 支持双引号 / 单引号 / 反引号 / 裸文本四种上下文的正确转义
  *      - language/<locale>/apps/<app>/APP.md 烘焙到 apps/<app>/APP.md
  *      - apps/<app>/APP.md 覆盖到 server/apps/<app>/APP.md
- *      - language/<locale>/AGENTS.md / CLAUDE.md 烘焙到项目根目录
+ *      - language/<locale>/WANDESK_TAKEOVER.md 烘焙到项目根目录
  *   4. 在 projectRoot 下写 .aios/settings.json（locale + appliedAt）
  *
  * 本脚本自定位到 dirname($0)/..，可以跑在 aios/ 源码仓或任何 aios/ 的运行副本里
@@ -228,7 +228,8 @@ if (fs.existsSync(langAppsDir)) {
 console.log(`[start] baked apps from language/${locale}/apps and mirrored ${mdCount} server app docs`);
 
 // Bake runtime root markdown files for the active locale.
-for (const fileName of ['AGENTS.md', 'CLAUDE.md']) {
+// AGENTS.md stays a developer/repository guide and is not a runtime takeover doc.
+for (const fileName of ['WANDESK_TAKEOVER.md']) {
   const srcMd = path.join(projectRoot, 'language', locale, fileName);
   const dstMd = path.join(projectRoot, fileName);
   if (fs.existsSync(srcMd)) {

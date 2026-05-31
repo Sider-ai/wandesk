@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
+import AgentGuideView from "./agent-guide/AgentGuideView";
 import { ChatPane } from "./codeworkspace/ChatPane";
 import { DataTab } from "./codeworkspace/DataTab";
 import type { CodeWorkspaceProps } from "./codeworkspace/types";
 import { fetchJson } from "./codeworkspace/utils";
 
 export default function CodeWorkspace(props: CodeWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState("chat");
+  const defaultTab = props.tabs.some((tab) => tab.id === "takeover") ? "takeover" : (props.tabs[0]?.id || "chat");
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [cliStatus, setCliStatus] = useState<any>(null);
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [dataMap, setDataMap] = useState<Record<string, any>>({});
@@ -23,7 +25,7 @@ export default function CodeWorkspace(props: CodeWorkspaceProps) {
   };
 
   const loadTab = async (tab: string) => {
-    if (tab === "chat") return;
+    if (tab === "chat" || tab === "takeover") return;
     setLoadingMap((prev) => ({ ...prev, [tab]: true }));
     try {
       const suffix = tab === "projects" ? "projects" : tab;
@@ -42,6 +44,10 @@ export default function CodeWorkspace(props: CodeWorkspaceProps) {
   }, [props.basePath]);
 
   useEffect(() => {
+    if (!props.tabs.some((tab) => tab.id === activeTab)) setActiveTab(defaultTab);
+  }, [activeTab, defaultTab, props.tabs]);
+
+  useEffect(() => {
     loadTab(activeTab);
   }, [activeTab, props.basePath]);
 
@@ -50,9 +56,9 @@ export default function CodeWorkspace(props: CodeWorkspaceProps) {
       <div className="cc-app-root relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#faf6ec]">
         <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
           <div className="text-[38px]">{props.emptyIcon}</div>
-          <div className="text-[18px] font-bold text-[#2a1f13]">{props.title} CLI not installed</div>
-          <div className="max-w-[360px] text-[12.5px] leading-relaxed text-[#6b5a46]">{cliStatus.error || "Install and configure the CLI, then recheck status."}</div>
-          <button className="rounded-lg border bg-white px-4 py-2 text-[12px] font-semibold text-[#5c4332] hover:bg-[#fffaf2]" disabled={checkingStatus} onClick={fetchStatus}>{checkingStatus ? "Checking..." : "Recheck"}</button>
+          <div className="text-[18px] font-bold text-[#2a1f13]">{props.title} __T_CODEWORKSPACE_CLI_NOT_INSTALLED__</div>
+          <div className="max-w-[360px] text-[12.5px] leading-relaxed text-[#6b5a46]">{cliStatus.error || "__T_CODEWORKSPACE_INSTALL_CLI_DESC__"}</div>
+          <button className="rounded-lg border bg-white px-4 py-2 text-[12px] font-semibold text-[#5c4332] hover:bg-[#fffaf2]" disabled={checkingStatus} onClick={fetchStatus}>{checkingStatus ? "__T_CODEWORKSPACE_CHECKING__" : "__T_CODEWORKSPACE_RECHECK__"}</button>
         </div>
       </div>
     );
@@ -68,7 +74,9 @@ export default function CodeWorkspace(props: CodeWorkspaceProps) {
         ))}
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        {activeTab === "chat" ? (
+        {activeTab === "takeover" ? (
+          <AgentGuideView agentName={props.title} />
+        ) : activeTab === "chat" ? (
           <ChatPane basePath={props.basePath} title={props.title} emptyIcon={props.emptyIcon} installed={Boolean(cliStatus?.installed)} defaultPermissionMode={props.defaultPermissionMode} permissionModes={props.permissionModes} />
         ) : (
           <DataTab basePath={props.basePath} tabId={activeTab} title={props.tabs.find((tab) => tab.id === activeTab)?.label || activeTab} appTitle={props.title} subtitle={activeTab === "memory" ? props.memoryLabel : activeTab === "projects" ? props.projectLabel : undefined} data={dataMap[activeTab]} loading={loadingMap[activeTab]} onRefresh={() => loadTab(activeTab)} />

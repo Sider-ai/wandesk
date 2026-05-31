@@ -66,7 +66,7 @@ export default function SessionsView({ onOpenChat }: { onOpenChat: (sessionId: s
                 </div>
                 <div className="text-right text-[10px] text-[#6c522e]">
                   <div className="font-mono font-bold text-[#472d0f]">{totalTokens(session).toLocaleString()}</div>
-                  <div className="mt-1 uppercase tracking-[0.12em]">tokens</div>
+                  <div className="mt-1 uppercase tracking-[0.12em]">__T_HERMES_TOKEN_UNIT__</div>
                 </div>
               </button>
             ))}

@@ -23,5 +23,21 @@
   "gh_chat_quick_3": "Explain this trending project",
   "gh_digest_title": "Open Source Radar Digest",
   "gh_digest_desc": "Summarize the most noteworthy open source projects in the current time range and highlight their core strengths with one click",
-  "app_sidebar_ghtrending": "Open Source Radar"
+  "app_sidebar_ghtrending": "Open Source Radar",
+  "ghtrending_time_weekly": "This Week",
+  "ghtrending_time_monthly": "This Month",
+  "ghtrending_failed": "Failed",
+  "ghtrending_header_title": "Open Source Radar",
+  "ghtrending_back": "Back",
+  "ghtrending_insight_history": "Insight History",
+  "ghtrending_all_languages": "All languages",
+  "ghtrending_loading": "Loading...",
+  "ghtrending_digest_title": "Open Source Radar Digest",
+  "ghtrending_digest_desc": "Summarize the most noteworthy open source projects in the current time range and highlight their core strengths with one click",
+  "ghtrending_generating": "Generating...",
+  "ghtrending_ai_digest": "AI Digest",
+  "ghtrending_analyzed": "Analyzed",
+  "ghtrending_ai_insight": "AI Insight",
+  "ghtrending_analyzing": "Analyzing repository details...",
+  "ghtrending_no_history": "No insight history yet"
 }

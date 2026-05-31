@@ -1,6 +1,7 @@
 import CodeWorkspace from "../codeworkspace";
 
 const tabs = [
+  { id: "takeover", icon: "🧭", label: "__T_AGENT_TAKEOVER_TAB__" },
   { id: "chat", icon: "💬", label: "__T_CODEX_TAB_CHAT__" },
   { id: "projects", icon: "🗂", label: "__T_CODEX_TAB_SESSIONS__" },
   { id: "memory", icon: "🤖", label: "AGENTS.md" },
@@ -12,12 +13,12 @@ const tabs = [
 ];
 
 const permissionModes = [
-  { id: "workspaceWrite", label: "workspace", description: "__T_CODEX_PERM_WORKSPACE_DESC__" },
-  { id: "readOnly", label: "readOnly", description: "__T_CODEX_PERM_READONLY_DESC__" },
-  { id: "fullAuto", label: "fullAuto", description: "__T_CODEX_PERM_FULLAUTO_DESC__" },
-  { id: "neverAsk", label: "neverAsk", description: "__T_CODEX_PERM_NEVERASK_DESC__" },
-  { id: "dangerFullAccess", label: "danger", description: "__T_CODEX_PERM_DANGER_DESC__" },
-  { id: "bypassPermissions", label: "bypass", description: "__T_CODEX_PERM_BYPASS_DESC__" }
+  { id: "workspaceWrite", label: "__T_CODEX_PERM_WORKSPACE_LABEL__", description: "__T_CODEX_PERM_WORKSPACE_DESC__" },
+  { id: "readOnly", label: "__T_CODEX_PERM_READONLY_LABEL__", description: "__T_CODEX_PERM_READONLY_DESC__" },
+  { id: "fullAuto", label: "__T_CODEX_PERM_FULLAUTO_LABEL__", description: "__T_CODEX_PERM_FULLAUTO_DESC__" },
+  { id: "neverAsk", label: "__T_CODEX_PERM_NEVERASK_LABEL__", description: "__T_CODEX_PERM_NEVERASK_DESC__" },
+  { id: "dangerFullAccess", label: "__T_CODEX_PERM_DANGER_LABEL__", description: "__T_CODEX_PERM_DANGER_DESC__" },
+  { id: "bypassPermissions", label: "__T_CODEX_PERM_BYPASS_LABEL__", description: "__T_CODEX_PERM_BYPASS_DESC__" }
 ];
 
 export default function CodexApp() {

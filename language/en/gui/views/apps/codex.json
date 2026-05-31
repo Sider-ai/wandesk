@@ -117,5 +117,21 @@
   "codex_skills_user": "User ({n})",
   "codex_skills_system": "System ({n})",
   "codex_skills_empty_desc": "(no description)",
-  "codex_skills_none": "(none)"
+  "codex_skills_none": "(none)",
+  "codex_onboarding_connect": "Connect Codex to begin.",
+  "codex_tab_sessions": "Sessions",
+  "codex_perm_workspace_label": "workspace",
+  "codex_perm_readonly_label": "readOnly",
+  "codex_perm_fullauto_label": "fullAuto",
+  "codex_perm_neverask_label": "neverAsk",
+  "codex_perm_danger_label": "danger",
+  "codex_perm_bypass_label": "bypass",
+  "codex_perm_workspace_desc": "Workspace-write mode. Requests confirmation when needed; suitable for most coding changes.",
+  "codex_perm_readonly_desc": "Read-only mode for inspection and analysis. It does not modify files directly.",
+  "codex_perm_fullauto_desc": "Low-friction automatic execution, equivalent to Codex --full-auto.",
+  "codex_perm_neverask_desc": "Workspace-write mode with approval disabled where possible.",
+  "codex_perm_danger_desc": "Full disk write access. High risk; use only in fully controlled environments.",
+  "codex_perm_bypass_desc": "Bypasses approvals and sandboxing. Highest risk.",
+  "codex_memory_label": "Global Codex instructions",
+  "codex_project_label": "Codex session directories"
 }

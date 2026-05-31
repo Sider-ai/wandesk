@@ -30,5 +30,17 @@
   "finance_chat_quick_2": "有哪些可以省的开支？",
   "finance_chat_quick_3": "生成本月财务小结",
   "app_sidebar_finance": "记账本",
-  "finance_ledger_note_placeholder": "摘要..."
+  "finance_ledger_note_placeholder": "摘要...",
+  "finance_summary_income": "收入",
+  "finance_summary_expense": "支出",
+  "finance_summary_balance": "结余",
+  "finance_col_date": "日期",
+  "finance_col_summary": "摘要",
+  "finance_col_expense": "支出",
+  "finance_col_deposit": "存入",
+  "finance_col_action": "操作",
+  "finance_default_note_deposit": "存入",
+  "finance_default_note_expense": "支出",
+  "finance_action_delete": "删除",
+  "finance_action_save": "保存"
 }

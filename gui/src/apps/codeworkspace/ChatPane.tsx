@@ -63,7 +63,7 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
   };
 
   const removeConversation = async (sessionId: string) => {
-    if (!window.confirm("Delete this session?")) return;
+    if (!window.confirm("__T_CODEWORKSPACE_DELETE_CONFIRM__")) return;
     await fetch(`${basePath}/conversations/delete`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -118,13 +118,13 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
           if (!line.trim()) continue;
           const evt = JSON.parse(line);
           if (evt.type === "event") setLive((items) => [...items, evt.payload]);
-          if (evt.type === "error") setError(evt.message || "Request failed");
+          if (evt.type === "error") setError(evt.message || "__T_CODEWORKSPACE_REQUEST_FAILED__");
         }
       }
       await openConversation(conversationId);
       await loadSessions();
     } catch (err) {
-      if ((err as Error).name !== "AbortError") setError((err as Error).message || "Send failed");
+      if ((err as Error).name !== "AbortError") setError((err as Error).message || "__T_CODEWORKSPACE_SEND_FAILED__");
     } finally {
       setBusy(false);
       abortRef.current = null;
@@ -135,18 +135,18 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
     <div className="flex min-h-0 min-w-0 flex-1 flex-row bg-[#f5f3ef]">
       <aside className="flex w-56 shrink-0 flex-col border-r bg-[#ede9e2]" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
         <div className="border-b px-3 py-2.5" style={{ borderColor: "rgba(0,0,0,0.07)" }}>
-          <button className="flex w-full items-center justify-center gap-1.5 rounded-[9px] border px-3 py-2 text-[13px] font-semibold" style={{ borderColor: "rgba(92,67,50,0.14)", background: "rgba(255,255,255,0.58)", color: "rgba(61,47,30,0.82)" }} onClick={reset}>+ New Session</button>
+          <button className="flex w-full items-center justify-center gap-1.5 rounded-[9px] border px-3 py-2 text-[13px] font-semibold" style={{ borderColor: "rgba(92,67,50,0.14)", background: "rgba(255,255,255,0.58)", color: "rgba(61,47,30,0.82)" }} onClick={reset}>__T_CODEWORKSPACE_NEW_SESSION__</button>
         </div>
         <div className="flex-1 overflow-y-auto px-1.5 py-1.5 [scrollbar-width:thin]">
-          {!sessions.length && <div className="px-3 py-4 text-center text-[11px] text-black/35">No sessions yet</div>}
+          {!sessions.length && <div className="px-3 py-4 text-center text-[11px] text-black/35">__T_CODEWORKSPACE_NO_SESSIONS__</div>}
           {sessions.map((session) => (
             <div key={session.sessionId} className="group mb-1 cursor-pointer rounded-lg px-2.5 py-2" style={currentId === session.sessionId ? { background: "rgba(255,255,255,0.85)", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" } : undefined} onClick={() => openConversation(session.sessionId)}>
               <div className="flex items-center gap-1">
-                <div className="flex-1 truncate text-[12.5px] text-[#2a1f13]">{session.title?.trim() || `Session ${session.sessionId.slice(0, 8)}`}</div>
+                <div className="flex-1 truncate text-[12.5px] text-[#2a1f13]">{session.title?.trim() || `__T_CODEWORKSPACE_SESSION_PREFIX__ ${session.sessionId.slice(0, 8)}`}</div>
                 <button className="shrink-0 px-1 text-[11px] opacity-0 group-hover:opacity-60 hover:!opacity-100" onClick={(event) => { event.stopPropagation(); removeConversation(session.sessionId); }}>✕</button>
               </div>
               <div className="cc-mono mt-0.5 truncate text-[10.5px] text-black/40">{session.cwd}</div>
-              <div className="truncate text-[10px] text-black/35">{session.messageCount || 0} events · {formatTime(session.updatedAt)}</div>
+              <div className="truncate text-[10px] text-black/35">{session.messageCount || 0} __T_CODEWORKSPACE_EVENTS_UNIT__ · {formatTime(session.updatedAt)}</div>
             </div>
           ))}
         </div>
@@ -158,7 +158,7 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
               <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
                 <div className="mb-4 text-[40px]">{emptyIcon}</div>
                 <h2 className="mb-2 text-xl font-bold text-[#2a1f13]">{title}</h2>
-                <p className="max-w-[320px] text-[13px] leading-relaxed text-black/40">Pick a directory below and start typing.</p>
+                <p className="max-w-[320px] text-[13px] leading-relaxed text-black/40">__T_CODEWORKSPACE_EMPTY_DESC__</p>
               </div>
             ) : rendered.map((message) => (
               <div key={message.key} className="mb-5">
@@ -171,13 +171,13 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
                 )}
               </div>
             ))}
-            {busy && <div className="py-2 text-sm text-[rgba(160,120,80,0.6)]">Thinking<span className="animate-pulse">...</span></div>}
+            {busy && <div className="py-2 text-sm text-[rgba(160,120,80,0.6)]">__T_CODEWORKSPACE_THINKING__<span className="animate-pulse">...</span></div>}
           </div>
         </div>
         <div className="shrink-0 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] pt-0" style={{ background: "linear-gradient(to top,#f5f3ef 60%,transparent)" }}>
           <div className="mx-auto max-w-[720px]">
             <form className="relative flex flex-col rounded-2xl border bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)]" style={{ borderColor: "rgba(160,120,80,0.18)" }} onSubmit={(event) => { event.preventDefault(); send(); }}>
-              <textarea value={input} onChange={(event) => setInput(event.target.value)} rows={1} disabled={busy || !installed} placeholder={busy ? "Replying..." : currentId ? "Continue the conversation..." : `Start in ${cwd}...`} className="min-h-[52px] max-h-[200px] w-full resize-none overflow-y-auto border-none bg-transparent px-4 pb-3 pr-[176px] pt-3.5 text-sm leading-relaxed text-[#2a1f13] outline-none disabled:opacity-50" onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); send(); } }} />
+              <textarea value={input} onChange={(event) => setInput(event.target.value)} rows={1} disabled={busy || !installed} placeholder={busy ? "__T_CODEWORKSPACE_REPLYING_PLACEHOLDER__" : currentId ? "__T_CODEWORKSPACE_CONTINUE_PLACEHOLDER__" : `__T_CODEWORKSPACE_START_PREFIX__${cwd}__T_CODEWORKSPACE_START_SUFFIX__`} className="min-h-[52px] max-h-[200px] w-full resize-none overflow-y-auto border-none bg-transparent px-4 pb-3 pr-[176px] pt-3.5 text-sm leading-relaxed text-[#2a1f13] outline-none disabled:opacity-50" onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); send(); } }} />
               {error && <div className="px-3.5 pb-2 text-[11px] text-[#b03a20]">{error}</div>}
               <div className="flex items-center gap-2 px-3.5 pb-2.5">
                 {!currentId ? (
@@ -193,7 +193,7 @@ export function ChatPane({ basePath, title, emptyIcon, installed, defaultPermiss
                   </button>
                   {modeOpen && <div className="absolute bottom-[calc(100%+8px)] right-0 z-20 w-[320px] overflow-hidden rounded-xl border bg-[#fffaf2] shadow-[0_16px_40px_rgba(0,0,0,0.14)]" style={{ borderColor: "rgba(160,120,80,0.16)" }}>
                     {permissionModes.map((mode) => <button key={mode.id} type="button" className="block w-full px-3 py-2.5 text-left hover:bg-[rgba(160,120,80,0.08)]" onClick={() => { setPermissionMode(mode.id); setModeOpen(false); }}>
-                      <div className="flex items-center justify-between gap-3"><span className="cc-mono text-[11px] font-semibold text-[#2a1f13]">{mode.label}</span>{permissionMode === mode.id && <span className="text-[10px] text-[#5c4332]">Current</span>}</div>
+                      <div className="flex items-center justify-between gap-3"><span className="cc-mono text-[11px] font-semibold text-[#2a1f13]">{mode.label}</span>{permissionMode === mode.id && <span className="text-[10px] text-[#5c4332]">__T_CODEWORKSPACE_CURRENT__</span>}</div>
                       <div className="mt-1 text-[11px] leading-relaxed text-[#6b5a46]">{mode.description}</div>
                     </button>)}
                   </div>}

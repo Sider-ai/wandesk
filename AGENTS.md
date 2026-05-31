@@ -4,6 +4,7 @@ Wandesk is an **AI desktop / local workbench**: a graphical workspace where the 
 
 - Remotes: GitHub `github.com/Sider-ai/wandesk.git` (origin) + Gitee `gitee.com/realuckyang/wandesk.git`. Push both for releases.
 - Cross-repo collaboration: `../CLAUDE.md` (workspace guide) and `../wandesk-dev/doc/three-repo-sync.md` (sync rules).
+- Commit messages in this OSS upstream repo must be written in English.
 
 ---
 
@@ -45,7 +46,7 @@ gui/
     views/              top-level views (DesktopView, WelcomeView)
     data/               static data (providers.ts)
     stores/             shared client state
-language/<en|zh>/       i18n source: gui/ + server/ JSON token files, apps/<app>/APP.md
+language/<en|zh>/       i18n source: gui/ + server/ JSON token files, apps/<app>/APP.md, WANDESK_TAKEOVER.md
 scripts/start.ts        the bake script (token replacement + app/doc mirroring)
 skills/                 bundled local skills
 apps/                   BAKING OUTPUT (apps/<app>/APP.md) — NOT committed (.gitignore)
@@ -128,11 +129,13 @@ A regular app = a folder under `server/apps/<app>/` + a folder under `gui/src/ap
 
 ## i18n / baking
 
-Every user-facing string is a token `"__T_<UPPERCASE_KEY>__"` in source. At startup the bake (`scripts/start.ts <lang> --force`) loads `language/<lang>/**/*.json`, builds a map (json key → `__T_<KEY.upper>__`), and replaces tokens across `.ts/.tsx/.json/.md`. It also mirrors `language/<lang>/apps/<app>/APP.md` into runtime `apps/` and root `AGENTS.md`/`CLAUDE.md` if a localized source exists (none for this repo's root docs, so they're hand-maintained and survive bakes).
+Every user-facing string is a token `"__T_<UPPERCASE_KEY>__"` in source. At startup the bake (`scripts/start.ts <lang> --force`) loads `language/<lang>/**/*.json`, builds a map (json key → `__T_<KEY.upper>__`), and replaces tokens across `.ts/.tsx/.json/.md`. It also mirrors `language/<lang>/apps/<app>/APP.md` into runtime `apps/`, and mirrors `language/<lang>/WANDESK_TAKEOVER.md` into the runtime workspace root.
+
+`AGENTS.md` is this repository's developer guide. Do not use it as the user-facing external-agent takeover document; that role belongs to `WANDESK_TAKEOVER.md`.
 
 **Adding a UI string:**
-1. Put `"__T_MYAPP_THING__"` in the source (double-quote context; for bare JSX text use `{"__T_MYAPP_THING__"}`).
-2. Add `"myapp_thing": "English"` to `language/en/gui/_localize.json` (or the app's `views/apps/<app>.json`) and the Chinese equivalent to `language/zh/...`.
+1. Put a token such as `"__T_<MYAPP_THING>__"` in the source (double-quote context; for bare JSX text use `{"__T_<MYAPP_THING>__"}`), replacing the angle-bracketed key with the real key.
+2. Add `"myapp_thing": "English"` to the matching file under `language/en/gui/`: app UI goes in `views/apps/<app>.json`, shared shell strings in `framework.json`, and cross-app common strings in `common.json`. Add the same key to `language/zh/gui/...`.
 3. Keys must be unique and identical across all three repos (OSS/client/cloud) — never re-translate per repo.
 4. Verify: bake en and zh both leave **0 unresolved `__T_` tokens** (the harness / `scripts/start.ts` reports this).
 

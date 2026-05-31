@@ -10,9 +10,9 @@ export const formatTime = (iso?: string) => {
   const date = new Date(String(iso).replace(" ", "T"));
   if (Number.isNaN(date.getTime())) return iso;
   const diff = (Date.now() - date.getTime()) / 1000;
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  if (diff < 60) return "__T_CODEWORKSPACE_JUST_NOW__";
+  if (diff < 3600) return `${Math.floor(diff / 60)}__T_CODEWORKSPACE_MIN_AGO_SUFFIX__`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}__T_CODEWORKSPACE_HR_AGO_SUFFIX__`;
   return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
@@ -67,14 +67,14 @@ export const jsonlEntries = (content: string) => String(content || "").split("\n
 });
 
 export const summarizeEntry = (entry: any) => {
-  if (!entry || typeof entry !== "object") return "Invalid entry";
-  if (entry.type === "queue_operation") return `${entry.operation || "operation"} queue`;
-  if (entry.type === "user") return extractText(entry.message?.content) || "User message";
-  if (entry.type === "assistant") return extractText(entry.message?.content) || entry.message?.model || "Assistant message";
-  if (entry.type === "last_prompt") return entry.lastPrompt || "Last prompt";
-  if (entry.type === "ai_title") return entry.aiTitle || "AI title";
+  if (!entry || typeof entry !== "object") return "__T_CODEWORKSPACE_INVALID_ENTRY__";
+  if (entry.type === "queue_operation") return `${entry.operation || "__T_CODEWORKSPACE_OPERATION__"} __T_CODEWORKSPACE_QUEUE__`;
+  if (entry.type === "user") return extractText(entry.message?.content) || "__T_CODEWORKSPACE_USER_MESSAGE__";
+  if (entry.type === "assistant") return extractText(entry.message?.content) || entry.message?.model || "__T_CODEWORKSPACE_ASSISTANT_MESSAGE__";
+  if (entry.type === "last_prompt") return entry.lastPrompt || "__T_CODEWORKSPACE_LAST_PROMPT__";
+  if (entry.type === "ai_title") return entry.aiTitle || "__T_CODEWORKSPACE_AI_TITLE__";
   if (entry.attachment?.type) return `${entry.attachment.type}${entry.attachment.addedNames?.length ? ` · ${entry.attachment.addedNames.join(", ")}` : ""}`;
   if (entry.message?.model) return entry.message.model;
-  if (entry.promptId) return `Prompt ${entry.promptId}`;
-  return Object.keys(entry).slice(0, 4).join(" · ") || "Entry";
+  if (entry.promptId) return `__T_CODEWORKSPACE_PROMPT_PREFIX__ ${entry.promptId}`;
+  return Object.keys(entry).slice(0, 4).join(" · ") || "__T_CODEWORKSPACE_ENTRY__";
 };

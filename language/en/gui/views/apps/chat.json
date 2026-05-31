@@ -28,5 +28,20 @@
   "app_sidebar_codex": "Codex",
   "app_top_chat": "Chat",
   "chat_side_title": "Chat with AI in {app}",
-  "chat_side_context_hint": "You are currently in {app}. Ask anything related."
+  "chat_side_context_hint": "You are currently in {app}. Ask anything related.",
+  "chat_history_empty": "No chat history yet",
+  "chat_rename": "Rename",
+  "chat_confirm_delete_prompt": "Confirm delete?",
+  "chat_click_to_confirm": "Click to confirm",
+  "chat_delete": "Delete",
+  "chat_new_chat_title": "New Chat",
+  "chat_error_prefix": "Error: ",
+  "chat_ws_not_connected": "Error: WebSocket is not connected. Check whether the service has started.",
+  "chat_attachment_default_prompt": "Please read the attachment first and summarize the key information.",
+  "chat_drag_files_hint": "Drag files here to add attachments",
+  "chat_input_busy_placeholder": "In progress...",
+  "chat_status_connected": "Connected",
+  "chat_status_connecting": "Connecting...",
+  "chat_status_disconnected": "Disconnected",
+  "chat_new_chat_button": "New Chat"
 }

@@ -117,5 +117,21 @@
   "codex_skills_user": "用户 ({n})",
   "codex_skills_system": "系统 ({n})",
   "codex_skills_empty_desc": "(no description)",
-  "codex_skills_none": "(无)"
+  "codex_skills_none": "(无)",
+  "codex_onboarding_connect": "连接 Codex 后开始使用。",
+  "codex_tab_sessions": "会话",
+  "codex_perm_workspace_label": "工作区",
+  "codex_perm_readonly_label": "只读",
+  "codex_perm_fullauto_label": "自动",
+  "codex_perm_neverask_label": "不询问",
+  "codex_perm_danger_label": "高风险",
+  "codex_perm_bypass_label": "跳过权限",
+  "codex_perm_workspace_desc": "工作区写入模式。必要时请求确认,适用于大多数编码改动。",
+  "codex_perm_readonly_desc": "只读模式,用于检查与分析,不会直接修改文件。",
+  "codex_perm_fullauto_desc": "低干预自动执行,等同于 Codex --full-auto。",
+  "codex_perm_neverask_desc": "工作区写入模式,尽可能关闭审批确认。",
+  "codex_perm_danger_desc": "完整磁盘写入权限。风险高,仅在完全可控的环境下使用。",
+  "codex_perm_bypass_desc": "绕过审批与沙箱,风险最高。",
+  "codex_memory_label": "Codex 全局指令",
+  "codex_project_label": "Codex 会话目录"
 }

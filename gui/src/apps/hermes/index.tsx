@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AgentGuideView from "../agent-guide/AgentGuideView";
 import ChatView from "./ChatView";
 import DispatchView from "./DispatchView";
 import SessionsView from "./SessionsView";
@@ -6,9 +7,10 @@ import { getStatus } from "./api";
 import { brassButton, grainStyle, ink, shellStyle } from "./materials";
 import type { HermesStatus } from "./types";
 
-type Tab = "dispatch" | "chat" | "sessions";
+type Tab = "takeover" | "dispatch" | "chat" | "sessions";
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: "takeover", label: "__T_AGENT_TAKEOVER_TAB__" },
   { id: "dispatch", label: "__T_HERMES_TAB_DISPATCH__" },
   { id: "chat", label: "__T_HERMES_TAB_CHAT__" },
   { id: "sessions", label: "__T_HERMES_TAB_SESSIONS__" }
@@ -16,7 +18,7 @@ const TABS: { id: Tab; label: string }[] = [
 
 export default function HermesApp() {
   const [status, setStatus] = useState<HermesStatus>({ online: false });
-  const [tab, setTab] = useState<Tab>("dispatch");
+  const [tab, setTab] = useState<Tab>("takeover");
   const [sessionId, setSessionId] = useState("");
 
   const refresh = async () => {
@@ -91,6 +93,9 @@ export default function HermesApp() {
         </div>
       ) : (
         <main className="relative z-[2] flex min-h-0 flex-1 flex-col">
+          <div className={tab === "takeover" ? "flex min-h-0 flex-1 flex-col" : "hidden"}>
+            <AgentGuideView agentName="Hermes" variant="dark" />
+          </div>
           <div className={tab === "dispatch" ? "flex min-h-0 flex-1 flex-col" : "hidden"}>
             <DispatchView status={status} onRefresh={refresh} onOpenChat={openChat} onOpenSessions={() => setTab("sessions")} />
           </div>

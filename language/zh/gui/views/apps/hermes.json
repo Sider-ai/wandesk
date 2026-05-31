@@ -50,5 +50,6 @@
   "hermes_wait": "等待",
   "hermes_send": "发送",
   "hermes_session_ledger": "会话簿",
-  "hermes_session_ledger_desc": "打开任意 Hermes 会话并继续线索。"
+  "hermes_session_ledger_desc": "打开任意 Hermes 会话并继续线索。",
+  "hermes_token_unit": "tokens"
 }

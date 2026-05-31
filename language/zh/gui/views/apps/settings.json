@@ -17,10 +17,10 @@
   "settings_tool_loop_limit_enable": "启用工具最大循环次数限制",
   "settings_tool_max_rounds": "工具最大循环次数",
   "settings_tool_max_rounds_hint": "默认 50，范围 1 - 500",
-  "settings_about_title": "关于 AIOS",
-  "settings_about_desc": "AIOS 相信 AI 不只是工具，而应该是每个人的操作系统。理解你的意图，为你构建应用、执行任务、管理信息——一切都在本地运行，属于你。",
-  "settings_about_lab": "来自 Sider AI 实验室",
-  "settings_about_more": "了解更多",
+  "settings_about_title": "关于 Wandesk",
+  "settings_about_desc": "Wandesk 是一个开源的 AI 桌面与本地工作台。你可以通过描述来构建应用，在共享上下文里执行任务，本地管理个人信息，并把 Claude Code、Codex、OpenClaw、Hermes 等外部 agent 接入同一个桌面。",
+  "settings_about_lab": "由 Sider AI 创建",
+  "settings_about_more": "访问 wandesk.ai",
   "settings_skills_title": "技能列表",
   "settings_skills_hint": "显示当前会注入到 system prompt 的技能来源。",
   "settings_skills_refresh": "刷新",
@@ -55,5 +55,7 @@
   "settings_chat_quick_1": "当前的模型配置是什么",
   "settings_chat_quick_2": "帮我切换模型",
   "settings_chat_quick_3": "系统有哪些可配置项",
-  "launcher_search_placeholder": "搜索应用"
+  "launcher_search_placeholder": "搜索应用",
+  "settings_sidebar_title": "设置",
+  "settings_saved_ok": "配置已保存"
 }
