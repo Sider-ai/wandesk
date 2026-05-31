@@ -5,8 +5,9 @@ const buildHeaders = (apiKey, apiUrl) => {
   };
 
   if (String(apiUrl || "").includes("openrouter.ai")) {
-    headers["HTTP-Referer"] = "http://localhost:3000";
-    headers["X-Title"] = "agent-cli";
+    headers["HTTP-Referer"] = "https://wandesk.ai";
+    headers["X-OpenRouter-Title"] = "Wandesk";
+    headers["X-OpenRouter-Categories"] = "native-app-builder,personal-agent";
   }
 
   return headers;
