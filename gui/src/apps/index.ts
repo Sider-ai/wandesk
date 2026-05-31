@@ -25,7 +25,7 @@ export const apps: AppDefinition[] = [
   { id: "claude-code", name: "__T_APP_NAME_CLAUDE_CODE__", icon: "🐙", component: ClaudeCodeApp, defaultDesktopWindowSize: { w: 1100, h: 720 } },
   { id: "codex", name: "__T_APP_NAME_CODEX__", icon: "💻", component: CodexApp, defaultDesktopWindowSize: { w: 1100, h: 720 } },
   { id: "openclaw", name: "__T_APP_NAME_OPENCLAW__", icon: "🦞", component: OpenClawApp, defaultDesktopWindowSize: { w: 480, h: 720 }, minDesktopWindowSize: { w: 380, h: 560 } },
-  { id: "hermes", name: "__T_APP_NAME_HERMES__", icon: "✉️", component: HermesApp, defaultDesktopWindowSize: { w: 860, h: 680 }, minDesktopWindowSize: { w: 620, h: 520 } },
+  { id: "hermes", name: "__T_APP_NAME_HERMES__", icon: "☤", component: HermesApp, defaultDesktopWindowSize: { w: 860, h: 680 }, minDesktopWindowSize: { w: 620, h: 520 } },
   { id: "settings", name: "__T_APP_NAME_SETTINGS__", icon: "⚙️", component: SettingsApp, defaultDesktopWindowSize: { w: 750, h: 520 } }
 ];
 

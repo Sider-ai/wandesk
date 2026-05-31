@@ -49,7 +49,7 @@ export default function HermesApp() {
 
       <header className="relative z-[2] flex shrink-0 items-center gap-3 border-b border-[#ffe6cb]/12 px-4 py-3" style={{ background: "linear-gradient(180deg,rgba(4,28,28,0.92),rgba(3,16,16,0.78))" }}>
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ background: "radial-gradient(circle at 38% 30%,#ffe6a6,#d6a847 48%,#5b3510)", border: "1px solid rgba(22,11,2,0.8)", boxShadow: "0 3px 0 rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,250,209,0.56)" }}>
-          <span className="text-[22px] text-[#251304]">✉</span>
+          <span className="text-[24px] text-[#251304]">☤</span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export default function HermesApp() {
       {!status.online ? (
         <div className="relative z-[2] flex flex-1 items-center justify-center p-6 text-center">
           <div className="max-w-[340px] rounded-md p-5" style={{ background: "linear-gradient(180deg,#fff2d2,#d8ba82)", color: "#2b1a08", border: "1px solid rgba(51,31,8,0.5)", boxShadow: "0 20px 44px rgba(0,0,0,0.36),inset 0 1px 0 rgba(255,255,236,0.75)" }}>
-            <div className="mb-2 text-3xl text-[#7a3b1c]">✉</div>
+            <div className="mb-2 text-3xl text-[#7a3b1c]">☤</div>
             <div className="text-[15px] font-bold">__T_HERMES_NOT_INSTALLED_TITLE__</div>
             <div className="mt-2 text-[12px] leading-relaxed text-[#735835]">__T_HERMES_NOT_INSTALLED_DESC__</div>
             <button className="mt-4 cursor-pointer rounded px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em]" style={brassButton} onClick={refresh}>__T_HERMES_RECHECK__</button>
