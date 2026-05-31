@@ -1,53 +1,189 @@
-# wandesk
+# Wandesk — Developer Guide (AGENTS.md)
 
-Wandesk 开源版本源码仓,也是**全线共享代码的上游基线**(client / cloud 都从这里同步)。AI desktop / local workbench:含前端、后端、应用、语言资源、skills。
+Wandesk is an **AI desktop / local workbench**: a graphical workspace where the user describes an app and the AI builds it locally, alongside chat, files, tasks, and memory. This repo (`wandesk/`) is the **open-source product AND the upstream baseline** — shared code is developed here first, then synced to the desktop client and the cloud build.
 
-- origin: `https://github.com/Sider-ai/wandesk.git`(同时推 Gitee `gitee.com/realuckyang/wandesk.git`)
+- Remotes: GitHub `github.com/Sider-ai/wandesk.git` (origin) + Gitee `gitee.com/realuckyang/wandesk.git`. Push both for releases.
+- Cross-repo collaboration: `../CLAUDE.md` (workspace guide) and `../wandesk-dev/doc/three-repo-sync.md` (sync rules).
 
-> 跨仓协作约定见上一级目录的 `../CLAUDE.md`(Wandesk Workspace 协作指南)和 `../wandesk-dev/doc/three-repo-sync.md`(三仓同步)。
+---
 
-## 技术栈
+## Tech stack
 
-- 后端:TypeScript + `tsx`,入口 `server/main/index.ts` / `server/apps/index.ts`。
-- 前端:React 19 + React Router 7 + Vite + Tailwind 4。
-- DB:**Node 内置 `node:sqlite`(`DatabaseSync`)**,要求 Node **>= 22.5**。不再用 better-sqlite3,无原生模块。
-- i18n:源码写 `__T_<KEY>__` token,`scripts/start.ts <en|zh> --force` 烘焙时静态替换成对应语言文案(语言包在 `language/<lang>/`)。
+- **Backend**: TypeScript run directly with `tsx` (no build step). Two Node processes:
+  - `server/main/index.ts` — main service, port `9502`: chat/WS, AI engine, tasks, settings, memory, files.
+  - `server/apps/index.ts` — apps service, port `9503`: routes `/apps/<app>/*` to registered apps.
+- **Frontend**: React 19 + React Router 7 + Vite + Tailwind 4, in `gui/`. Vite dev on `5173`, proxies `/api` `/apps` `/ws` to `9502`.
+- **Database**: Node's built-in **`node:sqlite`** (`DatabaseSync`). Requires **Node >= 22.5**. No native modules, no `better-sqlite3`.
+- **i18n**: source contains `__T_<KEY>__` tokens; a bake step (`scripts/start.ts`) statically replaces them with the chosen language's strings from `language/<lang>/`. See [i18n](#i18n--baking).
 
-## 应用
+---
 
-侧边栏 app(`gui/src/apps/index.ts` 注册前端,`server/apps/registry.ts` 注册后端):
-chat / tasks / memory / files / notebook / finance(记账)/ ghtrending(开源雷达)/ createapp(应用工坊)/ claude-code / codex / **openclaw** / settings。
+## Directory map
 
-- 系统级 app(chat / tasks / settings / memory / files)在 `server/main/`,普通 app 在 `server/apps/<app>/`。
-- claude-code / codex / openclaw 是**外部 CLI agent 集成**应用(检测 CLI + 转发 + 可视化),互为参考蓝本。
+```
+server/
+  main/                 main service (system capabilities)
+    index.ts            entry, binds 9502
+    api/                HTTP/WS route handlers (auth, chat, task, runtime, settings, fs…)
+    service/            business logic (chat, task, prompt, settings, runtime, auth)
+      prompt/           system-prompt assembly (one file per section)
+    repository/         DB access (client.ts opens database/aios.db; per-table modules)
+    ai/                 AI execution loop, tool calling (functions/handler/runner/tools)
+    llm/                provider request/response pipeline (input normalizers, requesters, parsers)
+  apps/                 regular apps with their own backend boundary
+    registry.ts         appLoaders array — register every app's backend here
+    index.ts            loads registry, inits apps, routes /apps/*
+    <app>/              one folder per app (api/ service/ repository/ APP.md)
+  shared/               cross-cutting low-level helpers ONLY
+    http/               readBody, json
+    apps/db/createAppDb.ts   helper to open database/apps/<app>.db
+gui/
+  src/
+    apps/               one folder per desktop app UI; index.ts registers them
+    components/         shared UI pieces (LauncherPanel, ReloadModal, window chrome…)
+    system/             ws client, window manager, etc.
+    views/              top-level views (DesktopView, WelcomeView)
+    data/               static data (providers.ts)
+    stores/             shared client state
+language/<en|zh>/       i18n source: gui/ + server/ JSON token files, apps/<app>/APP.md
+scripts/start.ts        the bake script (token replacement + app/doc mirroring)
+skills/                 bundled local skills
+apps/                   BAKING OUTPUT (apps/<app>/APP.md) — NOT committed (.gitignore)
+```
 
-## 怎么跑(重要:别污染源码)
+---
 
-`npm run dev` 会**就地烘焙**——把源码里的 `__T_` token 替换成字面量,直接在仓库根跑会把 tracked 源码改脏。
+## Running (don't pollute the source)
 
-维护时用上一级的 **`../wandesk-test/`** 干净运行(把仓库 rsync 到一次性副本里烤+跑,源码保持干净 token 态):
+`npm run dev` **bakes in place** — it replaces `__T_` tokens in the source with literals, so running it in the repo root dirties tracked files. For maintenance, use the sibling **`../wandesk-test/`** harness, which rsyncs the repo into a disposable copy (`run/`), bakes and runs there, leaving the source clean (tokens intact):
 
 ```bash
 cd ../wandesk-test
-node test.js r3                 # 首次:同步 + 装依赖 + 起 dev(英文)
-node test.js r1                 # 日常:同步 + 起 dev
-node test.js r2                 # 同步 + 清 db + 起 dev
-AIOS_LANG=zh node test.js r1    # 烤中文
-# 浏览器开 http://localhost:9502
+node test.js r3                 # first time: sync + npm install + start (English)
+node test.js r1                 # day-to-day: sync + start
+node test.js r2                 # sync + clear db + start
+AIOS_LANG=zh node test.js r1    # bake Chinese
+# open http://localhost:9502
 ```
 
-裸命令(会弄脏源码,跑完记得 `git checkout .` 还原):
+Raw scripts (these dirty the source — run `git checkout .` afterwards):
 
 ```bash
-npm run dev / dev:zh           # 烘焙 + 并行起 main + apps + vite
-npm run build / build:zh       # 烘焙 + vite build
-npm run typecheck              # tsc --noEmit
-npm run start / start:apps     # 单独起 main / apps
+npm run dev / dev:zh            # bake + start main + apps + vite in parallel
+npm run build / build:zh        # bake + vite build
+npm run typecheck               # tsc --noEmit
+npm run start / start:apps      # start main / apps only
 ```
 
-## 注意
+---
 
-- 这是**共享代码的基线**:核心改动(gui apps / server / prompt / i18n / 种子)先在这里改、验,再同步到 client(直拷)和 cloud(适配 basePath/LiteLLM,见同步文档)。
-- 父目录里 `wandesk-client/`(Tauri 打包)、`wandesk-cloud/`(服务器/Docker 形态)是独立仓,职责不要混进本仓。
-- `wandesk-test/` 是维护用的运行 harness,**不在本仓内**(在父目录),开源 clone 拿不到也不需要。
-- `apps/` 是 baking 产物,不进 git(`.gitignore` 有 `/apps/`)。
+## Backend architecture
+
+Layered, do not collapse layers into entry files:
+
+- **api/** — thin HTTP/WS handlers. Read body with `readBody(req)` from `server/shared/http/readBody.js`; respond with `json(res, data, status?)`. Return `false` from an app's `handleApi` for an unmatched path so the apps server can emit the 404.
+- **service/** — business logic. Provider-protocol fields are produced only at the service boundary (e.g. tasks express `responseFormat: "json"`; the task service translates to `response_format`). Don't hand-write the same low-level protocol param in multiple call sites.
+- **repository/** — SQL access only. System tables live in `database/aios.db` (opened by `server/main/repository/client.ts`); app DBs in `database/apps/<app>.db`.
+
+### node:sqlite usage
+
+```ts
+import { DatabaseSync } from "node:sqlite";
+const db = new DatabaseSync(path);
+db.exec("PRAGMA journal_mode = WAL");          // not db.pragma(...)
+const row = db.prepare("SELECT …").get(id);
+const info = db.prepare("INSERT …").run(...);
+return Number(info.lastInsertRowid);            // node:sqlite returns BigInt — coerce
+// read-only: new DatabaseSync(path, { readOnly: true })
+```
+
+For app databases use `createAppDb("<app>.db")` from `server/shared/apps/db/createAppDb.ts`.
+
+---
+
+## Adding a regular app
+
+A regular app = a folder under `server/apps/<app>/` + a folder under `gui/src/apps/<app>/`, registered on both sides.
+
+**Backend** (`server/apps/<app>/`):
+- `index.ts` default-exports `{ name, match: (path) => path.startsWith("/apps/<app>/"), handleApi, [initDb], [initRuntime] }`.
+- `api/index.ts` — route handlers. `service/` — logic. `repository/` — DB (+ `repository/init.ts` for table creation, seeded data).
+- `APP.md` — the doc the AI reads about this app (frontmatter `name` / `description`; document the API). English.
+- Register: add `() => import("./<app>/index.js")` to `server/apps/registry.ts`.
+
+**Frontend** (`gui/src/apps/<app>/`):
+- `index.tsx` — the app shell (thin: layout/tabs, mounts children). `components/`, `hooks/`, `api.ts`, `types.ts` for anything non-trivial.
+- Fetch the backend at `/apps/<app>/*`.
+- Register in `gui/src/apps/index.ts`: import the component and add `{ id, name: "__T_APP_NAME_<APP>__", icon, component, defaultDesktopWindowSize, [minDesktopWindowSize] }`. Add the `app_name_<app>` token to `language/{en,zh}/gui/framework.json`.
+
+`claude-code`, `codex`, `openclaw` are **external-CLI-agent integration** apps (detect CLI → forward → visualize). Use them as blueprints when integrating another agent framework.
+
+### API conventions
+
+- Regular app endpoints: `/apps/<app>/...`. System endpoints: `/api/...`.
+- `GET` for reads, `POST` + JSON body for changes.
+- Return JSON with the shared `json()` helper.
+
+---
+
+## i18n / baking
+
+Every user-facing string is a token `"__T_<UPPERCASE_KEY>__"` in source. At startup the bake (`scripts/start.ts <lang> --force`) loads `language/<lang>/**/*.json`, builds a map (json key → `__T_<KEY.upper>__`), and replaces tokens across `.ts/.tsx/.json/.md`. It also mirrors `language/<lang>/apps/<app>/APP.md` into runtime `apps/` and root `AGENTS.md`/`CLAUDE.md` if a localized source exists (none for this repo's root docs, so they're hand-maintained and survive bakes).
+
+**Adding a UI string:**
+1. Put `"__T_MYAPP_THING__"` in the source (double-quote context; for bare JSX text use `{"__T_MYAPP_THING__"}`).
+2. Add `"myapp_thing": "English"` to `language/en/gui/_localize.json` (or the app's `views/apps/<app>.json`) and the Chinese equivalent to `language/zh/...`.
+3. Keys must be unique and identical across all three repos (OSS/client/cloud) — never re-translate per repo.
+4. Verify: bake en and zh both leave **0 unresolved `__T_` tokens** (the harness / `scripts/start.ts` reports this).
+
+Seeded DB content (notebook/finance seeds, the App Creation Guide memory) is tokenized too — keep it that way.
+
+---
+
+## System prompt (the in-app AI)
+
+`server/main/service/prompt/index.ts` assembles the AI's system prompt from sections, each its own file: `default` (identity), `environment`, `model`, `tools`, `apps` (installed app list from APP.md), `chats` (recent conversations), `tasks` (recent app tasks), `remarks`, `system-docs`, `memory`, plus per-message app context. To change the agent's behavior, edit `default.ts`'s token (`language/<lang>/server/prompt.json` → `system_default_prompt`) or the relevant section; `restartServer` reload picks it up.
+
+---
+
+## Reload mechanism
+
+Backend code changes need a reload (Node caches the ESM module graph). The AI requests reloads via `POST /api/runtime/reload/request` with `build` / `restartApps` / `restartServer` flags — this broadcasts to the UI's `ReloadModal` for user confirmation, then `/api/runtime/reload` runs (probes the new process on a sidecar port; only swaps if healthy). Do **not** call the final reload endpoint directly, and do **not** `pkill`/`kill` the 9502/9503 services to "restart".
+
+- `restartApps` when `server/apps/` changed (incl. `registry.ts`).
+- `restartServer` when `server/main/` or `server/shared/` changed.
+- `build` (Vite) when `gui/` changed.
+
+---
+
+## Ports & env
+
+| Process | Port | Notes |
+|---|---|---|
+| main | 9502 | `AIOS_MAIN_HOST` (default `127.0.0.1` here), `AIOS_MAIN_PORT` |
+| apps | 9503 | `AIOS_APPS_HOST` / `AIOS_APPS_PORT` |
+| vite dev | 5173 | dev only |
+
+Inter-process auth via `AIOS_API_TOKEN` (shared). `AIOS_LANG` selects the bake locale.
+
+---
+
+## Code conventions
+
+- Keep entry files thin; split a file once it passes ~250–300 lines (components → `components/`, logic → `hooks/`, fetches → `api.ts`).
+- Frontend default style is **skeuomorphic**: warm tones, soft shadows, paper/wood/fabric texture, tactile rounded controls. Match existing apps (`memory`, `notebook`, `chat`) before inventing a new look; reuse system Tailwind tokens. No flat/Material/glassmorphism unless asked.
+- Every new window must be usable at its `defaultDesktopWindowSize` and degrade to `minDesktopWindowSize`.
+- Keep DDL clean (`repository/init.ts` holds the current final schema — no legacy-compat branches).
+- No system-level global Topbar/Sidebar component; each app owns its own chrome.
+
+---
+
+## Do NOT commit
+
+`apps/` (baking output), `database/`, `files/`, `node_modules/`, `gui/dist/`, `.aios/`, any API keys / tokens / secrets.
+
+---
+
+## Baseline discipline (cross-repo)
+
+This repo is upstream. Develop shared code here (gui apps, server, prompt, i18n, seeds) → sync **OSS → client** (clean copy) and **OSS → cloud** (adapt: cloud has `basePath` URL wrapping, LiteLLM-managed model via `settings/*.ts`, default HOST `0.0.0.0`, no WelcomeView). Never edit shared code in the client first and back-port to OSS — that causes drift. Desktop-packaging (`tauri/`, `build/`) is client-only; cloud runtime is cloud-only. Full rules: `../wandesk-dev/doc/three-repo-sync.md`.

@@ -1,16 +1,27 @@
 # CLAUDE.md
 
-本仓(`wandesk/`)是 Wandesk **开源版,也是全线共享代码的上游基线**。
+This repo (`wandesk/`) is the open-source Wandesk build **and the upstream baseline** for shared code (the desktop client and the cloud build derive from it).
 
-如果你是来改代码的协作者(Claude Code / Codex 等):
+If you're an agent here to write code, **read [`AGENTS.md`](./AGENTS.md) first** — it's the full developer guide (architecture, how to add apps, DB, i18n/baking, prompt system, reload, conventions). This file only highlights the rules that are easy to get wrong.
 
-1. 先读本目录的 **`AGENTS.md`** —— 技术栈、应用结构、怎么干净运行(用 `../wandesk-test/`,别就地烤脏源码)。
-2. 跨仓改动前读上一级的 **`../CLAUDE.md`**(Wandesk Workspace 协作指南)和 **`../wandesk-dev/doc/three-repo-sync.md`**(三仓同步规则)。
+## Run it the clean way
 
-核心约定:
+`npm run dev` bakes `__T_` tokens into the source in place and dirties git. Use the sibling harness instead:
 
-- **这里是基线**。共享代码(`gui/` apps、`server/`、prompt、i18n、种子)先在本仓改、验,再同步到 `wandesk-client`(直拷)和 `wandesk-cloud`(适配 basePath / LiteLLM 托管)。不要在 client 先改共享代码再反向补 OSS(会漂移)。
-- **i18n**:面向用户的字符串一律用 `__T_<KEY>__` token,翻译进 `language/{en,zh}/`;三仓 key 必须一致。
-- **DB**:`node:sqlite`(`DatabaseSync`),Node >= 22.5,无原生模块。
-- **干净运行**:`cd ../wandesk-test && node test.js r1`(中文 `AIOS_LANG=zh`)。直接 `npm run dev` 会把 `__T_` token 烤进源码、弄脏 git。
-- **不要 commit**:`apps/`(baking 产物)、`database/`、`files/`、`node_modules/`、`gui/dist/`、任何密钥/token。
+```bash
+cd ../wandesk-test && node test.js r1      # English; AIOS_LANG=zh for Chinese; r3 the first time
+# http://localhost:9502
+```
+
+## Hard rules
+
+- **Baseline direction is one-way.** Change shared code here, then sync down to client/cloud. Never change shared code in the client and back-port to OSS. See `../wandesk-dev/doc/three-repo-sync.md`.
+- **i18n keys are shared and identical across all three repos.** Add a UI string as a `__T_<KEY>__` token + entries in `language/{en,zh}/...`; never hard-code English, never re-translate per repo. Both `en` and `zh` bakes must leave 0 unresolved tokens.
+- **DB is `node:sqlite`** (`DatabaseSync`), Node >= 22.5. `db.exec("PRAGMA …")` not `db.pragma`; coerce `lastInsertRowid` with `Number()`.
+- **Restart via the reload endpoint**, not by killing 9502/9503. `POST /api/runtime/reload/request` with `restartApps` (server/apps changed) / `restartServer` (server/main|shared changed) / `build` (gui changed).
+- **Keep layers separate** (`api` / `service` / `repository`) and files small (split past ~250–300 lines). Frontend style is skeuomorphic — match existing apps.
+- **Never commit** `apps/` (baking output), `database/`, `files/`, `node_modules/`, `gui/dist/`, secrets.
+
+## Releasing
+
+Push both remotes: `git push origin main && git push gitee main`.
