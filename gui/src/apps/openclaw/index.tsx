@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AgentGuideView from "../agent-guide/AgentGuideView";
+import AgentGuideView from "../../components/agent-guide/AgentGuideView";
 import ChatView from "./ChatView";
 import ControlView from "./ControlView";
 import TaskView from "./TaskView";

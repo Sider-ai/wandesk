@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AgentGuideView from "./agent-guide/AgentGuideView";
+import AgentGuideView from "../components/agent-guide/AgentGuideView";
 import { ChatPane } from "./codeworkspace/ChatPane";
 import { DataTab } from "./codeworkspace/DataTab";
 import type { CodeWorkspaceProps } from "./codeworkspace/types";
