@@ -13,6 +13,8 @@ cd ../wandesk-test && node test.js r1      # English; AIOS_LANG=zh for Chinese; 
 # http://localhost:9502
 ```
 
+There is also an optional desktop shell in `tauri/` (`npm run tauri:dev` / `tauri:build`, needs Rust). It is the upstream for the signed client's shell — edit shared shell code here. See [`tauri/README.md`](tauri/README.md).
+
 ## Hard rules
 
 - **Baseline direction is one-way.** Change shared code here, then sync down to client/cloud. Never change shared code in the client and back-port to OSS. See `../wandesk-dev/doc/three-repo-sync.md`.

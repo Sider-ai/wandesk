@@ -48,7 +48,9 @@ gui/
     stores/             shared client state
 language/<en|zh>/       i18n source: gui/ + server/ JSON token files, apps/<app>/APP.md, WANDESK_TAKEOVER.md
 scripts/start.ts        the bake script (token replacement + app/doc mirroring)
+scripts/tauri-*.mjs     desktop shell build pipeline (prepare/dev/build)
 skills/                 bundled local skills
+tauri/                  OPTIONAL desktop shell (Tauri v2) — see tauri/README.md
 apps/                   BAKING OUTPUT (apps/<app>/APP.md) — NOT committed (.gitignore)
 ```
 
@@ -77,6 +79,17 @@ npm run typecheck               # tsc --noEmit
 npm run start / start:apps      # start compiled main / apps only
 npm run start:src / start:apps:src # start TS source via tsx for source-only debugging
 ```
+
+### Desktop shell (optional)
+
+`tauri/` wraps the same app as a native desktop build. It is purely additive — the browser and server-deployment paths are unaffected.
+
+```bash
+npm run tauri:dev               # run as a desktop app (needs a Rust toolchain + Node >= 22.5)
+npm run tauri:build             # build an unsigned .app / .dmg
+```
+
+The shell boots the two Node services as sidecars and points its window at the local server. It uses the system Node on PATH and ships no analytics (the anonymous daily-active ping is gated behind the off-by-default `dau` Cargo feature). Code signing, notarization, and a bundled runtime are downstream packaging concerns kept out of this repo. See [`tauri/README.md`](tauri/README.md).
 
 ---
 
@@ -185,10 +198,10 @@ Inter-process auth via `AIOS_API_TOKEN` (shared). `AIOS_LANG` selects the bake l
 
 ## Do NOT commit
 
-`apps/` (baking output), `database/`, `files/`, `node_modules/`, `gui/dist/`, `.aios/`, any API keys / tokens / secrets.
+`apps/` (baking output), `database/`, `files/`, `node_modules/`, `gui/dist/`, `dist/` (compiled server), `tauri/target/`, `tauri/resources/aios/` (assembled template), `tauri/gen/schemas/`, `.aios/`, any API keys / tokens / secrets.
 
 ---
 
 ## Baseline discipline (cross-repo)
 
-This repo is upstream for shared runtime code: GUI apps, server, prompt, i18n, seeds, and local skills. Downstream packages or deployment variants should consume clean copies of shared code and keep packaging/deployment-only files outside this repo. Do not back-port shared behavior from a downstream package into OSS unless the same change belongs here as the single source of truth.
+This repo is upstream for shared runtime code: GUI apps, server, prompt, i18n, seeds, local skills, and the desktop shell (`tauri/`). Downstream packages or deployment variants consume clean copies of this code and add only their own concerns on top — e.g. the signed desktop client keeps `tauri/` in sync from here and overlays just its analytics module, bundle config, and signing/vendoring pipeline. Keep release-only secrets and signing/packaging machinery out of this repo. Do not back-port shared behavior from a downstream package into OSS unless the same change belongs here as the single source of truth.
