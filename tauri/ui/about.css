@@ -1,0 +1,173 @@
+@import "./shell-base.css";
+
+.about-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 28px 22px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.about-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #222;
+}
+
+.about-version {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.02em;
+}
+
+.about-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.about-link:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.about-link-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  flex-shrink: 0;
+}
+
+.about-link-url {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.5);
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.about-danger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+  background: rgba(210, 50, 50, 0.055);
+  border: 1px solid rgba(210, 50, 50, 0.16);
+  border-radius: 14px;
+}
+
+.about-danger-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.about-danger-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #8f1f1f;
+}
+
+.about-danger-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  font-weight: 500;
+  color: rgba(95, 20, 20, 0.62);
+}
+
+.about-danger-status {
+  min-height: 15px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(95, 20, 20, 0.78);
+}
+
+.about-reset-button {
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: #9d2424;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.about-reset-button:hover:not(:disabled) {
+  background: #7f1d1d;
+  transform: translateY(-1px);
+}
+
+.about-reset-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.about-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.about-tagline {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.about-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.about-more:hover {
+  color: #222;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about-more-arrow {
+  font-size: 11px;
+  line-height: 1;
+}

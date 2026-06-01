@@ -27,6 +27,16 @@ npm run dev
 
 Then open <http://localhost:9502>.
 
+Prefer a native window? The same app ships an optional desktop shell:
+
+```bash
+npm run tauri:dev      # run as a desktop app (needs a Rust toolchain)
+npm run tauri:build    # build an unsigned .app / .dmg
+```
+
+See [`tauri/README.md`](tauri/README.md). The browser and server deployment
+paths are unaffected — the shell is purely additive.
+
 > Just want to use it, not run from source? Download the packaged macOS / Windows desktop app at **[wandesk.ai](https://wandesk.ai)** — no Node, no terminal, just open and go.
 
 ---
@@ -209,6 +219,10 @@ This regenerates runtime app docs under `apps/` and locale state under `.aios/`.
 - **Issues**: <https://github.com/Sider-ai/wandesk/issues>
 
 We accept PRs, bug reports, app ideas, locale contributions, and Skill submissions. For anything bigger than a small fix, open an issue first so we can talk through the shape of the change.
+
+### 🙏 Acknowledgements
+
+- The optional desktop shell ([`tauri/`](tauri/README.md)) was motivated by [**@epicsagas**](https://github.com/epicsagas), whose [PR #1](https://github.com/Sider-ai/wandesk/pull/1) independently built a Tauri v2 wrapper for Wandesk and made the case for shipping one in-tree. Thank you.
 
 ---
 

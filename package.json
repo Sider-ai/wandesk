@@ -14,7 +14,10 @@
     "start": "node dist/server/main/index.js",
     "start:apps": "node dist/server/apps/index.js",
     "start:src": "tsx server/main/index.ts",
-    "start:apps:src": "tsx server/apps/index.ts"
+    "start:apps:src": "tsx server/apps/index.ts",
+    "tauri": "tauri",
+    "tauri:dev": "node scripts/tauri-dev.mjs",
+    "tauri:build": "node scripts/tauri-build.mjs"
   },
   "keywords": [
     "ai",
@@ -44,6 +47,7 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2",
     "@types/node": "^24.10.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

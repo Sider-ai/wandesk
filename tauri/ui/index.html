@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wandesk</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="/main.js" defer></script>
+  </head>
+  <body class="boot boot-loading">
+    <div class="boot-glow" aria-hidden="true"></div>
+
+    <main class="boot-stage">
+      <div class="boot-mark">
+        <img
+          class="boot-icon"
+          src="brand-icon.png"
+          alt="Wandesk"
+          draggable="false"
+        />
+        <div class="boot-brand" id="shell-brand">Wandesk</div>
+      </div>
+
+      <div class="boot-progress" aria-hidden="true">
+        <div class="boot-progress-track"><div class="boot-progress-fill"></div></div>
+      </div>
+
+      <div class="boot-status">
+        <div class="boot-title" id="status-title"></div>
+        <div class="boot-message" id="status-message"></div>
+      </div>
+    </main>
+  </body>
+</html>

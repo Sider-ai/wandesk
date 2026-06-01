@@ -1,0 +1,28 @@
+export const shellLanguage = Object.freeze({
+  lang: "en",
+  brand: "Wandesk",
+  status: Object.freeze({
+    defaultTitle: "Starting up...",
+    defaultMessage: "Wandesk is preparing local services. Please wait.",
+  }),
+  about: Object.freeze({
+    title: "About",
+    version: "Version",
+    website: "Website",
+    websiteUrl: "https://wandesk.ai",
+    community: "Community",
+    communityUrl: "https://discord.gg/UJw2wGjV",
+    tagline: "Wandesk — AI personal desktop",
+    labMore: "Learn More",
+    labMoreUrl: "https://github.com/Sider-ai/wandesk",
+    resetTitle: "Reset Local Data",
+    resetDesc: "Delete the local workspace, databases, files, and settings, then restore defaults.",
+    resetAction: "Reset",
+    resetting: "Resetting...",
+    resetConfirm: "This will permanently delete local Wandesk data, including chats, apps, settings, and files. This cannot be undone. Continue?",
+    resetStarted: "Stopping services and deleting local data...",
+    resetSubmitted: "Reset started. Wandesk will initialize again.",
+    resetFailed: "Reset failed:",
+    resetUnavailable: "Reset command is not available in this environment.",
+  }),
+});

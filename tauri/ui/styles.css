@@ -1,0 +1,191 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter",
+    system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body.boot {
+  position: relative;
+  background: #f7f3ee;
+  color: #222;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.boot-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 15% 0%, rgba(255, 220, 160, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 55% at 90% 95%, rgba(200, 210, 255, 0.50) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 75% 10%, rgba(220, 200, 255, 0.35) 0%, transparent 50%);
+}
+
+.boot-stage {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  padding: 40px;
+  opacity: 0;
+  animation: boot-stage-fade 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.05s forwards;
+}
+
+@keyframes boot-stage-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.boot-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.boot-icon {
+  width: 88px;
+  height: 88px;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.08));
+  animation: boot-icon-breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes boot-icon-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.96;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+.boot-brand {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.42);
+}
+
+.boot-progress {
+  width: 220px;
+}
+
+.boot-progress-track {
+  position: relative;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.boot-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(34, 34, 34, 0.55) 50%,
+    transparent 100%
+  );
+  animation: boot-progress-sweep 1.6s cubic-bezier(0.55, 0.1, 0.35, 1) infinite;
+}
+
+@keyframes boot-progress-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.boot-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  min-height: 44px;
+  max-width: 420px;
+}
+
+.boot-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.72);
+  letter-spacing: 0.01em;
+}
+
+.boot-message {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.42);
+  letter-spacing: 0.01em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+body.boot-error .boot-progress-fill {
+  animation: none;
+  width: 100%;
+  background: rgba(220, 38, 38, 0.55);
+}
+
+body.boot-error .boot-title {
+  color: #dc2626;
+}
+
+body.boot-error .boot-icon {
+  animation: none;
+  opacity: 0.72;
+  filter: drop-shadow(0 10px 24px rgba(220, 38, 38, 0.18)) saturate(0.75);
+}
+
+body.boot-ready .boot-progress-fill {
+  animation: none;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 34, 34, 0.55),
+    rgba(34, 34, 34, 0.85)
+  );
+}
