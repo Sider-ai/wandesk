@@ -1,4 +1,5 @@
 import { getSettings } from "../settings/get.js";
+import { DATA_DIR } from "../../../shared/paths.js";
 import { apps as appsSection } from "./apps.js";
 import { chats as chatsSection } from "./chats.js";
 import { DEFAULT_SYSTEM_PROMPT } from "./default.js";
@@ -32,7 +33,7 @@ const buildSystemPrompt = (currentConversationId = "", { appContext = "" }: any 
     enableToolLoopLimit,
     toolMaxRounds
   } = settings;
-  const cwd = process.cwd();
+  const cwd = process.env.AIOS_DATA_DIR || process.cwd();
   let prompt = instruction(settings);
   prompt += environmentSection(cwd);
   prompt += modelSection({ provider, name: model, apiUrl });

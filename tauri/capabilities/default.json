@@ -1,0 +1,9 @@
+{
+  "identifier": "default",
+  "description": "Default capability for Wandesk",
+  "windows": ["main", "splash"],
+  "permissions": [
+    "core:default",
+    "opener:default"
+  ]
+}

@@ -1,10 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
-import { join, dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, "..", "..", "..");
-const mainDbPath = join(root, "database", "aios.db");
+import { MAIN_DB_PATH } from "../paths.js";
 
 let cached = null;
 
@@ -18,7 +13,7 @@ const getApiToken = () => {
     return cached;
   }
   try {
-    const db = new DatabaseSync(mainDbPath, { readOnly: true });
+    const db = new DatabaseSync(MAIN_DB_PATH, { readOnly: true });
     const row: any = db.prepare("SELECT api_token FROM auth WHERE id = 1").get();
     db.close();
     cached = row?.api_token || "";

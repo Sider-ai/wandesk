@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
-const APPS_ROOT = join(process.cwd(), "apps");
+import { DATA_DIR } from "../../../shared/paths.js";
+const APPS_ROOT = join(DATA_DIR, "apps");
 const PROMPT_APPS_TITLE = "__T_PROMPT_APPS_TITLE__";
 const PROMPT_APPS_INTRO = "__T_PROMPT_APPS_INTRO__";
 const parseReadme = (filePath) => {

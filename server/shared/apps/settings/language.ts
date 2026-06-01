@@ -3,12 +3,13 @@
 // 主进程构建前端时会把 .aios/settings.json 里的 locale 同步注入到 AIOS_LANG.
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { DATA_DIR } from "../../paths.js";
 
 let cached = null;
 
 const readFromSettings = () => {
     try {
-        const raw = readFileSync(resolve(process.cwd(), ".aios/settings.json"), "utf-8");
+        const raw = readFileSync(resolve(DATA_DIR, ".aios/settings.json"), "utf-8");
         const data = JSON.parse(raw);
         return data?.locale || null;
     } catch {

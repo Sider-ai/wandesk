@@ -1,13 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "fs";
-import { join, dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, "..", "..", "..", "..");
-const dir = join(root, "database", "apps");
-mkdirSync(dir, { recursive: true });
+import { join } from "path";
+import { APPS_DB_DIR } from "../../paths.js";
+mkdirSync(APPS_DB_DIR, { recursive: true });
 const createAppDb = (filename): any => {
-  const db: any = new DatabaseSync(join(dir, filename));
+  const db: any = new DatabaseSync(join(APPS_DB_DIR, filename));
   db.exec("PRAGMA journal_mode = WAL");
   return db;
 };

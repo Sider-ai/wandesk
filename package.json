@@ -11,7 +11,9 @@
     "build:zh": "tsx scripts/start.ts zh --force && vite build --config gui/vite.config.ts gui",
     "typecheck": "tsc --noEmit",
     "start": "tsx server/main/index.ts",
-    "start:apps": "tsx server/apps/index.ts"
+    "start:apps": "tsx server/apps/index.ts",
+    "tauri:dev": "cd tauri && cargo tauri dev",
+    "tauri:build": "node scripts/tauri-build.mjs && cd tauri && cargo tauri build"
   },
   "keywords": [
     "ai",

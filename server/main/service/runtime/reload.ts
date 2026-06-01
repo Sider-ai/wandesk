@@ -2,6 +2,7 @@ import { execFileSync, execSync, spawn } from "child_process";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { broadcast } from "./ws.js";
+import { IS_DESKTOP } from "../../../shared/paths.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, "..", "..", "..", "..");
 const APPS_ENTRY = "server/apps/index.ts";
@@ -137,6 +138,12 @@ const requestReload = (options: any = {}) => {
   broadcast(payload);
 };
 const runReload = async (build, restartApps, restartServer, options: any = {}) => {
+  // In desktop mode, reload is disabled — code changes require app restart
+  if (IS_DESKTOP) {
+    console.log("[reload] Skipped in desktop mode. Restart the app to apply changes.");
+    requestReload(options);
+    return false;
+  }
   if (build) {
     buildFrontend();
   }

@@ -1,11 +1,11 @@
 import { createServer } from "http";
 import { readFileSync, existsSync, statSync } from "fs";
-import { join, extname } from "path";
+import { join, extname, resolve, sep } from "path";
 import { handleApiRequest } from "../../api/index.js";
 import { json } from "../../../shared/http/json.js";
 import { isAuthenticated, isConfigured, isPublicApiPath } from "../auth/session.js";
-const ROOT_DIR = process.cwd();
-const PUBLIC_DIR = join(ROOT_DIR, "gui", "dist");
+import { FILES_DIR } from "../../../shared/paths.js";
+const PUBLIC_DIR = join(import.meta.dirname ?? new URL(".", import.meta.url).pathname, "..", "..", "..", "..", "gui", "dist");
 const DEV_FRONTEND_ORIGIN = process.env.AIOS_DEV_FRONTEND === "1"
   ? (process.env.AIOS_DEV_FRONTEND_ORIGIN || "http://localhost:5173")
   : "";
@@ -126,7 +126,14 @@ const httpServer = createServer(async (req, res) => {
   }
 
   if (url.pathname.startsWith("/files/")) {
-    const filePath2 = join(ROOT_DIR, url.pathname);
+    const relativePath = url.pathname.slice("/files/".length);
+    const filePath2 = resolve(FILES_DIR, relativePath);
+    // Prevent path traversal: ensure resolved path is under FILES_DIR
+    if (!filePath2.startsWith(resolve(FILES_DIR) + sep) && filePath2 !== resolve(FILES_DIR)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
     if (existsSync(filePath2) && statSync(filePath2).isFile()) {
       const fileName = url.pathname.split("/").pop() || "file";
       const ext = extname(fileName).toLowerCase();

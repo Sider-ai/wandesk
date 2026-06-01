@@ -1,6 +1,7 @@
-import { resolve, sep } from "path";
+import { resolve, sep, join } from "path";
+import { FILES_DIR } from "../../../shared/paths.js";
 
-const CHAT_UPLOAD_BASE_DIR = resolve(process.cwd(), "files", "uploads", "chat");
+const CHAT_UPLOAD_BASE_DIR = join(FILES_DIR, "uploads", "chat");
 
 const pathStartsWith = (fullPath, basePath) => fullPath === basePath || fullPath.startsWith(`${basePath}${sep}`);
 
