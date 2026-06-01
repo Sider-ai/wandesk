@@ -1,13 +1,12 @@
 import { execFileSync, execSync, spawn } from "child_process";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { delimiter, dirname, join } from "path";
 import { broadcast } from "./ws.js";
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = join(__dirname, "..", "..", "..", "..");
-const APPS_ENTRY = "server/apps/index.ts";
-const SERVER_ENTRY = "server/main/index.ts";
+const ROOT_DIR = process.cwd();
+const APPS_ENTRY = "dist/server/apps/index.js";
+const SERVER_ENTRY = "dist/server/main/index.js";
 const NODE_BIN = process.execPath;
 const TSX_CLI = join(ROOT_DIR, "node_modules", "tsx", "dist", "cli.mjs");
+const TSC_CLI = join(ROOT_DIR, "node_modules", "typescript", "bin", "tsc");
 const VITE_CLI = join(ROOT_DIR, "node_modules", "vite", "bin", "vite.js");
 const wait = (ms) => new Promise<any>((resolve) => setTimeout(resolve, ms));
 const HEALTHCHECK_TIMEOUT_MS = 1000;
@@ -18,7 +17,7 @@ const withBundledNodePath = (extra: any = {}) => {
   return {
     ...process.env,
     ...extra,
-    PATH: currentPath ? `${nodeDir}:${currentPath}` : nodeDir,
+    PATH: currentPath ? `${nodeDir}${delimiter}${currentPath}` : nodeDir,
     npm_config_scripts_prepend_node_path: "true"
   };
 };
@@ -64,8 +63,17 @@ const buildFrontend = (options: any = {}) => {
     env
   });
 };
+const buildServer = (options: any = {}) => {
+  const env = withBundledNodePath(options.env || {});
+  execFileSync(NODE_BIN, [TSC_CLI, "-p", "tsconfig.server.json"], {
+    cwd: ROOT_DIR,
+    timeout: 12e4,
+    stdio: "pipe",
+    env
+  });
+};
 const probeProcess = async (entry, probePort, healthPath) => {
-  const probe = spawn(NODE_BIN, [TSX_CLI, entry, `--port=${probePort}`], {
+  const probe = spawn(NODE_BIN, [entry, `--port=${probePort}`], {
     cwd: ROOT_DIR,
     stdio: "ignore",
     env: withBundledNodePath({
@@ -95,7 +103,7 @@ const probeProcess = async (entry, probePort, healthPath) => {
   }
 };
 const startDetachedNode = (entry) => {
-  const child = spawn(NODE_BIN, [TSX_CLI, entry], {
+  const child = spawn(NODE_BIN, [entry], {
     cwd: ROOT_DIR,
     detached: true,
     stdio: "ignore",
@@ -103,7 +111,8 @@ const startDetachedNode = (entry) => {
   });
   child.unref();
 };
-const restartAppsProcess = async () => {
+const restartAppsProcess = async (options: any = {}) => {
+  if (options.skipBuild !== true) buildServer();
   await probeProcess(APPS_ENTRY, 9511, "/apps/health");
   try {
     const appsPort = process.env.AIOS_APPS_PORT || "9503";
@@ -112,10 +121,11 @@ const restartAppsProcess = async () => {
   }
   startDetachedNode(APPS_ENTRY);
 };
-const scheduleServerRestart = async () => {
+const scheduleServerRestart = async (options: any = {}) => {
+  if (options.skipBuild !== true) buildServer();
   await probeProcess(SERVER_ENTRY, 9510, "/api/health");
   setTimeout(() => {
-    const child = spawn(NODE_BIN, [TSX_CLI, SERVER_ENTRY], {
+    const child = spawn(NODE_BIN, [SERVER_ENTRY], {
       cwd: ROOT_DIR,
       detached: true,
       stdio: "ignore",
@@ -140,31 +150,37 @@ const runReload = async (build, restartApps, restartServer, options: any = {}) =
   if (build) {
     buildFrontend();
   }
+  if (restartApps || restartServer) {
+    buildServer();
+  }
   if (restartApps) {
     if (options.defer === true) {
       setTimeout(() => {
-        restartAppsProcess().catch((error) => {
+        restartAppsProcess({ skipBuild: true }).catch((error) => {
           console.error("[reload] apps restart failed:", error);
         });
       }, Number(options.delayMs || 300));
     } else {
-      await restartAppsProcess();
+      await restartAppsProcess({ skipBuild: true });
     }
   }
   if (restartServer) {
     if (options.defer === true) {
       setTimeout(() => {
-        scheduleServerRestart().catch((error) => {
+        scheduleServerRestart({ skipBuild: true }).catch((error) => {
           console.error("[reload] server restart failed:", error);
         });
       }, Number(options.delayMs || 300));
       return true;
     }
-    await scheduleServerRestart();
+    await scheduleServerRestart({ skipBuild: true });
   }
   return false;
 };
 export {
+  APPS_ENTRY,
+  SERVER_ENTRY,
+  buildServer,
   buildFrontend,
   probeProcess,
   requestReload,

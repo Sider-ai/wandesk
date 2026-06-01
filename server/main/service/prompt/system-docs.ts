@@ -1,9 +1,7 @@
-import { dirname, resolve } from "path";
+import { resolve } from "path";
 import { existsSync, readFileSync, readdirSync } from "fs";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const systemDir = resolve(__dirname, "..", "..", "..", "..", "system");
+const systemDir = resolve(process.cwd(), "system");
 
 let cache = null;
 

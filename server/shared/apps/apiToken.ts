@@ -1,9 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
-import { join, dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, "..", "..", "..");
+const root = process.cwd();
 const mainDbPath = join(root, "database", "aios.db");
 
 let cached = null;

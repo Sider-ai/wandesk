@@ -1,11 +1,8 @@
-import { execFileSync } from "child_process";
 import { copyFileSync, existsSync, lstatSync, mkdirSync, readdirSync, readlinkSync, realpathSync, rmSync, symlinkSync } from "fs";
 import { dirname, join, resolve } from "path";
-import { fileURLToPath } from "url";
-import { buildFrontend, restartAppsProcess, scheduleServerRestart, withBundledNodePath } from "./reload.js";
+import { buildFrontend, buildServer, restartAppsProcess, scheduleServerRestart } from "./reload.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = resolve(__dirname, "..", "..", "..", "..");
+const ROOT_DIR = process.cwd();
 
 const ROOT_EXCLUDES = new Set([
   ".git",
@@ -102,8 +99,9 @@ const prepareLanguage = (language) => {
 };
 
 const restartAfterLanguageApply = async () => {
-  await restartAppsProcess();
-  await scheduleServerRestart();
+  buildServer();
+  await restartAppsProcess({ skipBuild: true });
+  await scheduleServerRestart({ skipBuild: true });
 };
 
 const applyLanguage = async (language) => {

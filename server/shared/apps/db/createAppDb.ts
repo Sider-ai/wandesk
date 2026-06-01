@@ -1,9 +1,7 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "fs";
-import { join, dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, "..", "..", "..", "..");
+import { join } from "path";
+const root = process.cwd();
 const dir = join(root, "database", "apps");
 mkdirSync(dir, { recursive: true });
 const createAppDb = (filename): any => {

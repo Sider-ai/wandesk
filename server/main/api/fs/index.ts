@@ -2,12 +2,10 @@ import { createReadStream } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { basename, dirname, extname, join, relative, resolve } from "path";
 import { homedir } from "os";
-import { fileURLToPath } from "url";
 import { readBody } from "../../../shared/http/readBody.js";
 import { json } from "../../../shared/http/json.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const WORKSPACE_DIR = resolve(__dirname, "..", "..", "..", "..");
+const WORKSPACE_DIR = process.cwd();
 const FILES_DIR = join(WORKSPACE_DIR, "files");
 const HOME_DIR = homedir();
 

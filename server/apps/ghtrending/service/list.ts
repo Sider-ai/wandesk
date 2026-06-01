@@ -8,7 +8,7 @@ const list = async ({ language = "", since = "daily" } : any = {}) => {
   const url = `${GH_API}/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=30`;
   const res = await fetch(url, { headers: { Accept: "application/vnd.github.v3+json", "User-Agent": "AIOS-App" } });
   if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
-  const data = await res.json();
+  const data: any = await res.json();
   return {
     success: true,
     repos: (data.items || []).map((r) => ({

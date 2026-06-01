@@ -164,9 +164,9 @@ node_modules/
 ## 🧱 Tech Stack
 
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS
-- **Backend**: Node.js HTTP APIs + WebSocket runtime channel
-- **Storage**: SQLite via `better-sqlite3`
-- **Runtime ports**: main `9501`, apps `9502`
+- **Backend**: TypeScript HTTP APIs + WebSocket runtime channel, precompiled to `dist/server/` for runtime
+- **Storage**: SQLite via Node's built-in `node:sqlite`
+- **Runtime ports**: main `9502`, apps `9503`
 - **Workspace data**: `~/Library/Application Support/com.vidline.aios.wandesk.client/workspace` (macOS); equivalent paths on Linux / Windows
 
 ---
@@ -180,11 +180,12 @@ npm run dev:zh       # Chinese locale dev
 npm run typecheck
 ```
 
-Build frontend assets:
+Build runtime assets:
 
 ```bash
 npm run build
 npm run build:zh
+npm run build:server
 ```
 
 ### Language baking

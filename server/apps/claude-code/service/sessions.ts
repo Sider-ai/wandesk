@@ -2,7 +2,6 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { fileURLToPath } from "node:url";
 
 import {
   insertConversation,
@@ -12,8 +11,7 @@ import {
 } from "../repository/conversations.js";
 import { listEvents } from "../repository/events.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
+const ROOT_DIR = process.cwd();
 const WORKSPACE_ROOT = path.join(ROOT_DIR, "files", "workspaces", "claude-code");
 const CLAUDE_DIR = path.join(os.homedir(), ".claude");
 

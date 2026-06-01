@@ -10,9 +10,9 @@ Wandesk is an **AI desktop / local workbench**: a graphical workspace where the 
 
 ## Tech stack
 
-- **Backend**: TypeScript run directly with `tsx` (no build step). Two Node processes:
-  - `server/main/index.ts` — main service, port `9502`: chat/WS, AI engine, tasks, settings, memory, files.
-  - `server/apps/index.ts` — apps service, port `9503`: routes `/apps/<app>/*` to registered apps.
+- **Backend**: TypeScript source is precompiled with `tsc -p tsconfig.server.json` into `dist/server/`; production/local packaged services run plain Node on the compiled JS. Two Node processes:
+  - `dist/server/main/index.js` from `server/main/index.ts` — main service, port `9502`: chat/WS, AI engine, tasks, settings, memory, files.
+  - `dist/server/apps/index.js` from `server/apps/index.ts` — apps service, port `9503`: routes `/apps/<app>/*` to registered apps.
 - **Frontend**: React 19 + React Router 7 + Vite + Tailwind 4, in `gui/`. Vite dev on `5173`, proxies `/api` `/apps` `/ws` to `9502`.
 - **Database**: Node's built-in **`node:sqlite`** (`DatabaseSync`). Requires **Node >= 22.5**. No native modules, no `better-sqlite3`.
 - **i18n**: source contains `__T_<KEY>__` tokens; a bake step (`scripts/start.ts`) statically replaces them with the chosen language's strings from `language/<lang>/`. See [i18n](#i18n--baking).
@@ -71,9 +71,11 @@ Raw scripts (these dirty the source — run `git checkout .` afterwards):
 
 ```bash
 npm run dev / dev:zh            # bake + start main + apps + vite in parallel
-npm run build / build:zh        # bake + vite build
+npm run build / build:zh        # bake + vite build + backend tsc build
+npm run build:server            # backend tsc build only
 npm run typecheck               # tsc --noEmit
-npm run start / start:apps      # start main / apps only
+npm run start / start:apps      # start compiled main / apps only
+npm run start:src / start:apps:src # start TS source via tsx for source-only debugging
 ```
 
 ---
@@ -151,11 +153,11 @@ Seeded DB content (notebook/finance seeds, the App Creation Guide memory) is tok
 
 ## Reload mechanism
 
-Backend code changes need a reload (Node caches the ESM module graph). The AI requests reloads via `POST /api/runtime/reload/request` with `build` / `restartApps` / `restartServer` flags — this broadcasts to the UI's `ReloadModal` for user confirmation, then `/api/runtime/reload` runs (probes the new process on a sidecar port; only swaps if healthy). Do **not** call the final reload endpoint directly, and do **not** `pkill`/`kill` the 9502/9503 services to "restart".
+Backend code changes need a reload (Node caches the ESM module graph). The AI requests reloads via `POST /api/runtime/reload/request` with `build` / `restartApps` / `restartServer` flags — this broadcasts to the UI's `ReloadModal` for user confirmation, then `/api/runtime/reload` runs. Backend reloads first rebuild `dist/server/`, then probe the new compiled process on a sidecar port, and only swap if healthy. Do **not** call the final reload endpoint directly, and do **not** `pkill`/`kill` the 9502/9503 services to "restart".
 
 - `restartApps` when `server/apps/` changed (incl. `registry.ts`).
 - `restartServer` when `server/main/` or `server/shared/` changed.
-- `build` (Vite) when `gui/` changed.
+- `build` (Vite) when `gui/` changed. Backend rebuild is automatic when `restartApps` or `restartServer` is selected.
 
 ---
 
