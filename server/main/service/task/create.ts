@@ -10,7 +10,16 @@ const normalizePayload = (payload) => {
   if (!Array.isArray(payload.messages) || payload.messages.length === 0) {
     throw new Error("payload.messages is required");
   }
-  const { apiKey, api_key, apiUrl, provider, signal, ...requestPayload } = payload;
+  const {
+    apiKey,
+    api_key,
+    apiUrl,
+    provider,
+    signal,
+    prompt,
+    schema,
+    ...requestPayload
+  } = payload;
   return requestPayload;
 };
 
