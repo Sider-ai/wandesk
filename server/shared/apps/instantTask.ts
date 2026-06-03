@@ -7,7 +7,7 @@ const requestInstant = async (body: any = {}) => {
         const token = getApiToken();
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
-        resp = await fetch(`http://localhost:${process.env.AIOS_MAIN_PORT || 9502}/api/task/create/instant`, {
+        resp = await fetch(`http://localhost:${process.env.AIOS_MAIN_PORT || 9602}/api/task/create/instant`, {
             method: "POST",
             headers,
             body: JSON.stringify(body)

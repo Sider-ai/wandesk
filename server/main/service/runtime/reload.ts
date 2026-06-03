@@ -115,7 +115,7 @@ const restartAppsProcess = async (options: any = {}) => {
   if (options.skipBuild !== true) buildServer();
   await probeProcess(APPS_ENTRY, 9511, "/apps/health");
   try {
-    const appsPort = process.env.AIOS_APPS_PORT || "9503";
+    const appsPort = process.env.AIOS_APPS_PORT || "9603";
     execSync(`lsof -ti:${appsPort} | xargs kill 2>/dev/null || true`, { stdio: "pipe" });
   } catch {
   }

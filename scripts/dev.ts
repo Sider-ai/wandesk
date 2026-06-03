@@ -12,7 +12,7 @@ const sourceDir = path.resolve(__dirname, '..');
 const workspaceDir = path.resolve(sourceDir, '..');
 const devRootDir = path.join(workspaceDir, 'AIOS-dev');
 const runtimeDir = path.join(devRootDir, 'aios');
-const ports = ['5173', '9502', '9503'];
+const ports = ['5173', '9602', '9603'];
 
 const rawArgs = process.argv.slice(2);
 const locale = rawArgs.find((arg) => !arg.startsWith('--')) || process.env.AIOS_LANG || 'zh';

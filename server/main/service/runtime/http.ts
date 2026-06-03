@@ -23,7 +23,7 @@ const MIME = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp"
 };
-const APPS_PORT = Number(process.env.AIOS_APPS_PORT || 9503);
+const APPS_PORT = Number(process.env.AIOS_APPS_PORT || 9603);
 const readRawBody = async (req) => {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -119,7 +119,12 @@ const httpServer = createServer(async (req, res) => {
   const isApi = path.startsWith("/api/");
   const isApps = path.startsWith("/apps/");
   const isFiles = path.startsWith("/files/");
-  const needsAuth = isConfigured() && ((isApi && !isPublicApiPath(path)) || isApps || isFiles);
+  // AIOS_LOCAL_TRUST=1 marks a trusted localhost desktop instance (set by the
+  // Wandesk client launcher); skip the local password gate there. Cloud, which is
+  // exposed on 0.0.0.0, never sets it and keeps full auth.
+  const localTrust = process.env.AIOS_LOCAL_TRUST === "1";
+  const needsAuth =
+    !localTrust && isConfigured() && ((isApi && !isPublicApiPath(path)) || isApps || isFiles);
   if (needsAuth && !isAuthenticated(req)) {
     json(res, { success: false, message: "未鉴权", code: "UNAUTHENTICATED" }, 401);
     return;

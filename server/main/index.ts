@@ -8,7 +8,7 @@ const portArg = process.argv.find((arg) => arg.startsWith("--port="));
 if (portArg && !/^\-\-port=\d+$/.test(portArg)) {
   throw new Error("Invalid port argument");
 }
-const PORT = portArg ? Number(portArg.slice("--port=".length)) : 9502;
+const PORT = portArg ? Number(portArg.slice("--port=".length)) : 9602;
 process.env.AIOS_MAIN_PORT = String(PORT);
 
 // 默认只绑 127.0.0.1,避免桌面版被同局域网其他设备访问。

@@ -112,7 +112,7 @@ export const setupWebSocket = (httpServer) => {
   initMeemAppsOnce().catch((err) => console.error("[meem-init]", err));
   httpServer.on("upgrade", (req, socket, head) => {
     try {
-      if (isConfigured() && !isAuthenticated(req, { allowQueryToken: true })) {
+      if (process.env.AIOS_LOCAL_TRUST !== "1" && isConfigured() && !isAuthenticated(req, { allowQueryToken: true })) {
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;

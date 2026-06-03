@@ -7,10 +7,10 @@ const portArg = process.argv.find((arg) => arg.startsWith("--port="));
 if (portArg && !/^\-\-port=\d+$/.test(portArg)) {
   throw new Error("Invalid port argument");
 }
-const DEFAULT_APPS_PORT = Number(process.env.AIOS_APPS_PORT || 9503);
+const DEFAULT_APPS_PORT = Number(process.env.AIOS_APPS_PORT || 9603);
 const APPS_PORT = portArg ? Number(portArg.slice("--port=".length)) : DEFAULT_APPS_PORT;
 const APPS_HOST = "127.0.0.1";
-const MAIN_PORT = String(process.env.AIOS_MAIN_PORT || 9502);
+const MAIN_PORT = String(process.env.AIOS_MAIN_PORT || 9602);
 const DEV_FRONTEND_ORIGIN = process.env.AIOS_DEV_FRONTEND_ORIGIN || "http://localhost:5173";
 const ALLOWED_ORIGINS = new Set([
   `http://127.0.0.1:${MAIN_PORT}`,
