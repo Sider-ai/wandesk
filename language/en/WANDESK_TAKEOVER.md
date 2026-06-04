@@ -7,7 +7,7 @@ This is the runtime guide. It is not `AGENTS.md`. `AGENTS.md` is for Wandesk dev
 ## Start Here
 
 - Treat the directory containing this file as the Wandesk workspace root.
-- Use the language and UI already baked into this workspace. Do not ask the user to manage language packs.
+- This workspace is already baked. Do not inspect or edit `language/`, and do not ask the user to manage language packs.
 - Read app-specific runtime docs from `apps/<app>/APP.md` when you need to operate a particular app.
 - Prefer public Wandesk APIs over editing databases directly. Use direct database access only when the user explicitly needs inspection or repair.
 
@@ -17,14 +17,14 @@ This is the runtime guide. It is not `AGENTS.md`. `AGENTS.md` is for Wandesk dev
 - `files/` contains user-managed files and uploads.
 - `database/aios.db` is the main system database.
 - `database/apps/<app>.db` contains per-app data.
-- `gui/`, `server/`, `language/`, and `scripts/` are implementation sources. Do not edit them unless the user is asking you to develop Wandesk itself.
+- `gui/`, `server/`, and `scripts/` are runtime implementation sources. Do not edit system-level directories unless the user is asking you to develop Wandesk itself.
 
 ## Local API
 
 Use the main Wandesk service, usually:
 
 ```text
-http://127.0.0.1:9502
+http://127.0.0.1:9602
 ```
 
 If authentication is enabled and an API token is available, send it as:
@@ -49,7 +49,7 @@ Do not call the apps service port directly. Go through `/apps/...` on the main s
 1. Read `apps/<app>/APP.md`.
 2. Inspect the app state through its HTTP endpoints or database only as needed.
 3. Make the smallest change that completes the user's request.
-4. If backend or frontend source changes are made, ask Wandesk to reload through `POST /api/runtime/reload/request` with the appropriate flags.
+4. If backend or frontend source changes are made, ask Wandesk to reload through `POST /api/runtime/reload/request` with the appropriate flags. Do not call `/api/runtime/reload` directly unless the user explicitly asks to bypass the confirmation modal.
 
 Common reload flags:
 

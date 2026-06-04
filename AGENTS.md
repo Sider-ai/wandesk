@@ -11,9 +11,9 @@ Wandesk is an **AI desktop / local workbench**: a graphical workspace where the 
 ## Tech stack
 
 - **Backend**: TypeScript source is precompiled with `tsc -p tsconfig.server.json` into `dist/server/`; production/local packaged services run plain Node on the compiled JS. Two Node processes:
-  - `dist/server/main/index.js` from `server/main/index.ts` — main service, port `9502`: chat/WS, AI engine, tasks, settings, memory, files.
-  - `dist/server/apps/index.js` from `server/apps/index.ts` — apps service, port `9503`: routes `/apps/<app>/*` to registered apps.
-- **Frontend**: React 19 + React Router 7 + Vite + Tailwind 4, in `gui/`. Vite dev on `5173`, proxies `/api` `/apps` `/ws` to `9502`.
+  - `dist/server/main/index.js` from `server/main/index.ts` — main service, port `9602`: chat/WS, AI engine, tasks, settings, memory, files.
+  - `dist/server/apps/index.js` from `server/apps/index.ts` — apps service, port `9603`: routes `/apps/<app>/*` to registered apps.
+- **Frontend**: React 19 + React Router 7 + Vite + Tailwind 4, in `gui/`. Vite dev on `5173`, proxies `/api` `/apps` `/ws` to `9602`.
 - **Database**: Node's built-in **`node:sqlite`** (`DatabaseSync`). Requires **Node >= 22.5**. No native modules, no `better-sqlite3`.
 - **i18n**: source contains `__T_<KEY>__` tokens; a bake step (`scripts/start.ts`) statically replaces them with the chosen language's strings from `language/<lang>/`. See [i18n](#i18n--baking).
 
@@ -24,7 +24,7 @@ Wandesk is an **AI desktop / local workbench**: a graphical workspace where the 
 ```
 server/
   main/                 main service (system capabilities)
-    index.ts            entry, binds 9502
+    index.ts            entry, binds 9602
     api/                HTTP/WS route handlers (auth, chat, task, runtime, settings, fs…)
     service/            business logic (chat, task, prompt, settings, runtime, auth)
       prompt/           system-prompt assembly (one file per section)
@@ -66,7 +66,7 @@ cd /tmp/wandesk-run
 npm install
 npm run dev                     # English
 AIOS_LANG=zh npm run dev        # Chinese
-# open http://localhost:9502
+# open http://localhost:9602
 ```
 
 Raw scripts (these dirty the source — run `git checkout .` afterwards):
@@ -166,7 +166,7 @@ Seeded DB content (notebook/finance seeds, the App Creation Guide memory) is tok
 
 ## Reload mechanism
 
-Backend code changes need a reload (Node caches the ESM module graph). The AI requests reloads via `POST /api/runtime/reload/request` with `build` / `restartApps` / `restartServer` flags — this broadcasts to the UI's `ReloadModal` for user confirmation, then `/api/runtime/reload` runs. Backend reloads first rebuild `dist/server/`, then probe the new compiled process on a sidecar port, and only swap if healthy. Do **not** call the final reload endpoint directly, and do **not** `pkill`/`kill` the 9502/9503 services to "restart".
+Backend code changes need a reload (Node caches the ESM module graph). The AI requests reloads via `POST /api/runtime/reload/request` with `build` / `restartApps` / `restartServer` flags — this broadcasts to the UI's `ReloadModal` for user confirmation, then `/api/runtime/reload` runs. Backend reloads first rebuild `dist/server/`, then probe the new compiled process on a sidecar port, and only swap if healthy. Do **not** call the final reload endpoint directly, and do **not** `pkill`/`kill` the 9602/9603 services to "restart".
 
 - `restartApps` when `server/apps/` changed (incl. `registry.ts`).
 - `restartServer` when `server/main/` or `server/shared/` changed.
@@ -178,8 +178,8 @@ Backend code changes need a reload (Node caches the ESM module graph). The AI re
 
 | Process | Port | Notes |
 |---|---|---|
-| main | 9502 | `AIOS_MAIN_HOST` (default `127.0.0.1` here), `AIOS_MAIN_PORT` |
-| apps | 9503 | `AIOS_APPS_HOST` / `AIOS_APPS_PORT` |
+| main | 9602 | `AIOS_MAIN_HOST` (default `127.0.0.1` here), `AIOS_MAIN_PORT` |
+| apps | 9603 | `AIOS_APPS_HOST` / `AIOS_APPS_PORT` |
 | vite dev | 5173 | dev only |
 
 Inter-process auth via `AIOS_API_TOKEN` (shared). `AIOS_LANG` selects the bake locale.

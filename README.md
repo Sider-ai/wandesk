@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-Then open <http://localhost:9502>.
+Then open <http://localhost:9602>.
 
 Prefer a native window? The same app ships an optional desktop shell:
 
@@ -176,7 +176,7 @@ node_modules/
 - **Frontend**: React 19, TypeScript, Vite, Tailwind CSS
 - **Backend**: TypeScript HTTP APIs + WebSocket runtime channel, precompiled to `dist/server/` for runtime
 - **Storage**: SQLite via Node's built-in `node:sqlite`
-- **Runtime ports**: main `9502`, apps `9503`
+- **Runtime ports**: main `9602`, apps `9603`
 - **Workspace data**: `~/Library/Application Support/com.vidline.aios.wandesk.client/workspace` (macOS); equivalent paths on Linux / Windows
 
 ---

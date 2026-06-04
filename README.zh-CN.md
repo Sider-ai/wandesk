@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-然后打开 <http://localhost:9502>。
+然后打开 <http://localhost:9602>。
 
 > 只想用,不想跑源码?到 **[wandesk.cn](https://wandesk.cn)** 下载打包好的 macOS / Windows 桌面应用——不用装 Node、不用开终端,下载即用。
 
@@ -166,7 +166,7 @@ node_modules/
 - **前端**:React 19、TypeScript、Vite、Tailwind CSS
 - **后端**:Node.js HTTP API + WebSocket 运行时通道
 - **存储**:SQLite(`better-sqlite3`)
-- **运行端口**:主端 `9501`,应用端 `9502`
+- **运行端口**:主端 `9602`,应用端 `9603`
 - **工作区数据**:`~/Library/Application Support/com.vidline.aios.wandesk.client/workspace`(macOS;Linux / Windows 在对应位置)
 
 ---

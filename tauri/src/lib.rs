@@ -19,9 +19,9 @@ use crate::{
     },
 };
 
-pub(crate) const AIOS_URL: &str = "http://127.0.0.1:9502";
-pub(crate) const MAIN_PORT: u16 = 9502;
-pub(crate) const APPS_PORT: u16 = 9503;
+pub(crate) const AIOS_URL: &str = "http://127.0.0.1:9602";
+pub(crate) const MAIN_PORT: u16 = 9602;
+pub(crate) const APPS_PORT: u16 = 9603;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

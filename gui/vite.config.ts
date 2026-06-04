@@ -6,9 +6,9 @@ var stdin_default = defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      "/ws": { target: "ws://localhost:9502", ws: true },
-      "/api": { target: "http://localhost:9502" },
-      "/apps": { target: "http://localhost:9502" }
+      "/ws": { target: "ws://localhost:9602", ws: true },
+      "/api": { target: "http://localhost:9602" },
+      "/apps": { target: "http://localhost:9602" }
     }
   },
   build: {
