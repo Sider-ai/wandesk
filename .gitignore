@@ -19,7 +19,7 @@ logs/
 **/.aios/
 /database/
 /files/
-**/gui/dist/
+**/ui/dist/
 **/ui/dist/
 **/dist/
 **/dist-ssr/

@@ -56,7 +56,7 @@ const buildFrontend = (options: any = {}) => {
     stdio: "pipe",
     env
   });
-  execFileSync(NODE_BIN, [VITE_CLI, "build", "--config", "gui/vite.config.ts", "gui"], {
+  execFileSync(NODE_BIN, [VITE_CLI, "build", "--config", "ui/vite.config.ts", "ui"], {
     cwd: ROOT_DIR,
     timeout: 12e4,
     stdio: "pipe",

@@ -17,7 +17,7 @@ This is the runtime guide. It is not `AGENTS.md`. `AGENTS.md` is for Wandesk dev
 - `files/` contains user-managed files and uploads.
 - `database/aios.db` is the main system database.
 - `database/apps/<app>.db` contains per-app data.
-- `gui/`, `server/`, and `scripts/` are runtime implementation sources. Do not edit system-level directories unless the user is asking you to develop Wandesk itself.
+- `ui/`, `server/`, and `scripts/` are runtime implementation sources. Do not edit system-level directories unless the user is asking you to develop Wandesk itself.
 
 ## Local API
 

@@ -2,14 +2,14 @@
 name: codex
 description: Codex app that wraps the local codex CLI in an AIOS chat interface.
 backend: server/apps/codex
-frontend: gui/src/apps/codex
+frontend: ui/src/apps/codex
 database: database/apps/codex.db
 ---
 
 # codex
 
 - Role: runs local Codex sessions through the AIOS app shell.
-- Frontend: `gui/src/apps/codex`
+- Frontend: `ui/src/apps/codex`
 - Backend: `server/apps/codex`
 - Data: `database/apps/codex.db`
 - Runtime dependency: local `codex` CLI.

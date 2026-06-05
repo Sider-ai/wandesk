@@ -2,14 +2,14 @@
 name: files
 description: File manager for browsing, reading, writing, uploading, downloading, and deleting workspace files.
 backend: server/main/api/fs.js
-frontend: gui/src/apps/files
+frontend: ui/src/apps/files
 database: none
 ---
 
 # files
 
 - Role: core file management app mounted directly on the main service.
-- Frontend: `gui/src/apps/files`
+- Frontend: `ui/src/apps/files`
 - Backend: `server/main/api/fs.js`
 - Data: filesystem only, primarily the project `files/` directory plus allowed roots.
 - Roots: `files`, `workspace`, `home`, and explicit `absolute` base paths.

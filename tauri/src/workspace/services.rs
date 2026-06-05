@@ -501,7 +501,7 @@ fn prepare_workspace(app: &AppHandle) -> io::Result<std::path::PathBuf> {
             .join("vite")
             .join("bin")
             .join("vite.js"),
-        &["build", "--config", "gui/vite.config.ts", "gui"],
+        &["build", "--config", "ui/vite.config.ts", "ui"],
         "vite-build.log",
         "vite build",
     )?;
@@ -509,7 +509,7 @@ fn prepare_workspace(app: &AppHandle) -> io::Result<std::path::PathBuf> {
     let gui_dist_entry = workspace.join("gui").join("dist").join("index.html");
     if !gui_dist_entry.exists() {
         return Err(io::Error::other(format!(
-            "workspace gui dist missing: gui/dist/index.html ({})",
+            "workspace gui dist missing: ui/dist/index.html ({})",
             gui_dist_entry.display()
         )));
     }

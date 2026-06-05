@@ -58,8 +58,8 @@ const run = () => {
       filter: copyFilter,
     });
   }
-  // gui/dist is build output — drop it if present in the copy.
-  rmSync(join(aiosDir, "gui", "dist"), { recursive: true, force: true });
+  // ui/dist is build output — drop it if present in the copy.
+  rmSync(join(aiosDir, "ui", "dist"), { recursive: true, force: true });
 
   console.log("[tauri-prepare] copying node_modules");
   cpSync(join(repoDir, "node_modules"), join(aiosDir, "node_modules"), {

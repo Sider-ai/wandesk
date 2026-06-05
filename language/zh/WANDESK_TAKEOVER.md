@@ -17,7 +17,7 @@
 - `files/` 保存用户文件和上传内容。
 - `database/aios.db` 是系统主数据库。
 - `database/apps/<app>.db` 保存各应用自己的数据。
-- `gui/`、`server/`、`scripts/` 是运行态实现源码。除非用户明确要求开发 Wandesk 本身，否则不要修改系统级目录。
+- `ui/`、`server/`、`scripts/` 是运行态实现源码。除非用户明确要求开发 Wandesk 本身，否则不要修改系统级目录。
 
 ## 本地接口
 

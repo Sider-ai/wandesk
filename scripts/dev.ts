@@ -46,7 +46,7 @@ const syncSourceToRuntime = () => {
     '--exclude', '/node_modules',
     '--exclude', '/database',
     '--exclude', '/files',
-    '--exclude', '/gui/dist',
+    '--exclude', '/ui/dist',
     '--exclude', '/.aios',
     '--exclude', '.DS_Store',
     `${sourceDir}/`,

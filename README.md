@@ -148,7 +148,7 @@ Switch providers per-app from the Settings inside Wandesk.
 ## 🏗️ Architecture
 
 ```text
-gui/                React desktop UI (windows, taskbar, launcher, apps)
+ui/                React desktop UI (windows, taskbar, launcher, apps)
 server/main/        core HTTP / WebSocket APIs and system services
 server/apps/        app-specific backend modules
 server/shared/      shared backend utilities
@@ -165,7 +165,7 @@ Generated and runtime output is **not** source — keep these out of git:
 .aios/            runtime locale and config state
 database/         SQLite app data
 files/            user-side files
-gui/dist/         built frontend
+ui/dist/         built frontend
 node_modules/
 ```
 

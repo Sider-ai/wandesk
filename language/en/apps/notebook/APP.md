@@ -2,14 +2,14 @@
 name: notebook
 description: Lightweight note app that supports create, edit, search; the AI Assist button executes the user's instruction based on system context.
 backend: server/apps/notebook
-frontend: gui/src/apps/notebook
+frontend: ui/src/apps/notebook
 database: database/apps/notebook.db
 ---
 
 # notebook
 
 - Role: a lightweight note-taking and content organization app.
-- Frontend: `gui/src/apps/notebook`
+- Frontend: `ui/src/apps/notebook`
 - Backend: `server/apps/notebook`
 - Data: `database/apps/notebook.db`
 - Entry points:

@@ -2,14 +2,14 @@
 name: codex
 description: Codex 应用，把本地 codex CLI 包装成 AIOS 对话界面。
 backend: server/apps/codex
-frontend: gui/src/apps/codex
+frontend: ui/src/apps/codex
 database: database/apps/codex.db
 ---
 
 # codex
 
 - 定位：通过 AIOS 应用壳运行本地 Codex 会话。
-- 前端：`gui/src/apps/codex`
+- 前端：`ui/src/apps/codex`
 - 后端：`server/apps/codex`
 - 数据：`database/apps/codex.db`
 - 运行依赖：本地 `codex` CLI。

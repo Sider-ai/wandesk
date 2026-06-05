@@ -138,7 +138,7 @@ Wandesk 跟具体模型供应商无关。任何你已经在用的 AI 都能接�
 ## 🏗️ 架构
 
 ```text
-gui/                React 桌面 UI(窗口、任务栏、启动器、应用)
+ui/                React 桌面 UI(窗口、任务栏、启动器、应用)
 server/main/        核心 HTTP / WebSocket API 与系统服务
 server/apps/        应用专属后端模块
 server/shared/      共享后端工具
@@ -155,7 +155,7 @@ docs/               文档与图片
 .aios/            运行时语言和配置状态
 database/         SQLite 应用数据
 files/            用户文件
-gui/dist/         前端构建产物
+ui/dist/         前端构建产物
 node_modules/
 ```
 

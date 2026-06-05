@@ -15,10 +15,10 @@ const PRESERVED_WORKSPACE_ENTRIES: &[&str] = &[
     "apps",
     "database",
     "files",
-    "gui/src/apps",
-    "gui/src/apps.js",
-    "language/en/gui/views/apps",
-    "language/zh/gui/views/apps",
+    "ui/src/apps",
+    "ui/src/apps.js",
+    "language/en/ui/views/apps",
+    "language/zh/ui/views/apps",
     "server/apps",
 ];
 

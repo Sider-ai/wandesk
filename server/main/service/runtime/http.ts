@@ -5,7 +5,7 @@ import { handleApiRequest } from "../../api/index.js";
 import { json } from "../../../shared/http/json.js";
 import { isAuthenticated, isConfigured, isPublicApiPath } from "../auth/session.js";
 const ROOT_DIR = process.cwd();
-const PUBLIC_DIR = join(ROOT_DIR, "gui", "dist");
+const PUBLIC_DIR = join(ROOT_DIR, "ui", "dist");
 const DEV_FRONTEND_ORIGIN = process.env.AIOS_DEV_FRONTEND === "1"
   ? (process.env.AIOS_DEV_FRONTEND_ORIGIN || "http://localhost:5173")
   : "";

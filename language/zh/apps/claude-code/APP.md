@@ -2,14 +2,14 @@
 name: claude-code
 description: Claude Code 应用，把本地 claude CLI 包装成 AIOS 对话界面。
 backend: server/apps/claude-code
-frontend: gui/src/apps/claude-code
+frontend: ui/src/apps/claude-code
 database: database/apps/claude-code.db
 ---
 
 # claude-code
 
 - 定位：通过 AIOS 应用壳运行本地 Claude Code 会话。
-- 前端：`gui/src/apps/claude-code`
+- 前端：`ui/src/apps/claude-code`
 - 后端：`server/apps/claude-code`
 - 数据：`database/apps/claude-code.db`
 - 运行依赖：本地 `claude` CLI。
