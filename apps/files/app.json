@@ -1,0 +1,7 @@
+{
+  "id": "files",
+  "name": "文件",
+  "icon": "🗂",
+  "description": "工作区里的真实文件 —— 应用的家也在这里。",
+  "mounts": { "window": "/" }
+}

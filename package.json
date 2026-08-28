@@ -1,0 +1,36 @@
+{
+  "name": "wandesk",
+  "version": "2.0.0",
+  "description": "Wandesk —— 壳 + AI 内核 + workerd,应用一律是 worker 网站。",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n kernel,ui -c blue,magenta \"npm:dev:kernel\" \"npm:dev:ui\"",
+    "dev:kernel": "tsx watch kernel/index.ts",
+    "dev:ui": "vite",
+    "build": "npm run build:overseer && vite build && tsc -p tsconfig.kernel.json",
+    "build:overseer": "esbuild runtime/overseer.js --bundle --format=esm --outfile=dist/overseer.js --external:cloudflare:workers",
+    "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning dist/kernel/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.1.0",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.0.0",
+    "workerd": "^1.20260827.1"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "id": "workshop",
+  "name": "应用工坊",
+  "icon": "🪄",
+  "description": "说一句话,造一个应用。它写进 apps/,桌面立刻长出图标。",
+  "mounts": { "window": "/" }
+}

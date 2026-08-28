@@ -1,0 +1,117 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>笔记本</title>
+<link rel="stylesheet" href="/style.css" />
+<script src="/_wd/sdk.js"></script>
+
+<div class="book">
+  <aside class="toc">
+    <button class="new" id="new">＋ 新的一页</button>
+    <ul id="list"></ul>
+  </aside>
+  <main class="page">
+    <input class="title" id="title" placeholder="标题" />
+    <textarea class="body" id="body" placeholder="写下即保存…"></textarea>
+    <div class="bar">
+      <span class="hint" id="hint"></span>
+      <button data-mode="continue">✦ 续写</button>
+      <button data-mode="polish">✦ 润色</button>
+      <button data-mode="summary">✦ 总结</button>
+      <button class="danger" id="del">删除</button>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+// 前端与自己的后端同源 —— 直接 fetch("/api/…"),不需要任何 SDK。
+// SDK 只在要碰壳本身时用(这里用它改窗口标题)。
+const $ = (id) => document.getElementById(id);
+let pages = [], current = null, saveTimer = 0;
+
+const api = (path, body) =>
+  fetch(path, body ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : undefined)
+    .then((r) => r.json());
+
+async function load(selectId) {
+  const { pages: rows } = await api("/api/pages");
+  pages = rows || [];
+  if (selectId) current = pages.find((p) => p.id === selectId) || pages[0] || null;
+  else current = pages.find((p) => p.id === current?.id) || pages[0] || null;
+  render();
+}
+
+function render() {
+  $("list").innerHTML = pages.map((p) => `
+    <li class="${current && p.id === current.id ? "on" : ""}" data-id="${p.id}">
+      <span class="ribbon" data-pin="${p.id}">${p.pinned ? "🔖" : "　"}</span>
+      <span class="t">${(p.title || "无标题").replace(/</g, "&lt;")}</span>
+    </li>`).join("");
+  $("title").value = current?.title || "";
+  $("body").value = current?.body || "";
+  $("title").disabled = $("body").disabled = !current;
+  window.wandesk?.ui.title(current?.title ? `笔记本 — ${current.title}` : "笔记本");
+}
+
+const scheduleSave = () => {
+  if (!current) return;
+  $("hint").textContent = "…";
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    current.title = $("title").value;
+    current.body = $("body").value;
+    await api("/api/save", { id: current.id, title: current.title, body: current.body });
+    $("hint").textContent = "已保存";
+    setTimeout(() => ($("hint").textContent = ""), 1200);
+    const keep = current.id;
+    await load(keep);
+  }, 600);
+};
+
+$("title").addEventListener("input", scheduleSave);
+$("body").addEventListener("input", scheduleSave);
+
+$("new").addEventListener("click", async () => {
+  const { id } = await api("/api/create", {});
+  await load(id);
+  $("title").focus();
+});
+
+$("list").addEventListener("click", async (e) => {
+  const pin = e.target.closest("[data-pin]");
+  if (pin) {
+    const id = Number(pin.dataset.pin);
+    const p = pages.find((x) => x.id === id);
+    await api("/api/pin", { id, pinned: !p.pinned });
+    return load();
+  }
+  const li = e.target.closest("li[data-id]");
+  if (!li) return;
+  current = pages.find((p) => p.id === Number(li.dataset.id));
+  render();
+});
+
+$("del").addEventListener("click", async () => {
+  if (!current) return;
+  if (!(await window.wandesk.ui.confirm(`删除「${current.title || "无标题"}」?`)).ok) return;
+  await api("/api/delete", { id: current.id });
+  current = null;
+  await load();
+});
+
+document.querySelectorAll("[data-mode]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    if (!current) return;
+    btn.disabled = true;
+    const label = btn.textContent;
+    btn.textContent = "…";
+    const r = await api("/api/assist", { mode: btn.dataset.mode, text: $("body").value });
+    btn.disabled = false;
+    btn.textContent = label;
+    if (r.error) return window.wandesk.ui.toast("AI:" + r.error);
+    $("body").value = btn.dataset.mode === "continue" ? $("body").value + "\n\n" + r.text : r.text;
+    scheduleSave();
+  });
+});
+
+load();
+</script>

@@ -1,0 +1,69 @@
+/* Window —— Aero 玻璃窗框(源自恋爱屋 retrochat demo 的窗体质感)。 */
+
+.win {
+  position: absolute; display: flex; flex-direction: column;
+  padding: 0 4px 4px; overflow: hidden;
+  background: linear-gradient(180deg, #cfe4f7 0%, #a9cbea 40%, #8db8e0 100%);
+  border: 1px solid #2f5c8c;
+  border-radius: 11px 11px 9px 9px;
+  box-shadow:
+    0 24px 48px rgba(20,45,75,.34),
+    0 4px 12px rgba(20,45,75,.2),
+    inset 0 1px 0 rgba(255,255,255,.75);
+}
+.win.max { border-radius: 0; border-left: none; border-right: none; }
+.winbar {
+  height: 38px; flex: 0 0 38px; display: flex; align-items: center; gap: 8px;
+  padding: 0 6px 0 12px; cursor: grab; user-select: none; touch-action: none;
+  position: relative; overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #e6f3fd 0%, #b6d7f2 46%, #8fbfe9 52%, #b3d5f0 100%);
+  border-bottom: 1px solid rgba(47,92,140,.45);
+}
+.winbar::after { /* 玻璃高光:上半扫一道 */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08));
+  pointer-events: none;
+}
+.winbar:active { cursor: grabbing; }
+.wtitle {
+  position: relative; z-index: 1;
+  font-size: 13px; font-weight: 700; color: #173d63; letter-spacing: .3px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.9);
+  display: flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.wemoji { font-size: 14px; }
+.wbtns { margin-left: auto; display: flex; gap: 5px; position: relative; z-index: 1; }
+.wbtn {
+  width: 30px; height: 20px; display: grid; place-items: center; cursor: pointer;
+  border-radius: 4px; color: #2c4a68;
+  border: 1px solid #7295b6;
+  background: linear-gradient(180deg, #fdfeff 0%, #d3e5f4 48%, #b6d1ea 52%, #dcebf7 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 1px rgba(30,60,90,.25);
+  transition: filter .12s;
+}
+.wbtn:hover { filter: brightness(1.06); color: #173d63; }
+.wbtn:active { box-shadow: inset 0 2px 3px rgba(30,60,90,.35); }
+.wbtn.close {
+  color: #fff;
+  border-color: #a5372a;
+  background: linear-gradient(180deg, #ffb0a6 0%, #ef6d5c 48%, #d94330 52%, #f08a76 100%);
+}
+.wbtn.close:hover { filter: brightness(1.07); color: #fff; }
+.winbody {
+  flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
+  background: #fff;
+  border: 1px solid #5f88b0; border-top: none;
+  border-radius: 0 0 5px 5px;
+  box-shadow: inset 0 1px 3px rgba(40,70,100,.14);
+}
+.win.max .winbody { border-radius: 0; }
+.rz { position: absolute; z-index: 5; }
+.rz-t { left: 15px; right: 15px; top: 0; height: 7px; cursor: ns-resize; }
+.rz-b { left: 15px; right: 15px; bottom: 0; height: 7px; cursor: ns-resize; }
+.rz-l { top: 38px; left: 0; width: 7px; bottom: 15px; cursor: ew-resize; }
+.rz-r { top: 38px; right: 0; width: 7px; bottom: 15px; cursor: ew-resize; }
+.rz-tl { left: 0; top: 0; width: 15px; height: 15px; cursor: nwse-resize; }
+.rz-tr { right: 0; top: 0; width: 15px; height: 15px; cursor: nesw-resize; }
+.rz-bl { left: 0; bottom: 0; width: 15px; height: 15px; cursor: nesw-resize; }
+.rz-br { right: 0; bottom: 0; width: 15px; height: 15px; cursor: nwse-resize; }

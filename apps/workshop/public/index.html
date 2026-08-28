@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>应用工坊</title>
+<link rel="stylesheet" href="/style.css" />
+<script src="/_wd/sdk.js"></script>
+
+<div class="shop">
+  <header>
+    <h1>🪄 应用工坊</h1>
+    <p>说一句话,造一个应用。它会被写进工作区的 <code>apps/</code>,桌面立刻长出图标 —— 之后你和 AI 都能继续改它。</p>
+  </header>
+
+  <form id="form">
+    <textarea id="want" rows="3" placeholder="例如:一个记账本,能记收支、按月看汇总"></textarea>
+    <button id="go" type="submit">开造</button>
+  </form>
+
+  <div class="log" id="log"></div>
+</div>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const log = $("log");
+
+const line = (cls, text) => {
+  const d = document.createElement("div");
+  d.className = "ln " + cls;
+  d.textContent = text;
+  log.append(d);
+  log.scrollTop = log.scrollHeight;
+  return d;
+};
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const want = $("want").value.trim();
+  if (!want) return;
+  $("go").disabled = true;
+  log.innerHTML = "";
+  line("start", "开始…");
+
+  const res = await fetch("/api/build", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ request: want }),
+  });
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const chunks = buf.split("\n\n");
+    buf = chunks.pop() || "";
+    for (const chunk of chunks) {
+      const ev = /^event: (.+)$/m.exec(chunk)?.[1];
+      const raw = /^data: (.+)$/m.exec(chunk)?.[1];
+      if (!ev || !raw) continue;
+      let data; try { data = JSON.parse(raw); } catch { continue; }
+
+      if (ev === "function_call") {
+        const args = (() => { try { return JSON.parse(data.item?.arguments || "{}"); } catch { return {}; } })();
+        line("step", "⚙ " + (args.summary || data.item?.name || "工具"));
+      } else if (ev === "message") {
+        const t = (data.item?.content || []).map((p) => p.text || "").join("");
+        if (t.trim()) line("say", t);
+      } else if (ev === "done") {
+        line("ok", "造好了 —— 看看桌面");
+        window.wandesk.ui.toast("新应用已就绪");
+      } else if (ev === "error") {
+        line("err", "失败:" + data.error);
+      }
+    }
+  }
+  $("go").disabled = false;
+});
+</script>

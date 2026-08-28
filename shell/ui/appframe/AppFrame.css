@@ -1,0 +1,6 @@
+.appframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+.appframe-msg {
+  flex: 1; display: grid; place-content: center; gap: 6px; text-align: center;
+  font-size: 13px; color: var(--ink3); padding: 24px;
+}
+.appframe-msg span { font-size: 11.5px; color: var(--ink3); opacity: .8; }

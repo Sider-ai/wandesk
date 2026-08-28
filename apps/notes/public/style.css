@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.6 -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; color: #2a241c; }
+.book { display: flex; height: 100vh; background: #f3ece0; }
+
+.toc { width: 210px; flex: 0 0 210px; padding: 14px 10px; overflow: auto;
+  background: linear-gradient(180deg, #7d5a3c, #6b4a30); border-right: 3px solid #55381f; }
+.new { width: 100%; padding: 8px; margin-bottom: 12px; cursor: pointer; font: inherit; font-size: 13px;
+  color: #f5ecdf; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 7px; }
+.new:hover { background: rgba(255,255,255,.2); }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { display: flex; align-items: center; gap: 4px; padding: 7px 8px; border-radius: 6px;
+  cursor: pointer; color: #ecdfcc; font-size: 13px; }
+.toc li:hover { background: rgba(255,255,255,.1); }
+.toc li.on { background: #f7f1e6; color: #3a2a18; font-weight: 600; }
+.toc .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ribbon { cursor: pointer; font-size: 12px; }
+
+.page { flex: 1; display: flex; flex-direction: column; padding: 26px 34px 0;
+  background: repeating-linear-gradient(#fdfaf3, #fdfaf3 27px, #e6dccb 28px); }
+.title { font-size: 21px; font-weight: 700; padding: 0 0 10px; margin-bottom: 6px;
+  border: none; border-bottom: 1px solid #d8ccb6; background: transparent; outline: none; font-family: inherit; color: #3a2a18; }
+.body { flex: 1; border: none; background: transparent; outline: none; resize: none;
+  font: inherit; line-height: 28px; color: #2a241c; padding: 4px 0; }
+.bar { display: flex; align-items: center; gap: 7px; padding: 10px 0 14px; border-top: 1px solid #e0d5c1; }
+.hint { flex: 1; font-size: 12px; color: #9b8a72; }
+.bar button { padding: 5px 12px; font: inherit; font-size: 12.5px; cursor: pointer;
+  color: #5a4227; background: #f0e7d7; border: 1px solid #d3c4aa; border-radius: 6px; }
+.bar button:hover { background: #e7dbc6; }
+.bar button:disabled { opacity: .5; cursor: default; }
+.bar .danger { color: #a13b28; border-color: #dcb5ac; background: #f8e9e5; }

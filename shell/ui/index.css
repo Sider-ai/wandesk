@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Design tokens — inherited verbatim from the Wandesk web client. */
+:root {
+  --bg: #f6f6f7; --panel: #fff; --ink: #1d1d20; --ink2: #55555c; --ink3: #8e8e96;
+  --line: #e8e8ea; --line2: #dededf; --blue: #62a5f4; --blue-deep: #3b82f6;
+  --focus: rgba(98,165,244,0.45);
+}
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+  color: var(--ink); background: var(--bg); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden; /* AIOS desktop is a fixed full-screen plane */
+}
+.shadow-card { box-shadow: 0 1px 2px rgba(20,20,25,0.04), 0 10px 30px rgba(20,20,25,0.05); }
+textarea { resize: none; }
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-thumb { background: #d9d9dc; border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
+
+/* 共用弹层遮罩(壁纸选择器 / 新建应用浮层都用) */
+.wallpaper-mask { position: fixed; inset: 0; z-index: 90; background: rgba(20,45,75,.3); display: grid; place-items: center; backdrop-filter: blur(5px); }

@@ -1,0 +1,7 @@
+{
+  "id": "chat",
+  "name": "助理",
+  "icon": "✦",
+  "description": "跟内核里的 agent 对话。它有 bash / read / write / edit,能真的动手。",
+  "mounts": { "window": "/" }
+}
