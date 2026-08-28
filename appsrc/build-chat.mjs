@@ -25,14 +25,22 @@ await esbuild.build({
   logLevel: "warning",
 });
 
+// 页面沿用 AGENT 自己的 index.html —— 挂载点是 #app 不是 #root,
+// 写错一个字母就是 React #299(容器为 null),整页白。
 fs.writeFileSync(path.join(PUB, "index.html"), `<!doctype html>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>助理</title>
-<link rel="stylesheet" href="/app.css" />
-<script src="/_wd/sdk.js"></script>
-<div id="root"></div>
-<script type="module" src="/app.js"></script>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>助理</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/_wd/sdk.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script type="module" src="/app.js"></script>
+</body>
+</html>
 `);
 
 const size = fs.readdirSync(PUB).reduce((n, f) => n + fs.statSync(path.join(PUB, f)).size, 0);
