@@ -1,0 +1,19 @@
+/* 触摸设备的适配。**必须最后引入** —— 里面的规则要压过各模块自己的字号,
+   而它们同权重,靠顺序决胜。
+
+   ── 输入控件不小于 16px ─────────────────────────
+   iOS Safari 在聚焦一个字号小于 16px 的输入控件时会把整页放大,
+   放大之后不会自动还原,布局就歪了。抬到 16px 是唯一不带副作用的解法。
+
+   没有走 viewport 的 maximum-scale / user-scalable=no —— 那样确实也能挡住,
+   但会把用户手动双指缩放一起禁掉,是无障碍上的倒退。
+
+   桌面端不受影响(pointer: coarse 只命中触摸)。**新增输入控件时记得加进来。** */
+@media (pointer: coarse) {
+    .field-input,
+    .composer textarea,
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    textarea {
+        font-size: 16px;
+    }
+}

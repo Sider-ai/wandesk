@@ -1,0 +1,70 @@
+/* ════════════════════════════════════════════════════════════════════
+   飞机大战 / SKY STRIKE — container chrome only.
+   The game, HUD, menus and overlays all draw to <canvas>; this file just
+   frames it. All classes prefixed aircraft- so they never collide.
+   ════════════════════════════════════════════════════════════════════ */
+
+.aircraft-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #04030f;
+  outline: none;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.aircraft-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* a soft cyan inner frame — sells the "arcade cabinet" feel */
+.aircraft-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(80, 200, 255, 0.06),
+    inset 0 0 60px rgba(0, 0, 0, 0.55);
+}
+
+/* one-time focus hint — nudges the user to click so keyboard works.
+   fades on first interaction (root gains :focus). */
+.aircraft-focushint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(150, 220, 255, 0.55);
+  background: rgba(4, 6, 18, 0.7);
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(80, 200, 255, 0.18);
+  white-space: nowrap;
+  opacity: 0;
+  animation: aircraft-hintpulse 2.4s ease-in-out 0.6s infinite;
+  transition: opacity 0.3s ease;
+}
+
+.aircraft-root:focus .aircraft-focushint,
+.aircraft-root:focus-within .aircraft-focushint {
+  opacity: 0 !important;
+  animation: none;
+}
+
+@keyframes aircraft-hintpulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.8; }
+}

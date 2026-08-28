@@ -1,0 +1,50 @@
+export const TUNING = {
+  step: 1 / 120,
+  engine: 14.5,
+  nitroMult: 1.52,
+  drag: 0.0036,
+  roll: 0.55,
+  brake: 17,
+  revForce: 7.5,
+  revMax: -10,
+  gripNormal: 9.2,
+  gripDrift: 4.6,
+  gripHand: 2.05,
+  steerMax: 2.75,
+  steerHiDamp: 0.021,
+  steerRise: 8.5,
+  steerFall: 14,
+  driftYawBoost: 1.34,
+  driftLatTh: 4.3,
+  grassDragMult: 2.6,
+  grassRoll: 2.0,
+  nitroUse: 30,
+  nitroRegen: 8.5,
+  nitroDriftRegen: 17,
+  vMax: 75,
+  roadHalf: 7,
+  railClamp: 7.55,
+  camDist: 7.7,
+  camH: 2.55,
+  camLook: 6.6,
+  camLam: 4.6,
+  camLookLam: 7.5,
+  fovBase: 60,
+  fovSpeed: 17,
+  fovNitro: 8.5,
+  aiVMax: 58,
+  aiLatAcc: 12.5,
+  aiBrake: 13.5,
+  aiSkill: [0.998, 0.974, 0.948],
+} as const;
+
+export type Tuning = typeof TUNING;
+
+export const GEARS = [0, 9, 17, 26, 36, 47, 64] as const;
+
+export const RACERS = [
+  { name: '你 · YOU', color: 0x2079ff, isPlayer: true },
+  { name: 'ARES', color: 0xd8262c, rim: 0xc9ccd4 },
+  { name: 'VEX', color: 0x17181d, rim: 0xd9b25a },
+  { name: 'NOVA', color: 0xe8e8ec, rim: 0x88898f },
+] as const;

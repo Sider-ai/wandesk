@@ -1,0 +1,9 @@
+{
+  "id": "fortune",
+  "name": "算一卦",
+  "icon": "🔮",
+  "description": "周易六爻 — 写下心中所问，摇铜钱起卦，由 AI 卦师解卦断吉凶。",
+  "mounts": {
+    "window": "/"
+  }
+}

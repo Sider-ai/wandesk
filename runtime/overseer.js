@@ -77,6 +77,16 @@ class AiBinding {
   constructor(host) { this.host = host; }
   ask(req)  { return this.host.aiAsk(req || {}); }
   run(req)  { return this.host.aiRun(req || {}); }
+  /**
+   * 会话面:把一整个 HTTP 请求转给内核的会话 API(对话 / 消息 / 常驻 SSE / 设置 / 附件)。
+   * 应用只要 return env.AI.fetch(req) 就有了一套完整的对话后端 —— 「助理」就是这么来的,
+   * 它没有任何特权,换个 UI 照样能接。SSE 也走这条路:流是在同一条请求里下来的。
+   */
+  async fetch(req) {
+    const url = new URL(req.url);
+    const body = req.method === "GET" || req.method === "HEAD" ? null : await req.text();
+    return this.host.aiFetch(url.pathname + url.search, req.method, body, req.headers.get("content-type") || "");
+  }
   async stream(req) {
     const body = await this.host.aiStream(req || {});
     return new Response(body, {
@@ -169,6 +179,13 @@ export class HostGate extends WorkerEntrypoint {
   // ── env.AI ──
   aiAsk(req) { return this.#node("ai-ask", { summary: req.summary, prompt: req.prompt, system: req.system, data: req.data }); }
   aiRun(req) { return this.#node("ai-run", { summary: req.summary, prompt: req.prompt, system: req.system, data: req.data }); }
+  /** 会话面透传。直接把 Response 交回去 —— workerd RPC 支持流式返回值,SSE 因此能一路到前端。 */
+  aiFetch(path, method, body, contentType) {
+    const init = { method, headers: {} };
+    if (contentType) init.headers["content-type"] = contentType;
+    if (body !== null && body !== undefined) init.body = body;
+    return this.env.NODE.fetch("http://node/api/conv" + path, init);
+  }
   /** 返回 ReadableStream —— workerd RPC 支持流式返回值,SSE 因此能一路透到应用前端。 */
   async aiStream(req) {
     const res = await this.env.NODE.fetch("http://node/api/app/ai-stream", {

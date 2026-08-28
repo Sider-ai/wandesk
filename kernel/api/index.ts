@@ -6,12 +6,21 @@ import { handleAppApi } from "./app.js";
 import { handleChatApi } from "./chat.js";
 import { handleSettingsApi } from "./settings.js";
 import { handleWallpaperApi } from "./wallpaper.js";
+import { convApi } from "../conv/index.js";
 import { runtimeOrigin } from "../../runtime/supervisor.js";
 
 export const handleApi = async (req: IncomingMessage, res: ServerResponse): Promise<boolean> => {
   const path = new URL(req.url || "/", "http://x").pathname;
 
   if (path === "/api/health") return json(res, 200, { ok: true, runtime: runtimeOrigin() });
+
+  // 会话面:AGENT 的 web/server 原样跑在这儿。应用经 env.AI.fetch() 打过来,
+  // 前缀剥掉后它看到的就是自己熟悉的 /api/… —— 它的代码因此一行没改。
+  if (path.startsWith("/api/conv/")) {
+    const inner = new URL(req.url || "/", "http://x");
+    inner.pathname = path.slice("/api/conv".length);
+    return convApi()(req, res, inner);
+  }
 
   // 应用 syscall 的执行端(只由 workerd 里的 HostGate 回环调用)
   if (path.startsWith("/api/app/")) return handleAppApi(req, res, path.slice("/api/app/".length));

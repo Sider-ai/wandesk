@@ -1,0 +1,41 @@
+/* 台球 — 深色台边,绿呢桌铺满;分数牌 + 居中力量条 + 拟物重开键 + 顶部通知条。 */
+.pool-root { height: 100%; min-height: 0; display: flex; flex-direction: column; background: #17120e; font-family: "PingFang SC", system-ui, sans-serif; }
+.pool-hud { flex: none; position: relative; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; color: #e8dcc8; }
+
+/* 分数牌:黑面 LED 计分器,琥珀数字 */
+.pool-score { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 13px; border-radius: 9px;
+  background: linear-gradient(180deg, #0e0b08, #201812); border: 1px solid #3a2a1c;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.75), inset 0 -1px 0 rgba(255,200,120,.06), 0 1px 0 rgba(255,255,255,.05); }
+.pool-score-lbl { font-size: 10px; letter-spacing: .12em; color: #8a7256; }
+.pool-score b { font: 800 19px/1 "DIN Alternate", ui-monospace, monospace; color: #ffcf6b; text-shadow: 0 0 8px rgba(255,180,60,.55), 0 0 2px rgba(255,180,60,.8); }
+.pool-score-sep { color: #6a5640; font-size: 13px; }
+.pool-score-tot { font: 700 14px/1 ui-monospace, monospace; color: #b79a6e; }
+
+/* 力量条:绝对居中于 HUD */
+.pool-power { position: absolute; left: 50%; transform: translateX(-50%); width: 150px; height: 9px; border-radius: 6px;
+  background: rgba(0,0,0,.5); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), inset 0 -1px 0 rgba(255,255,255,.05); }
+.pool-power i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #3fd07a, #e6c034 55%, #e2543a); box-shadow: 0 0 8px rgba(230,180,60,.4); transition: width .05s linear; }
+
+/* 重开键:拟物 3D 按压 */
+.pool-reset { border: none; border-radius: 9px; padding: 8px 18px; cursor: pointer;
+  font: 700 13px/1 inherit; letter-spacing: .06em; color: #fff4e2;
+  background: linear-gradient(180deg, #8a5a30 0%, #6f4522 52%, #5a3720 100%);
+  box-shadow: 0 3px 0 #3c2412, 0 5px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,170,.35), inset 0 -1px 2px rgba(0,0,0,.35);
+  text-shadow: 0 1px 0 rgba(0,0,0,.4); transition: transform .06s, box-shadow .06s, filter .12s; }
+.pool-reset:hover { filter: brightness(1.08); }
+.pool-reset:active { transform: translateY(3px); box-shadow: 0 0 0 #3c2412, 0 1px 3px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,170,.25), inset 0 2px 4px rgba(0,0,0,.4); }
+
+.pool-table { flex: 1; min-height: 0; position: relative; }
+.pool-table canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+
+/* 顶部通知条(犯规等) */
+.pool-toast { position: absolute; top: 14px; left: 50%; transform: translate(-50%, -14px); pointer-events: none;
+  padding: 9px 18px; border-radius: 999px; font: 600 13px/1 inherit; color: #fff5e6; white-space: nowrap;
+  background: linear-gradient(180deg, rgba(60,20,15,.96), rgba(40,12,10,.96)); border: 1px solid rgba(255,150,110,.4);
+  box-shadow: 0 8px 22px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);
+  opacity: 0; transition: opacity .25s, transform .25s; }
+.pool-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.pool-win { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 16px; background: rgba(10,15,10,.58); color: #fff; font-size: 30px; font-weight: 800; }
+.pool-win button { font: 700 14px/1 inherit; padding: 10px 22px; border-radius: 10px; border: none; background: #2fa564; color: #fff; cursor: pointer; }
+.pool-win button:hover { filter: brightness(1.08); }

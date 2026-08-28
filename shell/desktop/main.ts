@@ -17,7 +17,7 @@ const createWindow = async () => {
   win = new BrowserWindow({
     width: 1280, height: 840, minWidth: 900, minHeight: 600,
     title: "Wandesk",
-    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
+    // 用系统默认标题栏:红绿灯与窗口标题都由 macOS 画
     backgroundColor: "#f6f6f7",
     webPreferences: { contextIsolation: true, nodeIntegration: false },
   });

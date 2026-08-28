@@ -10,16 +10,20 @@
     "dev": "concurrently -k -n kernel,ui -c blue,magenta \"npm:dev:kernel\" \"npm:dev:ui\"",
     "dev:kernel": "tsx watch kernel/index.ts",
     "dev:ui": "vite",
-    "build": "npm run build:overseer && vite build --config vite.config.ts && tsc -p tsconfig.kernel.json && node scripts/copy-assets.mjs",
+    "build": "npm run build:overseer && npm run build:apps && vite build --config vite.config.ts && tsc -p tsconfig.kernel.json && node scripts/copy-assets.mjs",
     "build:overseer": "esbuild runtime/overseer.js --bundle --format=esm --outfile=dist/overseer.js --external:cloudflare:workers",
     "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning dist/kernel/index.js",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json",
     "app": "npm run build && electron .",
-    "dist:mac": "node scripts/pack-mac.mjs"
+    "dist:mac": "node scripts/pack-mac.mjs",
+    "build:apps": "node appsrc/build.mjs && node appsrc/build-chat.mjs"
   },
   "dependencies": {
+    "marked": "^16.4.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "^0.170.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",

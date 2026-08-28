@@ -1,0 +1,140 @@
+/* ── 基底 ─────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html { background: var(--surface); }
+html, body, #app { height: 100%; }
+body {
+    margin: 0;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text-1);
+    background: var(--surface);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+::selection { background: var(--accent-ring); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+    background: rgba(124, 130, 150, .28);
+    border-radius: 99px; border: 3px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(124, 130, 150, .46); border: 3px solid transparent; background-clip: content-box; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+button:disabled { cursor: default; }
+input, textarea { font: inherit; color: var(--text-1); }
+svg { display: block; }
+header, aside, button { -webkit-user-select: none; user-select: none; }
+
+#app { display: flex; }
+
+/* ── 通用件 ───────────────────────────────────────── */
+.grow { flex: 1; min-width: 0; }
+.clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mono { font-family: var(--font-mono); }
+
+.icon-btn {
+    width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+    display: grid; place-items: center;
+    color: var(--text-2);
+    transition: background .15s, color .15s;
+}
+.icon-btn:hover { color: var(--text-1); background: var(--hover); }
+.icon-btn:active { transform: scale(.94); }
+
+.btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 30px; padding: 0 13px; border-radius: 8px;
+    font-size: 12.5px; font-weight: 600;
+    transition: background .15s, color .15s;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .45; pointer-events: none; }
+.btn-accent { background: var(--accent); color: var(--on-accent); }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-accent:active { background: var(--accent-deep); }
+.btn-quiet { background: var(--surface-float); color: var(--text-2); border: 1px solid var(--edge); }
+.btn-quiet:hover { color: var(--text-1); background: var(--fill); }
+.btn-danger { background: var(--danger); color: #fff; }
+
+.field-input {
+    width: 100%; border: 1px solid var(--edge); border-radius: 10px;
+    background: var(--surface-float); padding: 9px 12px;
+    font-size: 13px; outline: 0;
+    transition: border-color .15s, box-shadow .15s;
+}
+.field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.field-input::placeholder { color: var(--text-4); }
+
+/* 运行中扫光文字 */
+.sheen {
+    color: transparent;
+    background-color: var(--sheen-base);
+    background-image: linear-gradient(to right, var(--sheen-base), var(--sheen-peak), var(--sheen-base));
+    -webkit-background-clip: text; background-clip: text;
+    background-repeat: no-repeat; background-size: 50% 200%; background-position: -100% top;
+    animation: sheen 2.6s infinite;
+}
+@keyframes sheen { to { background-position: 250% top; } }
+
+/* 「它还活着」的呼吸点 */
+@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* 进场:轻微上浮 */
+@keyframes float-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.float-in { animation: float-in .34s both; }
+
+/* ── 浮层 ─────────────────────────────────────────── */
+.veil {
+    position: fixed; inset: 0; z-index: 95;
+    background: var(--veil);
+    display: grid; place-items: center; padding: 20px;
+    animation: fade .16s ease-out;
+}
+.sheet {
+    width: min(440px, 100%);
+    background: var(--surface-float);
+    border: 1px solid var(--edge-soft); border-radius: 16px;
+    box-shadow: var(--shadow-3); padding: 20px;
+    animation: sheet-in .2s var(--swift);
+}
+.sheet-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.sheet-note { font-size: 12px; line-height: 1.7; color: var(--text-3); margin-top: 8px; }
+.sheet-error { font-size: 12px; color: var(--danger); margin-top: 8px; }
+.sheet-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.settings-form { display: flex; flex-direction: column; gap: 14px; }
+.settings-form label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-2); }
+.settings-prompt { resize: vertical; min-height: 110px; line-height: 1.55; }
+.secret-field { position: relative; }
+.secret-field .field-input { padding-right: 54px; }
+.secret-field button { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--text-3); }
+/* 驱动选择:两张并排的卡片,选中的描边高亮。比下拉框直观 ——
+   选错协议是这里最容易犯的错,它值得占这点面积。 */
+.driver-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.driver-option {
+    display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+    padding: 10px 12px; text-align: left;
+    border: 1px solid var(--line); border-radius: 9px; background: var(--surface-2);
+    transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.driver-option:hover { border-color: var(--line-strong, var(--line)); }
+.driver-option.on { border-color: var(--accent); background: var(--surface-1); box-shadow: 0 0 0 3px var(--accent-ring); }
+.driver-name { font-size: 12.5px; font-weight: 600; color: var(--text-1); }
+.driver-option.on .driver-name { color: var(--accent); }
+.driver-hint { font-size: 11px; line-height: 1.45; color: var(--text-3); }
+@media (max-width: 560px) { .driver-choice { grid-template-columns: 1fr; } }
+
+.settings-theme { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-2); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes sheet-in { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+
+.toast {
+    position: fixed; left: 50%; bottom: 30px; z-index: 120;
+    transform: translateX(-50%);
+    background: var(--text-1); color: var(--surface);
+    padding: 9px 16px; border-radius: 99px;
+    font-size: 12.5px; font-weight: 600;
+    box-shadow: var(--shadow-3);
+    animation: toast-in .18s ease-out;
+    pointer-events: none;
+}
+@keyframes toast-in { from { transform: translate(-50%, 8px); opacity: 0; } }

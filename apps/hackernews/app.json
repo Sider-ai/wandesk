@@ -1,0 +1,9 @@
+{
+  "id": "hackernews",
+  "name": "Hacker News",
+  "icon": "🗞️",
+  "description": "Hacker News 头条阅读器,热门/最新/Ask 一屏切换。点标题读原文,点评论进 HN 讨论区。",
+  "mounts": {
+    "window": "/"
+  }
+}

@@ -2,6 +2,8 @@
   "id": "notes",
   "name": "笔记本",
   "icon": "📔",
-  "description": "写下即保存的本子,AI 帮你续写与润色。",
-  "mounts": { "window": "/" }
+  "description": "一本拟物的皮面笔记本 — 翻页书写、目录索引、丝带书签，AI 帮你续写与润色。",
+  "mounts": {
+    "window": "/"
+  }
 }
