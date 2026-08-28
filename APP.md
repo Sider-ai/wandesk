@@ -112,29 +112,35 @@ window.wandesk.ui.toast / confirm / title / openApp / openExternal / copyText / 
 window.wandesk.on(event, fn) / emit(event, payload)   // 同应用实例间(窗口 ↔ 面板)
 ```
 
-## 五、当前取舍:能力全开
+## 五、每个应用一个 origin
+
+应用挂在 **`http://<token>.localhost:<port>/`** —— 它站在自己网站的根上。
+这不是细节,是契约成立的前提:`/style.css`、`fetch("/api/…")` 这些绝对路径必须对。
+(早期把应用挂在 `/app/<token>/` 路径前缀下,绝对路径全都逃出应用根,契约立不住。)
+
+- **token 跨重启稳定**:由「装机密钥 + appId」HMAC 推导。否则 origin 每次启动都变,
+  应用的 `localStorage` / `IndexedDB` 每次重启都清空;
+- **origin 天然隔开**:应用之间不会串 `localStorage`,壳在另一个 origin 上,iframe 碰不到壳的 DOM;
+- `*.localhost` 由浏览器直接解析到 127.0.0.1(Chromium / Firefox 原生支持)。
+  桌面壳是 Electron,所以生产路径稳;Safari 不支持 `*.localhost`,浏览器模式下请用 Chrome。
+
+## 六、当前取舍:能力全开
 
 **应用无需声明,所有 binding 一律可用。** 理由:应用是用户与 AI 自己造的,不是应用商店;
 能力网关是拿隔离换体验,在这个场景下损失大于收益。
 
-保留的两条**不是**安全措施,不要当成安全措施:
-
-1. **不透明源**:iframe `sandbox` 不给 `allow-same-origin`。所有应用同在一个 workerd 端口上,
-   给了真 origin 就会互读 `localStorage` 串数据 —— 数据一律走 `env.DB`;
-2. **每应用一个 token**:`/app/<token>/…` 是**路由键**,overseer 靠它认出这是哪个应用的请求。
-
-`appId` 仍随每次 syscall 由 `HostGate` 下传,应用伪造不了。留着零成本,哪天要收口有地方收。
+`appId` 随每次 syscall 由 `HostGate` 下传,应用伪造不了。留着零成本,哪天要收口有地方收。
 
 > ⚠️ 应用能出网、能起进程、能读写真实文件,`env.AI.run` 背后的 agent 手里有无沙箱 `bash`。
 > 这是本地 agent 工具的常态,与 `bash` 工具本身同一量级的信任假设。
 
-## 六、数据产权
+## 七、数据产权
 
 - **领域数据归应用**:自己的 `data.db` 里自建 schema;内核不提供任何域 API —— 这是 AI 能无限造应用的前提;
 - **产品本体数据归内核**:记忆、活动流水只经 `env.AI` 汇聚,应用读不到原文;
 - **真实文件归用户**:`env.FS`,一律锁在工作区内。
 
-## 七、已知边界
+## 八、已知边界
 
 - **服务端→客户端推送**:同一条 HTTP 请求内可用(流式响应 / SSE,`env.AI.stream` 即走此路);
   后端主动找别的连接推事件做不到 —— workerd 会判定跨请求上下文并取消。

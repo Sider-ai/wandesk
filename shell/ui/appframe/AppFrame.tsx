@@ -5,9 +5,10 @@ import { publish, subscribe } from "./bus";
 // 应用的宿主。壳对应用的全部认识就到这里为止:
 // 一个 iframe、一条 postMessage 通道。壳不知道里面是笔记还是记账。
 //
-// iframe 是**不透明源**(sandbox 不给 allow-same-origin):所有应用同在一个 workerd 端口上,
-// 给了真 origin 就会互读 localStorage 串数据。应用的数据一律走 env.DB。
-// 这不是权限门 —— 能力是全开的,见 APP.md。
+// 每个应用有自己的 origin(`<token>.localhost:<port>`),所以给 allow-same-origin ——
+// 应用因此拿得到 localStorage / IndexedDB,且彼此天然隔开,不会串数据。
+// token 由装机密钥推导、跨重启稳定,应用存在浏览器里的东西不会因为重启就没了。
+// 壳在另一个 origin 上,iframe 碰不到壳的 DOM;两边只能 postMessage。
 
 type Props = {
   appId: string;
@@ -84,8 +85,7 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
       ref={frame}
       className="appframe"
       src={url}
-      // 不给 allow-same-origin:所有应用同端口,真 origin 会互读 localStorage
-      sandbox="allow-scripts allow-forms allow-popups allow-modals"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
       title={appId}
     />
   );

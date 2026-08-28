@@ -35,7 +35,7 @@ runtime/        ⚙️ workerd:应用的用户态
   overseer.js   路由 /app/<token>/* + 注入 binding 垫片
   supervisor.ts 起停 workerd
 apps/           📦 预装应用 —— 每个都是完整的 Worker 网站
-  chat/ notes/ files/ workshop/
+  chat/ notes/ files/ weather/ workshop/
 ```
 
 ## 一个应用长什么样
@@ -51,6 +51,12 @@ apps/notes/
 新目录一落地,桌面立刻长出图标。
 
 完整契约见 **[APP.md](APP.md)**;仓库约定见 [AGENTS.md](AGENTS.md)。
+
+## 每个应用一个 origin
+
+应用挂在 `http://<token>.localhost:<port>/` —— 站在自己网站的根上,
+所以 `/style.css`、`fetch("/api/…")` 这些绝对路径都成立,`localStorage` 也彼此隔开。
+token 由装机密钥推导、跨重启稳定。
 
 ## 没有原生应用
 

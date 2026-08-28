@@ -27,6 +27,8 @@ apps/      应用  —— 不属于框架,是内容
 
 - `kernel/ai/` 与 `kernel/agent/` **与 AGENT 仓库双向同步**,改它必须两边同步,不在日常迭代范围。
   它们是纯 JS、零依赖,不要往里加 TypeScript、不要加 Wandesk 的概念。
+- **应用的 origin 是 `<token>.localhost:<port>`**,不是路径前缀。改路由前先想清楚:
+  应用必须站在自己网站的根上,否则 `/style.css` 和 `fetch("/api/…")` 会逃出应用根。
 - `kernel/syscall/` 一个文件一个 binding。加一个 binding = 加一个文件 + 在
   `api/app.ts` 的 `HANDLERS` 里加一行 + 在 `runtime/overseer.js` 的 `HostGate` 和垫片里各加一段。
   三处齐了才算加完,漏一处应用侧就是 `undefined is not a function`。

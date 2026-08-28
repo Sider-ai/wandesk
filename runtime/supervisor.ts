@@ -2,7 +2,7 @@
 //
 //   内核(Node) ──spawn──▶ workerd(入口 worker = overseer)
 //     ▲   NODE 外部服务绑定(回环 127.0.0.1:<kernelPort>,syscall 的执行端)
-//     └── 壳的 iframe 直接指向 http://127.0.0.1:<runtimePort>/app/<token>/
+//     └── 壳的 iframe 指向 http://<token>.localhost:<appPort>/ —— 每个应用一个真 origin
 //
 // 起不来不拖垮内核 —— 只是应用不可用,壳照常显示并给出提示。
 import { spawn, type ChildProcess } from "child_process";
@@ -13,6 +13,7 @@ import { HOME } from "../kernel/paths.js";
 
 let child: ChildProcess | null = null;
 let origin: string | null = null;
+let port: number | null = null;
 
 const workerdBin = () => {
   if (process.env.WANDESK_WORKERD) return process.env.WANDESK_WORKERD;
@@ -79,9 +80,9 @@ export const startRuntime = async (kernelPort: number) => {
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(bundle, path.join(dir, "overseer.js"));
 
-    const runtimePort = await pickPort();
+    const appPort = await pickPort();
     const configPath = path.join(dir, "workerd.capnp");
-    fs.writeFileSync(configPath, buildConfig(kernelPort, runtimePort));
+    fs.writeFileSync(configPath, buildConfig(kernelPort, appPort));
 
     child = spawn(bin, ["serve", configPath, "--experimental"], { stdio: ["ignore", "pipe", "pipe"] });
     child.stdout?.setEncoding("utf8");
@@ -93,8 +94,9 @@ export const startRuntime = async (kernelPort: number) => {
       child = null; origin = null;
     });
 
-    if (await waitHealthy(runtimePort)) {
-      origin = `http://127.0.0.1:${runtimePort}`;
+    if (await waitHealthy(appPort)) {
+      origin = `http://127.0.0.1:${appPort}`;
+      port = appPort;
       console.log(`[runtime] 应用运行时就绪:${origin}`);
     } else {
       console.error("[runtime] workerd 启动失败,应用不可用");
@@ -107,9 +109,11 @@ export const startRuntime = async (kernelPort: number) => {
 
 /** 壳靠它拼出每个应用的 iframe URL。null = 运行时不可用。 */
 export const runtimeOrigin = () => origin;
+/** 应用的 origin 是 `<token>.localhost:<port>` —— 端口在这儿。 */
+export const runtimePort = () => port;
 
 export const stopRuntime = () => {
-  origin = null;
+  origin = null; port = null;
   if (child) { try { child.kill("SIGTERM"); } catch { /* 已退出 */ } child = null; }
 };
 

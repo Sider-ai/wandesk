@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>天气</title>
+<link rel="stylesheet" href="/style.css" />
+<script src="/_wd/sdk.js"></script>
+
+<div class="wx-root is-day sky-clear">
+  <div class="wx-scene"></div>
+  <div class="wx-scrim" aria-hidden="true"></div>
+
+  <header class="wx-head">
+    <div class="wx-place">
+      <span class="wx-pin" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-3.9 0-7 3.1-7 7 0 5 7 13 7 13s7-8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+      </span>
+      <span class="wx-place-name">天气</span>
+      <span class="wx-default-tag" hidden>默认</span>
+    </div>
+    <button class="wx-icon-btn" aria-label="搜索城市">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </button>
+  </header>
+
+  <main class="wx-main">
+    <div class="wx-body"></div>
+    <section class="wx-cities wx-citybar"></section>
+  </main>
+
+  <div class="wx-search" hidden></div>
+</div>
+
+<script type="module" src="/app.js"></script>

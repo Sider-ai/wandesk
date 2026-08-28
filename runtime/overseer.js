@@ -231,20 +231,27 @@ const resolveApp = async (env, token) => {
   return appId || null;
 };
 
+// 每个应用一个 origin:`http://<token>.localhost:<port>/`。
+// 为什么不是 `/app/<token>/` 路径前缀 —— 那样应用就不站在自己的网站根上,
+// `/style.css` 和契约里写的 `fetch("/api/…")` 会逃出应用根,契约立不住。
+// `*.localhost` 由浏览器直接解析到 127.0.0.1(Chromium / Firefox 原生支持,
+// 桌面壳是 Electron,所以生产路径稳)。
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
-    if (url.pathname === "/health") return new Response("ok");
+    const token = /^([a-f0-9]{16,64})\.localhost$/.exec(url.hostname)?.[1];
 
-    // /app/<token>/<应用内路径> —— 应用自己的网站根
-    const m = /^\/app\/([a-f0-9]{16,64})(\/.*)?$/.exec(url.pathname);
-    if (!m) return new Response("not found", { status: 404 });
+    if (!token) {
+      // 没有子域 = 不是冲着某个应用来的。健康检查走这条。
+      if (url.pathname === "/health") return new Response("ok");
+      return new Response("请经 <token>.localhost 访问应用", { status: 404 });
+    }
 
-    const appId = await resolveApp(env, m[1]);
+    const appId = await resolveApp(env, token);
     if (!appId) return new Response("forbidden", { status: 403 });
 
     // 壳的 SDK:应用 <script src="/_wd/sdk.js"> 引入
-    if (m[2] === "/_wd/sdk.js") {
+    if (url.pathname === "/_wd/sdk.js") {
       const sdk = await env.NODE.fetch("http://node/api/apps/sdk.js");
       return new Response(await sdk.text(), {
         headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-cache" },
@@ -253,9 +260,7 @@ export default {
 
     try {
       const worker = await loadApp(env, ctx, appId);
-      const inner = new URL(req.url);
-      inner.pathname = m[2] || "/";
-      return await worker.getEntrypoint().fetch(new Request(inner, req));
+      return await worker.getEntrypoint().fetch(req);
     } catch (e) {
       return new Response(`应用启动失败:${e?.message || e}`, {
         status: 500, headers: { "content-type": "text/plain; charset=utf-8" },

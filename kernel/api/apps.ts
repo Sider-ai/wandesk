@@ -4,12 +4,13 @@ import { json, text } from "./http.js";
 import { listApps, getApp } from "../apps/scan.js";
 import { appToken, appIdForToken } from "../apps/token.js";
 import { SDK_SOURCE } from "../apps/sdk.js";
-import { runtimeOrigin } from "../../runtime/supervisor.js";
+import { runtimeOrigin, runtimePort } from "../../runtime/supervisor.js";
 
-/** 壳拿到的每个应用,都自带一个可以直接塞进 iframe 的 URL。 */
+/** 每个应用一个真正的 origin:`http://<token>.localhost:<port>`。
+ *  应用因此是站在自己网站根上的,绝对路径(/style.css、/api/…)全部成立。 */
 const withUrl = (id: string, route: string) => {
-  const origin = runtimeOrigin();
-  return origin ? `${origin}/app/${appToken(id)}${route === "/" ? "/" : route}` : null;
+  const port = runtimePort();
+  return port ? `http://${appToken(id)}.localhost:${port}${route === "/" ? "/" : route}` : null;
 };
 
 export const handleAppsApi = (req: IncomingMessage, res: ServerResponse, rest: string): boolean => {
@@ -35,7 +36,7 @@ export const handleAppsApi = (req: IncomingMessage, res: ServerResponse, rest: s
 
   // overseer:token → appId
   if (rest === "/resolve-token") {
-    const appId = appIdForToken(url.searchParams.get("token") || "");
+    const appId = appIdForToken(url.searchParams.get("token") || "", listApps().map((a) => a.id));
     return appId ? json(res, 200, { appId }) : json(res, 404, { error: "未知 token" });
   }
 
