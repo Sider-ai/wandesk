@@ -60,6 +60,11 @@ const TO_WANDESK: Record<string, string> = { responsesUrl: "apiUrl", instruction
 const rename = (obj: Record<string, string>, map: Record<string, string>) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [map[k] || k, v]));
 
+// 应用能经 env.AI.fetch("/api/settings") 读到这张表 —— key 不必真发出去。
+// 与壳的设置面板同一套办法:读时遮成占位符,写时占位符原样回来就当没改。
+const MASK = "********";
+const maskKey = (s: Record<string, string>) => (s.apiKey ? { ...s, apiKey: MASK } : s);
+
 let handler: ((req: IncomingMessage, res: ServerResponse, url: URL) => Promise<boolean>) | null = null;
 
 export const convApi = () => {
@@ -72,14 +77,23 @@ export const convApi = () => {
     ...store,
     getSettings: () => rename(readSettings(), TO_AGENT),
     setSettings: (values: Record<string, string>) => {
-      writeSettings(rename(values, TO_WANDESK));
+      const patch = { ...values };
+      if (patch.apiKey === MASK) delete patch.apiKey; // 占位符原样回来 = 没改
+      writeSettings(rename(patch, TO_WANDESK));
       return rename(readSettings(), TO_AGENT);
     },
+  };
+
+  // 运行轮子要真 key;对外的接口层给遮过的。同一份数据,两个视角。
+  const forApi = {
+    ...bridged,
+    getSettings: () => maskKey(bridged.getSettings()),
+    setSettings: (values: Record<string, string>) => maskKey(bridged.setSettings(values)),
   };
 
   const channel = createChannel();
   const files = createFiles(config);
   const runs = createRuns({ config, store: bridged, files, broadcast: channel.broadcast });
-  handler = createApi({ config, store: bridged, runs, files, channel, meta: { version: "2.0.0" } });
+  handler = createApi({ config, store: forApi, runs, files, channel, meta: { version: "2.0.0" } });
   return handler!;
 };

@@ -184,7 +184,7 @@ export class HostGate extends WorkerEntrypoint {
     const init = { method, headers: {} };
     if (contentType) init.headers["content-type"] = contentType;
     if (body !== null && body !== undefined) init.body = body;
-    return this.env.NODE.fetch("http://node/api/conv" + path, init);
+    return this.env.NODE.fetch("http://node/conv" + path, init);
   }
   /** 返回 ReadableStream —— workerd RPC 支持流式返回值,SSE 因此能一路透到应用前端。 */
   async aiStream(req) {

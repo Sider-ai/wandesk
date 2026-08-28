@@ -14,11 +14,12 @@ export const handleApi = async (req: IncomingMessage, res: ServerResponse): Prom
 
   if (path === "/api/health") return json(res, 200, { ok: true, runtime: runtimeOrigin() });
 
-  // 会话面:AGENT 的 web/server 原样跑在这儿。应用经 env.AI.fetch() 打过来,
-  // 前缀剥掉后它看到的就是自己熟悉的 /api/… —— 它的代码因此一行没改。
-  if (path.startsWith("/api/conv/")) {
+  // 会话面:AGENT 的 web/server 原样跑在这儿,应用经 env.AI.fetch() 打过来。
+  // 前缀刻意不叫 /api/conv:应用侧的路径本来就带 /api/,套在 /api/ 下会变成
+  // /api/conv/api/meta 这种双前缀。用 /conv 剥一次就正好还原成它认得的 /api/meta。
+  if (path.startsWith("/conv/")) {
     const inner = new URL(req.url || "/", "http://x");
-    inner.pathname = path.slice("/api/conv".length);
+    inner.pathname = path.slice("/conv".length);
     return convApi()(req, res, inner);
   }
 

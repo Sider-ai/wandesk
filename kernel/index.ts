@@ -28,6 +28,12 @@ const server = http.createServer(async (req, res) => {
 
 server.on("upgrade", (req, socket) => handleUpgrade(req, socket as never));
 
+// 常驻服务要有活着的底气 —— 这两条是从 AGENT 的 web/server/index.js 带过来的。
+// 会话面的运行轮子在后台转,里面一次未捕获的拒绝就会带走整个内核进程
+// (Node 默认 unhandledRejection 直接退出),而内核一死,所有应用窗口一起白。
+process.on("uncaughtException", (error) => console.error("[kernel] 未捕获异常:", error));
+process.on("unhandledRejection", (reason) => console.error("[kernel] 未处理的 Promise 拒绝:", reason));
+
 server.listen(KERNEL_PORT, "127.0.0.1", async () => {
   db();                 // 建库 / 补表
   seedPresetApps();     // 预装应用落地工作区
