@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2023"],
+    "lib": [
+      "ES2023"
+    ],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
@@ -10,8 +12,16 @@
     "checkJs": false,
     "outDir": "dist",
     "rootDir": ".",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["kernel", "runtime/supervisor.ts"],
-  "exclude": ["runtime/overseer.js"]
+  "include": [
+    "kernel",
+    "runtime/supervisor.ts",
+    "shell/desktop"
+  ],
+  "exclude": [
+    "runtime/overseer.js"
+  ]
 }

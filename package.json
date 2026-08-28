@@ -10,10 +10,12 @@
     "dev": "concurrently -k -n kernel,ui -c blue,magenta \"npm:dev:kernel\" \"npm:dev:ui\"",
     "dev:kernel": "tsx watch kernel/index.ts",
     "dev:ui": "vite",
-    "build": "npm run build:overseer && vite build && tsc -p tsconfig.kernel.json",
+    "build": "npm run build:overseer && vite build --config vite.config.ts && tsc -p tsconfig.kernel.json && node scripts/copy-assets.mjs",
     "build:overseer": "esbuild runtime/overseer.js --bundle --format=esm --outfile=dist/overseer.js --external:cloudflare:workers",
     "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning dist/kernel/index.js",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json",
+    "app": "npm run build && electron .",
+    "dist:mac": "node scripts/pack-mac.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -26,11 +28,41 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.0",
     "concurrently": "^9.1.0",
+    "electron": "^38.8.6",
+    "electron-builder": "^26.15.3",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0",
     "vite": "^7.0.0",
     "workerd": "^1.20260827.1"
+  },
+  "main": "dist/shell/desktop/main.js",
+  "build": {
+    "appId": "ai.wandesk.desktop",
+    "productName": "Wandesk",
+    "asar": false,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "apps/**/*",
+      "runtime/bin/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "npmRebuild": false
   }
 }

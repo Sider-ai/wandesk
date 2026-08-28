@@ -9,7 +9,7 @@ import { spawn, type ChildProcess } from "child_process";
 import fs from "fs";
 import net from "net";
 import path from "path";
-import { HOME } from "../kernel/paths.js";
+import { HOME, kernelDir } from "../kernel/paths.js";
 
 let child: ChildProcess | null = null;
 let origin: string | null = null;
@@ -76,7 +76,9 @@ export const startRuntime = async (kernelPort: number) => {
     if (!fs.existsSync(bin)) { console.log(`[runtime] 未找到 workerd(${bin}),应用不可用`); return; }
     if (!fs.existsSync(bundle)) { console.log("[runtime] 未找到 overseer 产物,先跑 npm run build:overseer"); return; }
 
-    const dir = path.join(HOME, "runtime/generated");
+    // 生成物写工作区,**不写安装目录** —— 打包后的 .app 可能在只读位置(/Applications、
+    // 挂载的 dmg、被隔离的下载目录),往包里写会直接起不来。
+    const dir = path.join(kernelDir(), "runtime");
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(bundle, path.join(dir, "overseer.js"));
 

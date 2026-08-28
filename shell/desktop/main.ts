@@ -8,7 +8,8 @@ import { fileURLToPath } from "url";
 import { startKernel, stopKernel } from "./boot.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const HOME = path.join(__dirname, "../..");
+// 编译产物在 dist/shell/desktop/ —— 往上三层就是应用根(打包后是 Resources/app)
+const HOME = path.join(__dirname, "../../..");
 
 let win: BrowserWindow | null = null;
 
