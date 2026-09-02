@@ -21,7 +21,7 @@ if (release) {
   if (!profile) throw new Error("缺 APPLE_NOTARY_PROFILE(xcrun notarytool store-credentials 存的 keychain profile 名)");
   if (!capture("security find-identity -v -p codesigning").includes(identity)) throw new Error(`钥匙串里没有签名证书:${identity}`);
   try { capture(`xcrun notarytool history --keychain-profile "${profile}"`); } catch { throw new Error(`notarytool 找不到配置:${profile}`); }
-  signEnv.CSC_NAME = identity;
+  signEnv.CSC_NAME = identity.replace(/^Developer ID Application:\s*/, ""); // electron-builder 不要前缀
   signEnv.APPLE_KEYCHAIN_PROFILE = profile;
   console.log(`签名:${identity}\n公证:${profile}`);
 }
@@ -37,7 +37,7 @@ fs.chmodSync("runtime/bin/workerd", 0o755);
 console.log(`\nworkerd 已就位:${(fs.statSync("runtime/bin/workerd").size / 1024 / 1024).toFixed(0)}MB`);
 
 // electron-builder 会给包里所有 Mach-O(含 workerd)签名;有 APPLE_KEYCHAIN_PROFILE 就顺带公证 + 装订
-run(`electron-builder --mac --arm64 --config.mac.target=${release ? "dir,dmg" : "dir"}`, signEnv);
+run(`electron-builder --mac ${release ? "dir dmg" : "dir"} --arm64`, signEnv);
 
 const app = "release/mac-arm64/Wandesk.app";
 if (!fs.existsSync(app)) throw new Error("没有生成 .app");
