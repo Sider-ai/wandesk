@@ -1,7 +1,7 @@
 // 常驻事件通道(SSE)。断线重连是 EventSource 的原生能力,这里只维护
 // 连接状态和一个统一的分发口 —— 谁关心哪个对话,自己按 conversationId 认领。
 import { create } from 'zustand';
-import { EVENT_NAMES } from '@shared/events';
+import { EVENT_NAMES } from '../shared/events';
 
 export type ChannelEvent = { conversationId?: string } & Record<string, unknown>;
 type Listener = (type: string, data: ChannelEvent) => void;

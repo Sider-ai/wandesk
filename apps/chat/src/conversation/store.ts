@@ -3,7 +3,7 @@
 // currentId 为空 = 空白草稿:不落库不进列表,发首条消息那刻才真正建对话 ——
 // 侧栏不会攒出一排空的「新对话」。行数组是可变结构,流式直接改行,tick 触发重渲染。
 import { create } from 'zustand';
-import { EVENTS } from '@shared/events';
+import { EVENTS } from '../shared/events';
 
 import { api, ApiError } from '../lib/api';
 import { connectChannel, onChannel, useChannel, type ChannelEvent } from '../lib/channel';

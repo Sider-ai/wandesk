@@ -9,4 +9,5 @@
 
 ## 目录与修改
 
-- 前端是 AGENT 仓库的 web/ui 编译产物(`public/`),源码不在本目录;后端 `server.js` 直接改。
+- `src/` 前端源码(React,来自 AGENT 仓库的 web/ui,与之同步)· `public/` 产物 · `server.js` 后端直接改。
+- 改前端:本目录 `npm install && npm run build`。

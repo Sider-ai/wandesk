@@ -1,6 +1,6 @@
 // 直播 reducer —— 每个打开的对话一份,事件按 conversationId 认领。
 // 行对象原地修改,改完由调用方 bump 触发重渲染。
-import { EVENTS } from '@shared/events';
+import { EVENTS } from '../shared/events';
 import type { ChannelEvent } from '../lib/channel';
 import { mkKey, toolRow, type Row } from './thread';
 

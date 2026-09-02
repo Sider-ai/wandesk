@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json",
     "app": "npm run build && electron .",
     "dist:mac": "node scripts/pack-mac.mjs",
-    "build:apps": "node scripts/build-apps.mjs && node appsrc/build-chat.mjs",
+    "build:apps": "node scripts/build-apps.mjs",
     "dist:mac:release": "node scripts/pack-mac.mjs --release",
     "dist:win": "node scripts/pack-win.mjs",
     "publish:oss": "git push oss main"
