@@ -25,7 +25,7 @@ npm run dev              # 内核 9600 + 壳 5180
 ```
 
 打开 <http://localhost:5180>,右键桌面 →「个性化」旁边的「设置」填模型(任何
-Responses 或 Chat Completions 兼容接口),然后双击「应用工坊」,说一句话造个应用。
+Responses 或 Chat Completions 兼容接口),然后打开助理,说一句话让它造个应用。
 
 生产态单端口:
 
@@ -107,12 +107,11 @@ return env.AI.stream({ summary: "助理:回答用户", prompt: text });
 
 | | | |
 |---|---|---|
-| ✦ Assistant | 🪄 App Workshop | 🗂 Files |
-| 📔 Notebook | 👛 Ledger | 📖 Reader |
-| ⛅ Weather | 🗞️ Hacker News | 💭 Imagine |
-| 🔮 I Ching | 💕 Love House | 📱 Phone |
-| 🃏 Three-Card Poker | 🎱 Pool | 🏎️ Dusk Racer |
-| 🚀 Aircraft | | |
+| 💬 Assistant | 🗂 Files | 📔 Notebook |
+| 👛 Ledger | 📖 Reader | ⛅ Weather |
+| 🗞️ Hacker News | 💭 Imagine | 🔮 I Ching |
+| 💕 Love House | 📱 Phone | 🃏 Three-Card Poker |
+| 🎱 Pool | 🏎️ Dusk Racer | 🚀 Aircraft |
 
 随包发,首次启动落地到工作区;之后与你自己造的应用再无区别,可改可删。每个应用的源码都在 `apps/<id>/src` 里,改完在应用目录里 `npm install && npm run build` 即可重新构建。
 

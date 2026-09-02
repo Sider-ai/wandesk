@@ -1,7 +1,0 @@
-{
-  "id": "workshop",
-  "name": "App Workshop",
-  "icon": "🪄",
-  "description": "Describe an app in one sentence and it gets built. It writes into apps/, and the desktop gets a new icon right away.",
-  "mounts": { "window": "/" }
-}

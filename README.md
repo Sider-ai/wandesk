@@ -24,7 +24,7 @@ npm run build:overseer   # compile the overseer (the supervising layer inside wo
 npm run dev              # kernel on 9600, shell on 5180
 ```
 
-Open <http://localhost:5180>. Right-click the desktop → Settings next to "Personalize", fill in any Responses- or Chat-Completions-compatible endpoint and a key. Then double-click **App Workshop** and describe an app.
+Open <http://localhost:5180>. Right-click the desktop → Settings next to "Personalize", fill in any Responses- or Chat-Completions-compatible endpoint and a key. Then open the Assistant and ask it for an app.
 
 Single-port production build:
 
@@ -102,12 +102,11 @@ Memory, context and tools converge in the kernel. The kernel therefore never gro
 
 | App | | |
 |---|---|---|
-| ✦ Assistant | 🪄 App Workshop | 🗂 Files |
-| 📔 Notebook | 👛 Ledger | 📖 Reader |
-| ⛅ Weather | 🗞️ Hacker News | 💭 Imagine |
-| 🔮 I Ching | 💕 Love House | 📱 Phone |
-| 🃏 Three-Card Poker | 🎱 Pool | 🏎️ Dusk Racer |
-| 🚀 Aircraft | | |
+| 💬 Assistant | 🗂 Files | 📔 Notebook |
+| 👛 Ledger | 📖 Reader | ⛅ Weather |
+| 🗞️ Hacker News | 💭 Imagine | 🔮 I Ching |
+| 💕 Love House | 📱 Phone | 🃏 Three-Card Poker |
+| 🎱 Pool | 🏎️ Dusk Racer | 🚀 Aircraft |
 
 They ship with the package, land in your workspace on first launch, and from then on are indistinguishable from apps you made — edit them, delete them. Each one ships with its source in `apps/<id>/src`; to rebuild after editing, run `npm install && npm run build` inside that app's directory.
 

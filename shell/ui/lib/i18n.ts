@@ -15,15 +15,20 @@ const dict: Record<Lang, Record<string, string>> = {
   en: {
     "panel.wallpaper": "Personalize",
     "panel.settings": "Settings",
+    "panel.about": "About Wandesk",
     "taskbar.apps": "Apps",
     "taskbar.busy": "{n} app(s) calling AI",
     "taskbar.assistant": "Assistant",
 
     "ctx.assistant": "Open assistant",
-    "ctx.create": "New app…",
     "ctx.refresh": "Refresh desktop",
     "ctx.wallpaper": "Personalize…",
+    "ctx.settings": "Settings…",
     "ctx.about": "About",
+    "about.tagline": "An AI desktop. Every app is a small website you can read, edit and rebuild.",
+    "about.version": "Version {v}",
+    "about.website": "Website",
+    "about.license": "Open source under the ISC license",
 
     "win.minimize": "Minimize",
     "win.maximize": "Maximize",

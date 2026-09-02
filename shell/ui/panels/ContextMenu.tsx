@@ -11,11 +11,11 @@ export function ContextMenu({ x, y, onSelect }: { x: number; y: number; onSelect
   return (
     <div className="ctx-menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
       {item('assistant', '✧', 'ctx.assistant')}
-      {item('create', '✦', 'ctx.create')}
       <div className="ctx-line" />
       {item('refresh', '↻', 'ctx.refresh')}
       <div className="ctx-line" />
       {item('wallpaper', '▧', 'ctx.wallpaper')}
+      {item('settings', '⚙', 'ctx.settings')}
       {item('about', 'ⓘ', 'ctx.about')}
     </div>
   );

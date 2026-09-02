@@ -13,6 +13,7 @@ import { AppFrame } from "../appframe/AppFrame";
 import { ContextMenu } from "../panels/ContextMenu";
 import { Wallpaper } from "../panels/Wallpaper";
 import { Settings } from "../panels/Settings";
+import { About } from "../panels/About";
 import "./Desktop.css";
 import "../appframe/AppFrame.css";
 
@@ -36,6 +37,7 @@ type Win = WinMeta & { z: number; init: Geo; min: boolean; kind: "app" | "shell"
 const SHELL_PANELS: Record<string, { nameKey: string; icon: string }> = {
   "__wallpaper": { nameKey: "panel.wallpaper", icon: "🎨" },
   "__settings": { nameKey: "panel.settings", icon: "⚙️" },
+  "__about": { nameKey: "panel.about", icon: "ℹ️" },
 };
 
 export function Desktop() {
@@ -283,10 +285,10 @@ export function Desktop() {
 
   function onMenu(key: string) {
     if (key === "assistant") openById("chat");
-    else if (key === "create") openById("workshop");
     else if (key === "refresh") void reload();
     else if (key === "wallpaper") openById("__wallpaper");
-    else if (key === "about") openById("__settings");
+    else if (key === "settings") openById("__settings");
+    else if (key === "about") openById("__about");
     setCtx({ open: false, x: 0, y: 0 });
   }
 
@@ -344,7 +346,7 @@ export function Desktop() {
           {w.kind === "shell"
             ? (w.appId === "__wallpaper"
                 ? <Wallpaper current={wallpaper} onPick={pickWallpaper} />
-                : <Settings />)
+                : w.appId === "__about" ? <About /> : <Settings />)
             : (
               <AppFrame
                 key={langTick}

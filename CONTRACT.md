@@ -69,7 +69,7 @@ window. The host takes no part in compiling — it ships no esbuild, no node_mod
 whoever changes it installs it, and that needs Node.js on the local machine.
 
 `server.js` is always source — edit it and the change takes effect on the next
-request. Apps built by the App Workshop are single-file frontends with no `src/`;
+request. Apps the assistant writes for you are single-file frontends with no `src/`;
 edit `public/` directly.
 
 The upgrade check for preinstalled apps only looks at `src/`, `app.json`, `APP.md`,
@@ -83,7 +83,7 @@ Shell (desktop / windows / taskbar / wallpaper)     ← only draws, has no idea 
 Kernel   env.AI — the single intelligence surface, knows everything
          everything else is a binding: DB / ASSETS / PROC / FS / UI
 ──────────────────────────────────────────
-Apps (all of them, including the assistant / files / app workshop) ← pure compute workers, all treated the same
+Apps (all of them, including the assistant / files) ← pure compute workers, all treated the same
 ```
 
 This is isomorphic with the Cloudflare platform — not a metaphor, the exact same
