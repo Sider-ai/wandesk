@@ -7,3 +7,5 @@ runtime/bin/*
 config.local.js
 release/
 .dev/
+AGENTS.md
+CLAUDE.md
