@@ -1,12 +1,14 @@
-// 应用运行时监理 —— 跑在 workerd 里,只干三件事:
+// 应用运行时监理 —— 跑在 workerd 里,只干四件事:
 //
-//   1. **路由**:/app/<token>/* → 那个应用自己的 fetch handler(token 是路由键,见 apps/token.ts);
+//   1. **路由**:<token>.localhost/* → 那个应用自己的 fetch handler(token 是路由键,见 apps/token.ts);
 //   2. **装载**:按需(首个请求才起)、按 server.js 内容哈希做版本键(改完下次请求即新版);
-//   3. **注入 binding**:把 Cloudflare 形态的 env 递给应用 —— DB / ASSETS / AI / PROC / FS / UI。
+//   3. **注入 binding**:把 Cloudflare 形态的 env 递给应用 —— DB / ASSETS / AI / PROC / FS / UI;
+//   4. **存数据**:env.DB 落在这里的 AppStore(Durable Object + workerd 内置 SQLite),不回内核。
 //
 // 应用本身只是一个标准 Worker 网站,静态资源与 API 都由它自己应答。
-// 与 CF 平台同构不是比喻:env.DB 就是 D1 接口,这份 server.js 原样能部署上云。
-import { WorkerEntrypoint } from "cloudflare:workers";
+// 与 CF 平台同构不是比喻:env.DB 就是 D1 接口,这份 server.js 原样能部署上云 ——
+// 而 D1 在 Cloudflare 上本来就是「DO + SQLite」包了一层,这里用的正是那个底层。
+import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
 
 // ── 注入进每个应用 isolate 的运行时垫片 ─────────────────────────────
 // 应用看到的是标准形态的 env;底下这些桩把调用回环到内核(Node)。
@@ -153,7 +155,109 @@ export default {
 };
 `;
 
-/** 应用对外的唯一通道:动作全部回内核执行。appId 由这里填,应用伪造不了。 */
+
+// ── AppStore:env.DB 的执行端 ─────────────────────────────────
+// 每个应用一个 Durable Object(idFromName(appId)),数据在 workerd 内置的 SQLite 里,
+// 文件落在 <workspace>/.wandesk/store/<uniqueKey>/<对象ID>.sqlite。内核会在 apps/<id>/data.db
+// 放一个指向它的符号链接,`sqlite3 apps/notes/data.db` 照样能查 —— 这条契约不变。
+//
+// 第一次开门时向内核「认领」:内核若在 apps/<id>/ 里找到老的 Node 管的 data.db,
+// 把它整库导过来;导完内核把老库改名留档、挂上符号链接。之后再也不问。
+const MAX_DB_BYTES = 200 * 1024 * 1024; // 单库上限:失控膨胀的保险丝
+const FORBIDDEN = /\b(attach|load_extension)\b/i;   // 「应用只该碰自己的库」—— workerd 本来也拦,双保险
+const isRead = (sql) => /^\s*(select|with|pragma|explain)\b/i.test(sql);
+const META_TABLE = "_wd_meta";
+
+// 旧库里的 BLOB 经 JSON 过来时是 { __wd_b64 } 包装,这里还原
+const unwrap = (v) => {
+  if (v && typeof v === "object" && typeof v.__wd_b64 === "string") return Uint8Array.from(atob(v.__wd_b64), (c) => c.charCodeAt(0));
+  return v === undefined ? null : v;
+};
+
+export class AppStore extends DurableObject {
+  #ready = false;
+
+  get #sql() { return this.ctx.storage.sql; }
+
+  #hasMeta() {
+    return this.#sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", META_TABLE).toArray().length > 0;
+  }
+
+  /** 首次开门:向内核认领旧库。失败就整体回滚,下次再试。 */
+  async #ensure(appId) {
+    if (this.#ready) return;
+    if (this.#hasMeta()) { this.#ready = true; return; }
+    const storeId = this.ctx.id.toString();
+    const res = await this.env.NODE.fetch("http://node/api/app/db-adopt", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ appId, storeId }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data?.ok === false) throw new Error(String(data?.error || `认领失败 ${res.status}`));
+    const statements = Array.isArray(data.statements) ? data.statements : [];
+    this.ctx.storage.transactionSync(() => {
+      for (const s of statements) this.#sql.exec(String(s.sql), ...(Array.isArray(s.params) ? s.params.map(unwrap) : []));
+      this.#sql.exec(`CREATE TABLE IF NOT EXISTS ${META_TABLE} (key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')`);
+      this.#sql.exec(`INSERT OR REPLACE INTO ${META_TABLE} (key, value) VALUES ('app_id', ?), ('adopted_at', ?), ('imported', ?)`,
+        appId, new Date().toISOString(), String(statements.length));
+    });
+    // 告诉内核:数据已在我这儿,老库可以留档、挂链接了
+    await this.env.NODE.fetch("http://node/api/app/db-adopted", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ appId, storeId, imported: statements.length }),
+    }).catch(() => {});
+    this.#ready = true;
+  }
+
+  #assertQuota(sql) {
+    if (isRead(sql)) return;
+    if (this.#sql.databaseSize > MAX_DB_BYTES) {
+      throw new Error(`应用数据库已超上限(${Math.round(MAX_DB_BYTES / 1024 / 1024)}MB),仅允许读取`);
+    }
+  }
+
+  #runOne(sql, params) {
+    const text = String(sql || "").trim();
+    if (!text) throw new Error("sql 不能为空");
+    if (FORBIDDEN.test(text)) throw new Error("不允许的语句:ATTACH / load_extension");
+    this.#assertQuota(text);
+    const values = (Array.isArray(params) ? params : []).map(unwrap);
+    if (isRead(text)) return { rows: this.#sql.exec(text, ...values).toArray() };
+    // 无参多语句(建表脚本)整体执行
+    if (!values.length && /;\s*\S/.test(text)) { this.#sql.exec(text); return {}; }
+    this.#sql.exec(text, ...values);
+    const m = this.#sql.exec("SELECT changes() AS c, last_insert_rowid() AS id").one();
+    return { changes: Number(m.c), lastInsertRowid: Number(m.id) };
+  }
+
+  /** D1 的单条:SELECT 回 rows,写入回 changes / lastInsertRowid。 */
+  async exec(appId, sql, params) {
+    await this.#ensure(appId);
+    return this.#runOne(sql, params);
+  }
+
+  /** D1 的 batch:一个事务里跑完,任一失败整体回滚。 */
+  async batch(appId, statements) {
+    await this.#ensure(appId);
+    const list = (Array.isArray(statements) ? statements : []).slice(0, 200);
+    const results = this.ctx.storage.transactionSync(() => list.map((s) => this.#runOne(String(s?.sql || ""), s?.params || [])));
+    return { results };
+  }
+}
+
+/** 应用 → 它的 AppStore 存根。appId 由调用方(HostGate / 内部路由)填,应用伪造不了。 */
+const storeFor = (env, appId) => {
+  const id = String(appId || "");
+  if (!id) throw new Error("缺少 appId");
+  const stub = env.STORE.get(env.STORE.idFromName(id));
+  return {
+    exec: (sql, params) => stub.exec(id, sql, params),
+    batch: (statements) => stub.batch(id, statements),
+    storeId: () => env.STORE.idFromName(id).toString(),
+  };
+};
+
+/** 应用对外的唯一通道:动作全部回内核执行(DB 除外,它进 AppStore)。appId 由这里填,应用伪造不了。 */
 export class HostGate extends WorkerEntrypoint {
   async #node(action, body) {
     const res = await this.env.NODE.fetch(`http://node/api/app/${action}`, {
@@ -166,9 +270,9 @@ export class HostGate extends WorkerEntrypoint {
     return data;
   }
 
-  // ── env.DB ──
-  dbExec(sql, params) { return this.#node("db", { sql: String(sql || ""), params: Array.isArray(params) ? params : [] }); }
-  dbBatch(statements) { return this.#node("db-batch", { statements: statements || [] }); }
+  // ── env.DB:不回内核,直接进 AppStore(每个应用一个 DO,SQLite 就在 workerd 进程里) ──
+  dbExec(sql, params) { return storeFor(this.env, this.ctx.props?.appId).exec(String(sql || ""), Array.isArray(params) ? params : []); }
+  dbBatch(statements) { return storeFor(this.env, this.ctx.props?.appId).batch(Array.isArray(statements) ? statements : []); }
 
   // ── env.ASSETS ──
   async asset(path) {
@@ -248,6 +352,45 @@ const resolveApp = async (env, token) => {
   return appId || null;
 };
 
+
+// ── 内部路由:内核 → workerd ─────────────────────────────────
+// syscall 的镜像:应用在 workerd 里调内核,这里是内核调 workerd 里的数据。
+// AI(经内核的 /api/apps/db)和内核自己要写应用数据,走这条,不绕过 AppStore 直接碰文件。
+// 只认带装机时生成的内部令牌的请求;令牌只在 overseer 的 env 里,应用拿不到。
+const jsonResponse = (data, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8" } });
+
+// 行里的 BLOB 是 ArrayBuffer,JSON 带不走,包成 { __wd_b64 }
+const packRows = (rows) => (rows || []).map((row) => {
+  const out = {};
+  for (const [k, v] of Object.entries(row)) {
+    out[k] = v instanceof ArrayBuffer ? { __wd_b64: btoa(String.fromCharCode(...new Uint8Array(v))) } : v;
+  }
+  return out;
+});
+
+const internal = async (req, env, url) => {
+  if (!env.WD_INTERNAL || req.headers.get("x-wd-internal") !== env.WD_INTERNAL) return jsonResponse({ ok: false, error: "forbidden" }, 403);
+  try {
+    if (url.pathname === "/_wd/db/id") {
+      return jsonResponse({ ok: true, storeId: storeFor(env, url.searchParams.get("app")).storeId() });
+    }
+    if (url.pathname === "/_wd/db" && req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
+      const store = storeFor(env, body.appId);
+      if (Array.isArray(body.statements)) {
+        const { results } = await store.batch(body.statements);
+        return jsonResponse({ ok: true, results: results.map((r) => ({ ...r, rows: r.rows ? packRows(r.rows) : undefined })) });
+      }
+      const r = await store.exec(String(body.sql || ""), Array.isArray(body.params) ? body.params : []);
+      return jsonResponse({ ok: true, ...r, rows: r.rows ? packRows(r.rows) : undefined });
+    }
+    return jsonResponse({ ok: false, error: "not found" }, 404);
+  } catch (e) {
+    return jsonResponse({ ok: false, error: String(e?.message || e) }, 200);
+  }
+};
+
 // 每个应用一个 origin:`http://<token>.localhost:<port>/`。
 // 为什么不是 `/app/<token>/` 路径前缀 —— 那样应用就不站在自己的网站根上,
 // `/style.css` 和契约里写的 `fetch("/api/…")` 会逃出应用根,契约立不住。
@@ -259,8 +402,9 @@ export default {
     const token = /^([a-f0-9]{16,64})\.localhost$/.exec(url.hostname)?.[1];
 
     if (!token) {
-      // 没有子域 = 不是冲着某个应用来的。健康检查走这条。
+      // 没有子域 = 不是冲着某个应用来的。健康检查与内核的内部调用走这条。
       if (url.pathname === "/health") return new Response("ok");
+      if (url.pathname.startsWith("/_wd/")) return internal(req, env, url);
       return new Response("请经 <token>.localhost 访问应用", { status: 404 });
     }
 

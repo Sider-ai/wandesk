@@ -11,8 +11,11 @@
   app.json     manifest
   server.js    Worker:export default { async fetch(req, env) {…} }
   public/      静态资源(env.ASSETS 读这里)
-  data.db      数据(env.DB 落这里 —— 就在代码旁边,你和 AI 都能 sqlite3 撬开)
+  data.db      数据 —— 指向真实库的链接,就在代码旁边,你和 AI 都能 sqlite3 撬开
 ```
+
+真实库在 `<workspace>/.wandesk/store/` 里,由 workerd 自己的 SQLite 管(见「二」);
+`data.db` 这个链接是内核在应用第一次开库时挂上的。
 
 「安装」= 目录存在(扫描自动注册);「移除」= 删目录。AI 用 `write` 工具即可造应用,
 **不碰宿主源码、不重编译、不重启**。内核盯着 `apps/`,新目录一落地,桌面立刻长出图标。
@@ -45,7 +48,7 @@ manifest 只有四个字段(外加可选的 `description`):
 
 | binding | 本地 | 上云对应 |
 |---|---|---|
-| `env.DB` | `apps/<id>/data.db`(Node 管的 SQLite) | **D1**(接口一致,代码一行不改) |
+| `env.DB` | workerd 内置 SQLite(`.wandesk/store/`,`apps/<id>/data.db` 是链接) | **D1**(接口一致,代码一行不改) |
 | `env.ASSETS` | `apps/<id>/public/` | Workers Assets |
 | `env.AI` / `PROC` / `FS` / `UI` | Wandesk 专有 | 无,上云时降级 |
 
@@ -64,6 +67,11 @@ export default {
 
 **前端与自己的后端同源**,直接 `fetch("/api/…")`,不需要任何 SDK。
 **出网直接 `fetch()`**,没有白名单、没有代发。
+
+`env.DB` 不回内核:每个应用一个 Durable Object(`AppStore`),SQLite 引擎就在 workerd 进程里 ——
+D1 在 Cloudflare 上本来就是这么搭的。查询不再经过 Node,应用再多也不会把内核堵住。
+内核与 AI 要动应用数据,走内核的 `POST /api/apps/db { id, sql, params }`,它和应用的 `env.DB` 是同一个执行端;
+只读排查直接 `sqlite3 apps/<id>/data.db` 也行。
 
 ## 三、env.AI —— 唯一的智能面
 
@@ -136,7 +144,8 @@ window.wandesk.on(event, fn) / emit(event, payload)   // 同应用实例间(窗�
 
 ## 七、数据产权
 
-- **领域数据归应用**:自己的 `data.db` 里自建 schema;内核不提供任何域 API —— 这是 AI 能无限造应用的前提;
+- **领域数据归应用**:自己的库里自建 schema;内核不提供任何域 API —— 这是 AI 能无限造应用的前提。
+  删掉应用目录不会删它的库(和删 Worker 不会删 D1 一样),数据留在 `.wandesk/store/`,重装即回来;
 - **产品本体数据归内核**:记忆、活动流水只经 `env.AI` 汇聚,应用读不到原文;
 - **真实文件归用户**:`env.FS`,一律锁在工作区内。
 
@@ -144,6 +153,6 @@ window.wandesk.on(event, fn) / emit(event, payload)   // 同应用实例间(窗�
 
 - **服务端→客户端推送**:同一条 HTTP 请求内可用(流式响应 / SSE,`env.AI.stream` 即走此路);
   后端主动找别的连接推事件做不到 —— workerd 会判定跨请求上下文并取消。
-  要旁路推送与定时唤醒(alarms),需把会话搬进 Durable Object,列入后续版本。
+  要旁路推送与定时唤醒(alarms),需把会话搬进 Durable Object —— `env.DB` 已经站在 DO 上了,这一步不远。
 - 应用后端**按需装载**(首个请求才起),按 `server.js` 内容哈希做版本键 —— 改完下次请求即新版。
 - workerd 单平台约 150MB,Windows / Linux 需各带一份二进制。

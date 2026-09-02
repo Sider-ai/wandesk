@@ -3,8 +3,9 @@
 //   <workspace>/                 用户的工作区(默认 ~/Documents/Wandesk)
 //     apps/<id>/                 应用的家 —— 一个目录就是一个应用
 //     .wandesk/kernel.db         内核自己的库(会话/消息/压缩/设置/记忆)
+//     .wandesk/store/            应用的库(workerd 的 AppStore 落盘处,一个应用一个 .sqlite)
 //
-// 应用的库在 apps/<id>/data.db,和代码做邻居:`sqlite3 apps/notes/data.db` 一句话能查,
+// apps/<id>/data.db 是指向 store 里真实文件的链接:`sqlite3 apps/notes/data.db` 一句话能查,
 // 「AI 能管自己造的应用」才成立。
 import fs from "fs";
 import os from "os";

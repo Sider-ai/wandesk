@@ -1,90 +1,108 @@
-// env.DB 的执行端 —— 应用侧看到的是 D1 接口,这里是它落到 SQLite 的地方。
+// env.DB 的内核侧 —— 数据本身不在这儿。
 //
-// 库放在 apps/<id>/data.db,和代码做邻居:`sqlite3 apps/notes/data.db` 一句话能查、能改、能修迁移。
-// 不放系统数据目录,也不用 workerd 的 DO 存储(那个按 DO id 哈希命名文件,AI 和用户都摸不到)。
+// 应用侧看到的是 D1 接口,执行端是 workerd 里的 AppStore(Durable Object + 内置 SQLite,
+// 见 runtime/overseer.js)。应用的每次查询在 workerd 进程内完成,不再回环到内核;
+// 内核这边只剩三件事:
+//   1. 替 AI / 内核自己调应用的库 —— 经 overseer 的内部路由 /_wd/db,不绕过 AppStore 直接碰文件;
+//   2. 认领旧库:AppStore 首次开门时把 apps/<id>/data.db(老的 Node 管的 SQLite)整库导过去;
+//   3. 挂链接:apps/<id>/data.db → .wandesk/store/…/<对象ID>.sqlite,
+//      `sqlite3 apps/notes/data.db` 照样能查 —— 「数据就在代码旁边」这条契约不变。
 import fs from "fs";
 import path from "path";
 import { DatabaseSync } from "node:sqlite";
 import { appDbPath } from "../apps/scan.js";
+import { runtimeOrigin, runtimeToken, storeFile } from "../../runtime/supervisor.js";
 
-const MAX_DB_BYTES = 200 * 1024 * 1024; // 单库上限:失控膨胀的保险丝
-const opened = new Map<string, DatabaseSync>();
+export type SqlResult = { rows?: Record<string, unknown>[]; changes?: number; lastInsertRowid?: number };
+type Statement = { sql: string; params?: unknown[] };
 
-const dbFor = (appId: string): DatabaseSync => {
-  const existing = opened.get(appId);
-  if (existing) return existing;
-  const file = appDbPath(appId);
-  if (!file) throw new Error(`应用不存在:${appId}`);
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  const conn = new DatabaseSync(file);
-  conn.exec("PRAGMA journal_mode = WAL");
-  conn.exec("PRAGMA busy_timeout = 5000");
-  opened.set(appId, conn);
-  return conn;
+// ── 1. 内核 → workerd ──────────────────────────────────────────
+const call = async (route: string, body?: unknown) => {
+  const origin = runtimeOrigin();
+  if (!origin) throw new Error("应用运行时未就绪");
+  const res = await fetch(origin + route, {
+    method: body === undefined ? "GET" : "POST",
+    headers: { "content-type": "application/json", "x-wd-internal": runtimeToken() },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data: any = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) throw new Error(String(data?.error || `运行时错误 ${res.status}`));
+  return data;
 };
 
-/** 应用目录被删或改名后句柄要作废,否则还写向已删除的 inode。 */
-export const closeAppDb = (appId: string) => {
-  const conn = opened.get(appId);
-  if (!conn) return;
-  try { conn.close(); } catch { /* 已关 */ }
-  opened.delete(appId);
-};
-
-// ATTACH 能打开任意路径的库,load_extension 能加载任意原生代码 —— 这两个不是能力问题,
-// 是「应用只该碰自己的库」这条数据产权约定,所以即便能力全开也拦。
-const FORBIDDEN = /\b(attach|load_extension)\b/i;
-const isRead = (sql: string) => /^\s*(select|with|pragma|explain)\b/i.test(sql);
-
-export type SqlResult = { rows?: unknown[]; changes?: number; lastInsertRowid?: number };
-
-const toValues = (params: unknown[]) =>
-  (Array.isArray(params) ? params : []).map((v) =>
-    v === null || v === undefined ? null : typeof v === "number" || typeof v === "bigint" ? v : String(v),
-  );
-
-const runOne = (conn: DatabaseSync, sql: string, params: unknown[]): SqlResult => {
-  const text = String(sql || "").trim();
-  if (!text) throw new Error("sql 不能为空");
-  if (FORBIDDEN.test(text)) throw new Error("不允许的语句:ATTACH / load_extension");
-  const values = toValues(params);
-  if (isRead(text)) return { rows: conn.prepare(text).all(...(values as never[])) };
-  // 无参多语句(建表脚本)整体执行
-  if (!values.length && /;\s*\S/.test(text)) { conn.exec(text); return {}; }
-  const r = conn.prepare(text).run(...(values as never[]));
-  return { changes: Number(r.changes), lastInsertRowid: Number(r.lastInsertRowid) };
-};
-
-const assertQuota = (appId: string, sql: string) => {
-  if (isRead(sql)) return;
-  const file = appDbPath(appId);
-  if (!file) return;
-  try {
-    if (fs.statSync(file).size > MAX_DB_BYTES) {
-      throw new Error(`应用数据库已超上限(${Math.round(MAX_DB_BYTES / 1024 / 1024)}MB),仅允许读取`);
-    }
-  } catch (e: any) {
-    if (e?.code !== "ENOENT") throw e;
-  }
-};
-
-export const execAppSql = (appId: string, sql: string, params: unknown[] = []): SqlResult => {
-  assertQuota(appId, sql);
-  return runOne(dbFor(appId), sql, params);
+/** 替内核 / AI 执行一条应用 SQL。语义与应用侧 env.DB 完全一致(同一个执行端)。 */
+export const execAppSql = async (appId: string, sql: string, params: unknown[] = []): Promise<SqlResult> => {
+  if (!appDbPath(appId)) throw new Error(`应用不存在:${appId}`);
+  const { rows, changes, lastInsertRowid } = await call("/_wd/db", { appId, sql, params });
+  return { rows, changes, lastInsertRowid };
 };
 
 /** D1 的 batch:一个事务里跑完,任一失败整体回滚。 */
-export const batchAppSql = (appId: string, statements: { sql: string; params?: unknown[] }[]) => {
-  const conn = dbFor(appId);
-  const list = Array.isArray(statements) ? statements.slice(0, 200) : [];
-  for (const s of list) assertQuota(appId, String(s?.sql || ""));
-  conn.exec("BEGIN");
+export const batchAppSql = async (appId: string, statements: Statement[]) => {
+  if (!appDbPath(appId)) throw new Error(`应用不存在:${appId}`);
+  const { results } = await call("/_wd/db", { appId, statements });
+  return { results: results as SqlResult[] };
+};
+
+/** 应用的库落在哪个文件(AppStore 对象 ID 由 overseer 推导)。 */
+export const appStoreFile = async (appId: string) => {
+  const { storeId } = await call(`/_wd/db/id?app=${encodeURIComponent(appId)}`);
+  return storeFile(String(storeId));
+};
+
+// ── 2. 认领旧库 ───────────────────────────────────────────────
+const legacyFile = (appId: string) => {
+  const file = appDbPath(appId);
+  if (!file) return null;
+  try { return fs.lstatSync(file).isFile() ? file : null; } catch { return null; } // 已是链接 = 已认领过
+};
+
+const q = (name: string) => `"${String(name).replace(/"/g, '""')}"`;
+const wrap = (v: unknown) =>
+  v instanceof Uint8Array ? { __wd_b64: Buffer.from(v).toString("base64") } : typeof v === "bigint" ? Number(v) : v ?? null;
+
+/** 把老库整个摊成语句:先建表、再灌数据、最后索引 / 视图 / 触发器。没有老库就是空数组。 */
+export const dumpLegacyDb = (appId: string): Statement[] => {
+  const file = legacyFile(appId);
+  if (!file) return [];
+  const conn = new DatabaseSync(file);
   try {
-    const results = list.map((s) => runOne(conn, String(s?.sql || ""), s?.params || []));
-    conn.exec("COMMIT");
-    return { results };
-  } catch (e) {
-    try { conn.exec("ROLLBACK"); } catch { /* 已回滚 */ }
-    throw e;
+    const objects = conn.prepare(
+      "SELECT type, name, sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' " +
+      "ORDER BY CASE type WHEN 'table' THEN 0 WHEN 'index' THEN 1 WHEN 'view' THEN 2 ELSE 3 END, rowid",
+    ).all() as { type: string; name: string; sql: string }[];
+    const out: Statement[] = [];
+    for (const o of objects.filter((x) => x.type === "table")) {
+      out.push({ sql: o.sql });
+      const rows = conn.prepare(`SELECT * FROM ${q(o.name)}`).all() as Record<string, unknown>[];
+      if (!rows.length) continue;
+      const cols = Object.keys(rows[0]);
+      const sql = `INSERT INTO ${q(o.name)} (${cols.map(q).join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`;
+      for (const row of rows) out.push({ sql, params: cols.map((c) => wrap(row[c])) });
+    }
+    for (const o of objects.filter((x) => x.type !== "table")) out.push({ sql: o.sql });
+    return out;
+  } finally {
+    conn.close();
+  }
+};
+
+// ── 3. 留档 + 挂链接 ───────────────────────────────────────────
+/** AppStore 认领完成:老库改名留档(data.legacy.db),data.db 变成指向真实文件的链接。 */
+export const finishAdoption = (appId: string, storeId: string) => {
+  const file = appDbPath(appId);
+  if (!file) return;
+  const dir = path.dirname(file);
+  if (legacyFile(appId)) {
+    for (const suffix of ["", "-wal", "-shm"]) {
+      try { fs.renameSync(file + suffix, path.join(dir, "data.legacy.db" + suffix)); } catch { /* 没有这个伴随文件 */ }
+    }
+    console.log(`[db] 旧库已留档:apps/${appId}/data.legacy.db`);
+  }
+  try {
+    try { fs.unlinkSync(file); } catch { /* 不存在 */ }
+    fs.symlinkSync(path.relative(dir, storeFile(storeId)), file);
+  } catch (e: any) {
+    console.error(`[db] 挂链接失败 apps/${appId}/data.db:`, e?.message); // Windows 无权限时只是少个快捷方式
   }
 };

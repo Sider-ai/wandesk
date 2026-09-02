@@ -21,7 +21,7 @@ apps/      应用  —— 不属于框架,是内容
 2. **shell 不认识领域** —— 壳只知道「窗口里有个 iframe」。所有领域名词只存在于 `apps/` 里。
    壳里唯一的例外是 `SHELL_PANELS`(设置、个性化),**它们配置的是框架本身**——
    凡是「配置框架」的界面属于壳,凡是「做事」的一律是应用。这条线不含糊,别往壳里塞第三种东西。
-3. **应用不认识彼此** —— 各揣各的 `data.db`。要「共享上下文」就调 `env.AI`,汇聚发生在内核。
+3. **应用不认识彼此** —— 各揣各的库(一个应用一个 `AppStore` 对象)。要「共享上下文」就调 `env.AI`,汇聚发生在内核。
 
 ## 内核
 
@@ -32,6 +32,9 @@ apps/      应用  —— 不属于框架,是内容
 - `kernel/syscall/` 一个文件一个 binding。加一个 binding = 加一个文件 + 在
   `api/app.ts` 的 `HANDLERS` 里加一行 + 在 `runtime/overseer.js` 的 `HostGate` 和垫片里各加一段。
   三处齐了才算加完,漏一处应用侧就是 `undefined is not a function`。
+  **`env.DB` 是例外**:它不回内核,执行端是 `overseer.js` 里的 `AppStore`(Durable Object + workerd 内置 SQLite)。
+  内核侧的 `syscall/db.ts` 只是客户端(经 `/_wd/db` 内部路由)加旧库认领。
+- `AppStore` 的 `uniqueKey`(`runtime/supervisor.ts` 的 `STORE_KEY`)**不能改** —— 对象 ID 由它推导,改了旧数据全部找不到。
 - `api/` 很薄:只解析请求、拼响应。业务在 `syscall/` 与 `data/`。
 - `data/` 只装产品本体的运行时状态。**任何领域表都不该出现在 `schema.sql` 里** ——
   那是应用自己 `data.db` 的事。
@@ -41,7 +44,7 @@ apps/      应用  —— 不属于框架,是内容
 | | 位置 | 谁能碰 |
 |---|---|---|
 | 内核库 | `<workspace>/.wandesk/kernel.db` | 只有 kernel |
-| 应用库 | `<workspace>/apps/<id>/data.db` | 该应用 + 用户 `sqlite3` 直接撬 |
+| 应用库 | `<workspace>/.wandesk/store/<key>/<对象ID>.sqlite`(`apps/<id>/data.db` 是链接) | 该应用经 `env.DB`;内核 / AI 经 `POST /api/apps/db`;用户 `sqlite3` 直接撬 |
 | 用户文件 | `<workspace>/` | 用户 + `env.FS` + agent 的 bash |
 
 ## 通用

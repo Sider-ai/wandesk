@@ -1,5 +1,5 @@
 -- 内核自己的库。只装「产品本体」的运行时状态,不装任何应用的领域数据。
--- 应用的数据在 apps/<id>/data.db,内核不碰。
+-- 应用的数据在 workerd 的 AppStore 里(.wandesk/store/,apps/<id>/data.db 是链接),内核不碰。
 
 -- ── 会话 ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS conversations (

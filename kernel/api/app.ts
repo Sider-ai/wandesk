@@ -5,7 +5,7 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import { json, readJson } from "./http.js";
 import { appAsset, appServerCode } from "../apps/scan.js";
-import { execAppSql, batchAppSql } from "../syscall/db.js";
+import { dumpLegacyDb, finishAdoption } from "../syscall/db.js";
 import { aiAsk, aiRun, aiStream } from "../syscall/ai.js";
 import { procSpawn, procList, procLog, procKill, procExec } from "../syscall/proc.js";
 import { fsList, fsRead, fsReadBase64, fsWrite, fsMkdir, fsDelete } from "../syscall/fs.js";
@@ -15,9 +15,9 @@ type Body = Record<string, any>;
 
 /** 每个 syscall 一个 handler。抛异常 = 应用侧 env.* 抛异常,信息原样带过去。 */
 const HANDLERS: Record<string, (appId: string, body: Body) => unknown | Promise<unknown>> = {
-  // ── env.DB ──
-  "db": (appId, b) => execAppSql(appId, String(b.sql || ""), Array.isArray(b.params) ? b.params : []),
-  "db-batch": (appId, b) => batchAppSql(appId, Array.isArray(b.statements) ? b.statements : []),
+  // ── env.DB:查询不经这里(在 workerd 的 AppStore 里就地执行)。只剩认领旧库的两步握手 ──
+  "db-adopt": (appId) => ({ statements: dumpLegacyDb(appId) }),
+  "db-adopted": (appId, b) => { finishAdoption(appId, String(b.storeId || "")); return {}; },
 
   // ── env.ASSETS ──
   "asset": (appId, b) => {

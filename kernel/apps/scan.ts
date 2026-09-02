@@ -4,7 +4,7 @@
 //     app.json    manifest —— 四个字段:id / name / icon / mounts
 //     server.js   Worker:export default { async fetch(req, env) {…} }
 //     public/     静态资源(env.ASSETS 读这里)
-//     data.db     数据(env.DB 落这里)
+//     data.db     数据 —— 指向 .wandesk/store/ 里真实库的链接(env.DB 在 workerd 的 AppStore 里执行)
 //
 // 「安装」= 目录存在;「移除」= 删目录。AI 用 write 工具即可造应用,宿主零改动。
 import { createHash } from "crypto";
@@ -89,7 +89,7 @@ export const appAsset = (appId: string, rel: string): string | null => {
   } catch { return null; }
 };
 
-/** 应用私有库的位置:就在应用目录里,和代码做邻居。 */
+/** 应用目录里的 data.db:认领前是老的 Node 管的库,认领后是指向 AppStore 真实文件的链接。 */
 export const appDbPath = (appId: string): string | null => {
   const app = getApp(appId);
   return app ? path.join(app.dir, "data.db") : null;

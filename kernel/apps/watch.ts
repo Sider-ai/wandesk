@@ -4,15 +4,12 @@ import fs from "fs";
 import { appsDir } from "../paths.js";
 import { EV } from "../shared/events.js";
 import { broadcast } from "../realtime.js";
-import { closeAppDb } from "../syscall/db.js";
 
 export const watchApps = () => {
   let timer: NodeJS.Timeout | null = null;
   try {
-    fs.watch(appsDir(), { recursive: true }, (_event, filename) => {
-      // 目录被删/改名后旧句柄还指着已删除的 inode,必须作废
-      const id = String(filename || "").split("/")[0];
-      if (id) closeAppDb(id);
+    fs.watch(appsDir(), { recursive: true }, () => {
+      // 应用的库在 workerd 手里(AppStore),内核这边没有句柄要作废
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => broadcast(EV.APPS_CHANGED, {}), 300); // 防抖:一次写入会触发多个事件
     });

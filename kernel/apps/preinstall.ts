@@ -5,14 +5,14 @@
 // 判据是内容指纹:上次落地时记下指纹,这次开机先算一遍磁盘上的。
 //   一致 = 用户没改过 → 随包版本变了就替换;
 //   不一致 = 用户(或 AI)改过 → 那是他的应用了,永不覆盖。
-// data.db 不进指纹 —— 数据本来就一直在变,不能当作「被改过」。
+// data.db(链接)与留档的 data.legacy.db 不进指纹 —— 数据本来就一直在变,不能当作「被改过」。
 import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
 import { appsDir, kernelDir, presetAppsDir } from "../paths.js";
 
 const STAMP = () => path.join(kernelDir(), "preinstall.json");
-const SKIP = /^data\.db(-wal|-shm)?$/;
+const SKIP = /^data\.(legacy\.)?db(-wal|-shm)?$/;
 
 /** 目录内容指纹:相对路径 + 内容,排序后一起哈希。 */
 const fingerprint = (dir: string): string => {
@@ -66,7 +66,7 @@ export const seedPresetApps = () => {
     if (stamp[entry.name] !== fingerprint(to)) continue;      // 用户改过 —— 不碰
 
     try {
-      // 只替换代码与资源,data.db 留在原地(用户的数据不能跟着版本走)
+      // 只替换代码与资源,data.db / data.legacy.db 留在原地(用户的数据不能跟着版本走)
       for (const name of fs.readdirSync(to)) {
         if (SKIP.test(name)) continue;
         fs.rmSync(path.join(to, name), { recursive: true, force: true });

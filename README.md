@@ -32,7 +32,7 @@ kernel/         🧠 内核:知道一切
   memory/       长期记忆 —— 只经 env.AI 注入,应用读不到原文
   data/         内核自己的 SQLite(会话 / 记忆 / 设置 / 活动流水)
 runtime/        ⚙️ workerd:应用的用户态
-  overseer.js   路由 /app/<token>/* + 注入 binding 垫片
+  overseer.js   路由 <token>.localhost + 注入 binding 垫片 + AppStore(env.DB 的 SQLite 就在这)
   supervisor.ts 起停 workerd
 apps/           📦 预装应用 —— 每个都是完整的 Worker 网站
   chat/ notes/ files/ weather/ workshop/
@@ -61,7 +61,7 @@ token 由装机密钥推导、跨重启稳定。
 ## 没有原生应用
 
 活动栏和桌面上的一切都是应用,**包括助理和文件**。它们和你自己造的应用拿一样的
-binding、跑在同一个 workerd 里、数据落在自己的 `data.db`。
+binding、跑在同一个 workerd 里、数据落在自己的库里(`apps/<id>/data.db` 能直接撬)。
 
 壳里唯一不是应用的是「设置」和「个性化」—— 它们配置的是框架本身。
 凡是「配置框架」的属于壳,凡是「做事」的一律是应用。

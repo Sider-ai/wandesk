@@ -1,11 +1,14 @@
 // workerd 的进程管理:生成配置 → 拉起 → 健康检查 → 随内核退出。
 //
-//   内核(Node) ──spawn──▶ workerd(入口 worker = overseer)
+//   内核(Node) ──spawn──▶ workerd(入口 worker = overseer + AppStore DO)
 //     ▲   NODE 外部服务绑定(回环 127.0.0.1:<kernelPort>,syscall 的执行端)
+//     │   内核反过来调 workerd 的 /_wd/*(应用数据的内部路由),凭 WD_INTERNAL 令牌
 //     └── 壳的 iframe 指向 http://<token>.localhost:<appPort>/ —— 每个应用一个真 origin
 //
+// 应用数据(env.DB)在 workerd 自己的 SQLite 里:<workspace>/.wandesk/store/<STORE_KEY>/<对象ID>.sqlite。
 // 起不来不拖垮内核 —— 只是应用不可用,壳照常显示并给出提示。
 import { spawn, type ChildProcess } from "child_process";
+import { randomBytes } from "crypto";
 import fs from "fs";
 import net from "net";
 import path from "path";
@@ -14,6 +17,20 @@ import { HOME, kernelDir } from "../kernel/paths.js";
 let child: ChildProcess | null = null;
 let origin: string | null = null;
 let port: number | null = null;
+let internalToken = "";
+
+/** AppStore 命名空间的 uniqueKey:对象 ID 由它推导,**改了就找不到旧数据**。也是存储子目录名。 */
+export const STORE_KEY = "wandesk-app-store-v1";
+
+/** 应用数据的根目录(workerd 的 localDisk)。 */
+export const storeDir = () => {
+  const dir = path.join(kernelDir(), "store");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+};
+
+/** 某个 AppStore 对象落盘的 SQLite 文件。对象 ID 问 overseer 要(/_wd/db/id)。 */
+export const storeFile = (storeId: string) => path.join(storeDir(), STORE_KEY, `${storeId}.sqlite`);
 
 const workerdBin = () => {
   if (process.env.WANDESK_WORKERD) return process.env.WANDESK_WORKERD;
@@ -35,7 +52,7 @@ const pickPort = () => new Promise<number>((resolve, reject) => {
   });
 });
 
-const buildConfig = (kernelPort: number, runtimePort: number) => `# 由 Wandesk 启动时生成,勿手改(runtime/supervisor.ts)
+const buildConfig = (kernelPort: number, runtimePort: number, store: string, token: string) => `# 由 Wandesk 启动时生成,勿手改(runtime/supervisor.ts)
 using Workerd = import "/workerd/workerd.capnp";
 
 const config :Workerd.Config = (
@@ -44,13 +61,19 @@ const config :Workerd.Config = (
       worker = (
         modules = [ ( name = "overseer.js", esModule = embed "overseer.js" ) ],
         compatibilityDate = "2026-02-01",
+        # env.DB 的家:每个应用一个 AppStore 对象,SQLite 落在 store 这个目录服务里
+        durableObjectNamespaces = [ ( className = "AppStore", uniqueKey = "${STORE_KEY}", enableSql = true ) ],
+        durableObjectStorage = ( localDisk = "store" ),
         bindings = [
           ( name = "LOADER", workerLoader = ( id = "apps" ) ),
           ( name = "NODE", service = "node" ),
+          ( name = "STORE", durableObjectNamespace = "AppStore" ),
+          ( name = "WD_INTERNAL", text = "${token}" ),
         ],
       )
     ),
     ( name = "node", external = ( address = "127.0.0.1:${kernelPort}" ) ),
+    ( name = "store", disk = ( path = ${JSON.stringify(store)}, writable = true ) ),
   ],
   sockets = [ ( name = "http", address = "127.0.0.1:${runtimePort}", http = (), service = "overseer" ) ]
 );
@@ -83,8 +106,9 @@ export const startRuntime = async (kernelPort: number) => {
     fs.copyFileSync(bundle, path.join(dir, "overseer.js"));
 
     const appPort = await pickPort();
+    internalToken = randomBytes(24).toString("hex"); // 每次启动一个新令牌,只活在内存和这份配置里
     const configPath = path.join(dir, "workerd.capnp");
-    fs.writeFileSync(configPath, buildConfig(kernelPort, appPort));
+    fs.writeFileSync(configPath, buildConfig(kernelPort, appPort, storeDir(), internalToken), { mode: 0o600 });
 
     child = spawn(bin, ["serve", configPath, "--experimental"], { stdio: ["ignore", "pipe", "pipe"] });
     child.stdout?.setEncoding("utf8");
@@ -113,6 +137,8 @@ export const startRuntime = async (kernelPort: number) => {
 export const runtimeOrigin = () => origin;
 /** 应用的 origin 是 `<token>.localhost:<port>` —— 端口在这儿。 */
 export const runtimePort = () => port;
+/** 内核调 workerd 内部路由(/_wd/*)时带的令牌。 */
+export const runtimeToken = () => internalToken;
 
 export const stopRuntime = () => {
   origin = null; port = null;
