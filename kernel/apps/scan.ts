@@ -2,6 +2,7 @@
 //
 //   <workspace>/apps/<id>/
 //     app.json    manifest —— 四个字段:id / name / icon / mounts
+//     APP.md      给 AI 看的说明:第一段是一句话简介,内核把它注入每次 AI 调用的提示词
 //     server.js   Worker:export default { async fetch(req, env) {…} }
 //     public/     静态资源(env.ASSETS 读这里)
 //     data.db     数据 —— 指向 .wandesk/store/ 里真实库的链接(env.DB 在 workerd 的 AppStore 里执行)
@@ -23,6 +24,18 @@ export type AppInfo = {
   /** 挂载点 = 应用内的路由路径,不是文件名。window 开窗口,panel 钉侧栏。 */
   mounts: { window?: string; panel?: string };
   dir: string;
+  /** APP.md 全文(没有就是空串)。 */
+  doc: string;
+};
+
+/** APP.md 的第一段正文(跳过标题与空行)—— 用作一句话简介。 */
+const firstParagraph = (doc: string): string => {
+  const lines = doc.split(/\r?\n/);
+  let i = 0;
+  while (i < lines.length && (lines[i].trim() === "" || lines[i].startsWith("#"))) i++;
+  const out: string[] = [];
+  while (i < lines.length && lines[i].trim() !== "" && !lines[i].startsWith("#")) out.push(lines[i].trim()), i++;
+  return out.join("");
 };
 
 const readManifest = (dir: string): AppInfo | null => {
@@ -37,13 +50,16 @@ const readManifest = (dir: string): AppInfo | null => {
       if (typeof route === "string" && ROUTE.test(route) && !route.includes("..")) mounts[key] = route;
     }
     if (!mounts.window && !mounts.panel) mounts.window = "/"; // 没写就默认开窗口、走根路径
+    let doc = "";
+    try { doc = fs.readFileSync(path.join(dir, "APP.md"), "utf8"); } catch { /* 没写说明 */ }
     return {
       id,
       name: String(raw?.name || id).slice(0, 32),
       icon: String(raw?.icon || "📦").slice(0, 8),
-      description: String(raw?.description || "").slice(0, 200),
+      description: String(raw?.description || firstParagraph(doc)).slice(0, 200),
       mounts,
       dir,
+      doc,
     };
   } catch {
     return null;
@@ -60,6 +76,17 @@ export const listApps = (): AppInfo[] => {
     if (app) out.push(app);
   }
   return out.sort((a, b) => a.id.localeCompare(b.id));
+};
+
+/**
+ * 注入提示词的「已安装应用」清单 —— 像 SKILL.md 一样只给名字和一句话,
+ * 详情让模型自己 read apps/<id>/APP.md。内核不认识任何应用,它只是把目录念一遍。
+ */
+export const appsBlock = (): string => {
+  const apps = listApps();
+  if (!apps.length) return "";
+  const lines = apps.map((a) => `- ${a.icon} ${a.name}(${a.id})${a.description ? ":" + a.description : ""}`).join("\n");
+  return `\n\n# 桌面上已安装的应用(内核注入)\n工作区 apps/<id>/ 一个目录一个应用;每个目录里的 APP.md 是它的完整说明,需要细节时 read 它。\n${lines}`;
 };
 
 export const getApp = (appId: string): AppInfo | null =>

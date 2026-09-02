@@ -6,7 +6,7 @@
 
 一个开源的 AI 桌面。说一句话,内置 agent 把应用写进你的工作区,桌面当场长出图标。每个应用都是标准的 Cloudflare Worker 网站,有自己的 origin 和自己的 SQLite。自带模型,全部本地,无需注册。
 
-[官网](https://wandesk.cn) · [English](README.md) · [应用契约](APP.md) · [Discord](https://discord.gg/VUfTzCvz)
+[官网](https://wandesk.cn) · [English](README.md) · [应用契约](CONTRACT.md) · [Discord](https://discord.gg/VUfTzCvz)
 
 </div>
 
@@ -74,7 +74,7 @@ apps/notes/
 **「安装」= 目录存在,「移除」= 删目录。** AI 用 `write` 造应用,宿主零改动、不重启 ——
 新目录一落地,桌面立刻长出图标。
 
-完整契约见 **[APP.md](APP.md)**;仓库约定见 [AGENTS.md](AGENTS.md)。
+完整契约见 **[CONTRACT.md](CONTRACT.md)**;仓库约定见 [AGENTS.md](AGENTS.md)。
 
 ## 每个应用一个 origin
 
@@ -120,7 +120,7 @@ return env.AI.stream({ summary: "助理:回答用户", prompt: text });
 
 | | 位置 |
 |---|---|
-| 工作区 | `~/Documents/Wandesk`(`WANDESK_WORKSPACE` 可改) |
+| 工作区 | `~/wandesk`(`WANDESK_WORKSPACE` 可改) |
 | 内核库 | `<workspace>/.wandesk/kernel.db` |
 | 应用库 | `<workspace>/.wandesk/store/…/*.sqlite`(`apps/<id>/data.db` 是指向它的链接) |
 | 你的文件 | `<workspace>/` |

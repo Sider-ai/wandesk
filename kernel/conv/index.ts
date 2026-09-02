@@ -8,7 +8,7 @@
 //      用户在助理里改和在壳的设置里改是同一处;
 //   3. 暴露一个 handle(req, res),挂在内核的 /api/conv/* 下。
 //
-// 应用经 env.AI.fetch() 打到这里(见 APP.md)。所以「助理」只是一个普通应用,
+// 应用经 env.AI.fetch() 打到这里(见 CONTRACT.md)。所以「助理」只是一个普通应用,
 // 它没有任何特权 —— 换个 UI 照样能接同一套会话面。
 import type { IncomingMessage, ServerResponse } from "http";
 // server/ 与 shared/ 是纯 JS(与 AGENT 仓库双向同步),不给它们加类型
@@ -21,6 +21,8 @@ import { createFiles } from "./server/files.js";
 import { kernelDir, workspace } from "../paths.js";
 import { readSettings, writeSettings } from "../data/settings.js";
 import { AGENT_LIMITS } from "../config.js";
+import { appsBlock } from "../apps/scan.js";
+import { memoryBlock } from "../memory/index.js";
 
 const WINDOWS = process.platform === "win32";
 
@@ -91,9 +93,19 @@ export const convApi = () => {
     setSettings: (values: Record<string, string>) => maskKey(bridged.setSettings(values)),
   };
 
+  // 跑轮子时把「已安装应用」和长期记忆接在 instructions 后面 —— 助理和 env.AI 看到的是同一个世界。
+  // 设置页读到的仍是用户自己写的那段,注入的不回显。
+  const forRuns = {
+    ...bridged,
+    getSettings: () => {
+      const s = bridged.getSettings();
+      return { ...s, instructions: `${s.instructions || ""}${appsBlock()}${memoryBlock()}`.trim() };
+    },
+  };
+
   const channel = createChannel();
   const files = createFiles(config);
-  const runs = createRuns({ config, store: bridged, files, broadcast: channel.broadcast });
+  const runs = createRuns({ config, store: forRuns, files, broadcast: channel.broadcast });
   handler = createApi({ config, store: forApi, runs, files, channel, meta: { version: "2.0.0" } });
   return handler!;
 };

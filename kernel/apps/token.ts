@@ -1,4 +1,4 @@
-// token 是**路由键**,不是权限凭据(能力全开,见 APP.md「当前取舍」)。
+// token 是**路由键**,不是权限凭据(能力全开,见 CONTRACT.md「当前取舍」)。
 //
 // 应用挂在 `http://<token>.localhost:<port>/` —— 每个应用一个**真正的 origin 根**。
 // 这一点很关键:应用是完整网站,`/style.css`、`fetch("/api/…")` 这些绝对路径必须成立。

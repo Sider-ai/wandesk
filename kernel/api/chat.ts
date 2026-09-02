@@ -1,7 +1,7 @@
 // 会话:产品本体的数据,但**没有域 API 给应用**。
 //
 // 这些端点只给壳自己用(以及 chat 应用经 env.AI 间接产生的记录)。
-// 应用要用 AI 就调 env.AI,拿不到别人的会话原文 —— 见 APP.md「数据产权」。
+// 应用要用 AI 就调 env.AI,拿不到别人的会话原文 —— 见 CONTRACT.md「数据产权」。
 import type { IncomingMessage, ServerResponse } from "http";
 import { json, readJson } from "./http.js";
 import {

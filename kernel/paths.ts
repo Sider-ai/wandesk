@@ -1,6 +1,6 @@
 // 全局路径:一处定义,别处只引用。
 //
-//   <workspace>/                 用户的工作区(默认 ~/Documents/Wandesk)
+//   <workspace>/                 用户的工作区(默认 ~/wandesk)
 //     apps/<id>/                 应用的家 —— 一个目录就是一个应用
 //     .wandesk/kernel.db         内核自己的库(会话/消息/压缩/设置/记忆)
 //     .wandesk/store/            应用的库(workerd 的 AppStore 落盘处,一个应用一个 .sqlite)
@@ -19,7 +19,7 @@ export const HOME = process.env.WANDESK_HOME || path.join(__dirname, "..");
 
 /** 工作区根 —— 用户的地盘。应用、数据、文件都长在这里。 */
 export const workspace = () => {
-  const dir = process.env.WANDESK_WORKSPACE || path.join(os.homedir(), "Documents", "Wandesk");
+  const dir = process.env.WANDESK_WORKSPACE || path.join(os.homedir(), "wandesk");
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 };

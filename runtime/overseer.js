@@ -320,7 +320,7 @@ const loadApp = async (env, ctx, appId) => {
       "app-server.js": String(code),
     },
     env: { __WD_HOST: ctx.exports.HostGate({ props: { appId } }) },
-    // 能力全开:应用可以直接 fetch() 出网(见 APP.md「当前取舍」)
+    // 能力全开:应用可以直接 fetch() 出网(见 CONTRACT.md「当前取舍」)
   }));
 };
 

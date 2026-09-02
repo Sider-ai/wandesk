@@ -6,7 +6,7 @@
 
 An open-source AI desktop. Describe an app and the built-in agent writes it into your workspace; the desktop grows an icon on the spot. Every app is a standard Cloudflare Worker site with its own origin and its own SQLite. Bring your own model, all local, no signup.
 
-[Website](https://wandesk.ai) · [中文](README.zh-CN.md) · [App Contract](APP.md) · [Discord](https://discord.gg/VUfTzCvz)
+[Website](https://wandesk.ai) · [中文](README.zh-CN.md) · [App Contract](CONTRACT.md) · [Discord](https://discord.gg/VUfTzCvz)
 
 </div>
 
@@ -74,7 +74,7 @@ apps/notes/
 
 **Install = the directory exists. Remove = delete the directory.** The AI creates apps with `write`; the host changes nothing and never restarts. A new directory lands, the desktop grows an icon.
 
-The full contract is in **[APP.md](APP.md)**; repository conventions in [AGENTS.md](AGENTS.md).
+The full contract is in **[CONTRACT.md](CONTRACT.md)**; repository conventions in [AGENTS.md](AGENTS.md).
 
 ## One origin per app
 
@@ -115,7 +115,7 @@ They ship with the package, land in your workspace on first launch, and from the
 
 | | Location |
 |---|---|
-| Workspace | `~/Documents/Wandesk` (override with `WANDESK_WORKSPACE`) |
+| Workspace | `~/wandesk` (override with `WANDESK_WORKSPACE`) |
 | Kernel DB | `<workspace>/.wandesk/kernel.db` |
 | App DBs | `<workspace>/.wandesk/store/…/*.sqlite` (`apps/<id>/data.db` is a link to it) |
 | Your files | `<workspace>/` |

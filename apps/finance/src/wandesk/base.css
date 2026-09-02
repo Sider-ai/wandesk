@@ -1,0 +1,20 @@
+/* 设计 token —— 与 wandesk-skill 的 index.css 一致。应用的 CSS 依赖这些变量。
+   注意:v2 里每个应用是独立网页,所以这里还要负责让根元素占满 iframe。 */
+:root {
+  --bg: #f6f6f7; --panel: #fff; --ink: #1d1d20; --ink2: #55555c; --ink3: #8e8e96;
+  --line: #e8e8ea; --line2: #dededf; --blue: #62a5f4; --blue-deep: #3b82f6;
+  --focus: rgba(98,165,244,0.45);
+}
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, "PingFang SC", "Noto Sans SC", sans-serif;
+  color: var(--ink); background: var(--bg); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+/* 应用原本挂在壳的窗口里,靠父容器给高度;现在自己就是整页 */
+#root > * { height: 100%; }
+.shadow-card { box-shadow: 0 1px 2px rgba(20,20,25,0.04), 0 10px 30px rgba(20,20,25,0.05); }
+textarea { resize: none; }
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-thumb { background: #d9d9dc; border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }

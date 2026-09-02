@@ -6,6 +6,7 @@
 //   一致 = 用户没改过 → 随包版本变了就替换;
 //   不一致 = 用户(或 AI)改过 → 那是他的应用了,永不覆盖。
 // data.db(指向库的链接)不进指纹 —— 数据本来就一直在变,不能当作「被改过」。
+// public/(源码编出来的产物)与 node_modules/ 也不进 —— 用户装依赖、重编一次不算改了应用。
 import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
@@ -13,6 +14,7 @@ import { appsDir, kernelDir, presetAppsDir } from "../paths.js";
 
 const STAMP = () => path.join(kernelDir(), "preinstall.json");
 const SKIP = /^data\.db$/;
+const SKIP_DIR = /^(node_modules|public)$/;
 
 /** 目录内容指纹:相对路径 + 内容,排序后一起哈希。 */
 const fingerprint = (dir: string): string => {
@@ -21,6 +23,7 @@ const fingerprint = (dir: string): string => {
     const abs = path.join(dir, rel);
     for (const entry of fs.readdirSync(abs, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       if (SKIP.test(entry.name)) continue;
+      if (entry.isDirectory() && !rel && SKIP_DIR.test(entry.name)) continue; // 只跳应用根下的这两个
       const next = rel ? path.join(rel, entry.name) : entry.name;
       if (entry.isDirectory()) walk(next);
       else { hash.update(next); hash.update(fs.readFileSync(path.join(dir, next))); }
@@ -68,7 +71,7 @@ export const seedPresetApps = () => {
     try {
       // 只替换代码与资源,data.db 链接留在原地(用户的数据不能跟着版本走)
       for (const name of fs.readdirSync(to)) {
-        if (SKIP.test(name)) continue;
+        if (SKIP.test(name) || name === "node_modules") continue; // 用户装的依赖留着
         fs.rmSync(path.join(to, name), { recursive: true, force: true });
       }
       for (const name of fs.readdirSync(from)) {

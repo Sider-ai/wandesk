@@ -8,7 +8,9 @@ import { broadcast } from "../realtime.js";
 export const watchApps = () => {
   let timer: NodeJS.Timeout | null = null;
   try {
-    fs.watch(appsDir(), { recursive: true }, () => {
+    fs.watch(appsDir(), { recursive: true }, (_event, filename) => {
+      // 用户在应用目录里 npm install 会刷出成千上万个事件,那不是应用变了
+      if (String(filename || "").split(/[\\/]/).includes("node_modules")) return;
       // 应用的库在 workerd 手里(AppStore),内核这边没有句柄要作废
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => broadcast(EV.APPS_CHANGED, {}), 300); // 防抖:一次写入会触发多个事件
