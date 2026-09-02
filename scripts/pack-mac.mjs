@@ -48,6 +48,17 @@ if (release) {
   try { run(`spctl -a -vv "${app}"`); } catch { console.warn("spctl 未通过 —— 公证结果以 stapler validate 为准"); }
 }
 
+// dmg 自身也签名 + 公证 + 装订:用户下载后 Gatekeeper 先看 dmg,不装订会提示"无法验证"
+if (release) {
+  for (const f of fs.readdirSync("release").filter((n) => n.endsWith(".dmg"))) {
+    const dmg = `release/${f}`;
+    run(`codesign --sign "${process.env.APPLE_SIGN_IDENTITY}" --timestamp --force "${dmg}"`);
+    run(`xcrun notarytool submit "${dmg}" --keychain-profile "${process.env.APPLE_NOTARY_PROFILE}" --wait`);
+    run(`xcrun stapler staple "${dmg}"`);
+    run(`spctl -a -t open --context context:primary-signature -vv "${dmg}"`);
+  }
+}
+
 console.log(`\n✅ ${app}`);
 console.log(`   ${capture(`du -sh "${app}"`).trim()}`);
 for (const f of fs.readdirSync("release").filter((n) => n.endsWith(".dmg"))) console.log(`✅ release/${f}`);
