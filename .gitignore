@@ -6,3 +6,4 @@ runtime/bin/*
 !runtime/bin/README.md
 config.local.js
 release/
+.dev/
