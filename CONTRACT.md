@@ -173,9 +173,6 @@ touching **the shell itself**:
 window.wandesk.context()                     // { appId, mount }
 window.wandesk.ui.toast / confirm / title / openApp / openExternal / copyText / close
 window.wandesk.on(event, fn) / emit(event, payload)   // between instances of the same app (window ↔ panel)
-window.wandesk.active                                  // is this window focused? Background windows get no
-                                                       // requestAnimationFrame callbacks (the SDK parks them and
-                                                       // releases them on focus); wandesk.on("active", fn) to react
 ```
 
 ## 5. One origin per app

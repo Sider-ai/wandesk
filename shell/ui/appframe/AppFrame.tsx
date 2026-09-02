@@ -19,11 +19,9 @@ type Props = {
   onTitle?: (title: string) => void;
   onClose?: () => void;
   onToast?: (text: string, kind: string) => void;
-  /** Is this the focused, visible window? Background windows are told to pause animation (SDK gates requestAnimationFrame). */
-  active?: boolean;
 };
 
-export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose, onToast, active = true }: Props) {
+export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose, onToast }: Props) {
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const frame = useRef<HTMLIFrameElement>(null);
@@ -79,16 +77,6 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
     window.addEventListener("message", onMessage);
     return () => { window.removeEventListener("message", onMessage); unsubscribe(); };
   }, [appId, mount, onOpenApp, onTitle, onClose, onToast]);
-
-  // Push focus state into the iframe: on every change, and again once the page has loaded (the SDK may not
-  // have been listening when the first message went out).
-  useEffect(() => {
-    const post = () => frame.current?.contentWindow?.postMessage({ __wandesk: true, event: "__active", payload: { active } }, "*");
-    post();
-    const el = frame.current;
-    el?.addEventListener("load", post);
-    return () => el?.removeEventListener("load", post);
-  }, [active, url]);
 
   if (error) return <div className="appframe-msg">{error}<br /><span>{t("appframe.checkRuntime")}</span></div>;
   if (!url) return <div className="appframe-msg">{t("appframe.starting")}</div>;
