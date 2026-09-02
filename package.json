@@ -19,7 +19,8 @@
     "dist:mac": "node scripts/pack-mac.mjs",
     "build:apps": "node appsrc/build.mjs && node appsrc/build-chat.mjs",
     "dist:mac:release": "node scripts/pack-mac.mjs --release",
-    "dist:win": "node scripts/pack-win.mjs"
+    "dist:win": "node scripts/pack-win.mjs",
+    "publish:oss": "git push oss main"
   },
   "dependencies": {
     "marked": "^16.4.2",

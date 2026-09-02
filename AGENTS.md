@@ -53,3 +53,8 @@ apps/      应用  —— 不属于框架,是内容
 - 行为冻结的重构与功能开发分开提交,不混。
 - 注释中文,命名向周围代码看齐,一次改动小而聚焦。
 - 改了 `runtime/overseer.js` 要重跑 `npm run build:overseer`,否则跑的还是旧产物。
+
+## 开源仓
+
+`Sider-ai/wandesk` 是本仓 `main` 的**镜像**,不是另一个开发仓:一律在这里改,`npm run publish:oss`
+推过去(remote `oss`),那边永远不手改。上一代代码在那边的 `v1` 分支 / tag。
