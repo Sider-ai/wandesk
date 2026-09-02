@@ -2,6 +2,7 @@
   "name": "wandesk",
   "version": "2.0.0",
   "description": "Wandesk —— 壳 + AI 内核 + workerd,应用一律是 worker 网站。",
+  "author": "Wandesk",
   "type": "module",
   "engines": {
     "node": ">=22.5.0"
@@ -16,7 +17,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.kernel.json",
     "app": "npm run build && electron .",
     "dist:mac": "node scripts/pack-mac.mjs",
-    "build:apps": "node appsrc/build.mjs && node appsrc/build-chat.mjs"
+    "build:apps": "node appsrc/build.mjs && node appsrc/build-chat.mjs",
+    "dist:mac:release": "node scripts/pack-mac.mjs --release"
   },
   "dependencies": {
     "marked": "^16.4.2",
@@ -57,6 +59,12 @@
       "package.json"
     ],
     "mac": {
+      "icon": "build/icon.icns",
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "target": [
         {
           "target": "dir",
@@ -64,9 +72,12 @@
             "arm64"
           ]
         }
-      ],
-      "category": "public.app-category.productivity"
+      ]
     },
-    "npmRebuild": false
+    "npmRebuild": false,
+    "dmg": {
+      "sign": false,
+      "artifactName": "${productName}_${version}_${arch}.${ext}"
+    }
   }
 }
