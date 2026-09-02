@@ -1,21 +1,22 @@
 import './ContextMenu.css';
+import { t } from '../lib/i18n';
 // 桌面右键菜单 —— Aero 玻璃菜单,分组 + 图标,像 Vista 的桌面菜单。
 export function ContextMenu({ x, y, onSelect }: { x: number; y: number; onSelect: (key: string) => void }) {
-  const item = (key: string, ico: string, label: string) => (
+  const item = (key: string, ico: string, labelKey: string) => (
     <button onClick={() => onSelect(key)}>
       <span className="ctx-ico" aria-hidden="true">{ico}</span>
-      <span>{label}</span>
+      <span>{t(labelKey)}</span>
     </button>
   );
   return (
     <div className="ctx-menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()}>
-      {item('assistant', '✧', '打开助理')}
-      {item('create', '✦', '新建应用…')}
+      {item('assistant', '✧', 'ctx.assistant')}
+      {item('create', '✦', 'ctx.create')}
       <div className="ctx-line" />
-      {item('refresh', '↻', '刷新桌面')}
+      {item('refresh', '↻', 'ctx.refresh')}
       <div className="ctx-line" />
-      {item('wallpaper', '▧', '个性化…')}
-      {item('about', 'ⓘ', '关于')}
+      {item('wallpaper', '▧', 'ctx.wallpaper')}
+      {item('about', 'ⓘ', 'ctx.about')}
     </div>
   );
 }

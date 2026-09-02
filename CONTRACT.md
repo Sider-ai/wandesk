@@ -175,3 +175,49 @@ window.wandesk.on(event, fn) / emit(event, payload)   // 同应用实例间(窗�
   要旁路推送与定时唤醒(alarms),需把会话搬进 Durable Object —— `env.DB` 已经站在 DO 上了,这一步不远。
 - 应用后端**按需装载**(首个请求才起),按 `server.js` 内容哈希做版本键 —— 改完下次请求即新版。
 - workerd 单平台约 150MB,Windows / Linux 需各带一份二进制。
+
+## 九、语言
+
+界面语言只有中 / 英两种,`"zh" | "en"`。内核的 `data/settings.ts` 是唯一真相:
+
+- **设置键 `language`**:存在设置表里,和模型连接一样一条 KV。`currentLanguage()` 优先读它,
+  没设置时看进程环境(`LANG` / `LC_ALL` 以 `en` 开头 → `en`,否则 `zh`)。壳的设置面板改它,
+  走的还是现有的 `POST /api/settings`,没有专门的语言接口。
+- **切换语言即广播**:`POST /api/settings` 写入的 `language` 只要变了,内核就广播
+  `EV.LANGUAGE_CHANGED`(`"language.changed"`,带 `{ language }`)。壳订阅它:自己重渲染,
+  并且**重新加载所有打开的应用窗口的 iframe**——应用只在页面加载那一刻读一次
+  `window.wandesk.lang`,不重新加载就拿不到新语言。
+
+- **应用怎么拿语言**:`<script src="/_wd/sdk.js">` 引入后,`window.wandesk.lang` 就是当前语言
+  字符串(`"zh"` 或 `"en"`);同时内核已经把 `document.documentElement.lang` 设成了
+  `zh-CN` / `en`。这个 SDK 是内核**按请求现拼**的,响应带 `cache-control: no-store`——
+  别指望浏览器或任何一层缓存住旧语言。
+
+- **应用内的文案约定**:有 `src/wandesk/` 目录的应用,里面有一份 `src/wandesk/i18n.ts`:
+
+  ```ts
+  export const lang: "zh" | "en";
+  export const t: (key: string, vars?: Record<string, string | number>) => string;
+  ```
+
+  文案本体放 `src/locales/zh.json` 和 `src/locales/en.json`(纯 key → 文案的对象),
+  组件里只写 `t("key")`,插值用 `{name}` 占位符,`t("greet", { name })` 替换。缺 key 回落中文,
+  中文也没有就回显 key 本身——界面永远不会因为漏翻译而崩掉,只会露出没翻译的 key。
+  `zh.json` / `en.json` 用 esbuild 原生的 JSON 导入,不需要额外配置。
+
+- **app.json 的双语字段**:`name` 和 `description` 允许是字符串(默认中文),也允许写成
+
+  ```json
+  { "name": { "zh": "笔记本", "en": "Notes" }, "description": { "zh": "…", "en": "…" } }
+  ```
+
+  内核按 `currentLanguage()` 取,缺当前语言就回落 `zh`,连 `zh` 都没有就取任意一个写了的语言。
+  对外(`/api/apps`、注入提示词的 `appsBlock()`)只暴露取好的那个字符串,壳与 AI 都看不到原始的双语对象。
+
+- **`APP.md` 的英文版**:语言是 `en` 且应用目录里有 `APP.en.md` 时读它,否则回落 `APP.md`。
+  没有 `APP.en.md` 不是错——大多数应用可以只维护一份中文说明。
+
+- **内核给 AI 的语言说明**:`kernel/apps/scan.ts` 的 `languageBlock()` 生成一段
+  「用户界面语言」提示词,接在 `appsBlock()` 之后、`memoryBlock()` 之前,注入
+  `kernel/syscall/ai.ts`(`env.AI.ask/run/stream`)与 `kernel/conv/index.ts`(助理应用)的
+  每一次 instructions——所有 agent 因此都知道该用中文还是英文回复,不需要应用自己去问。

@@ -3,7 +3,18 @@
 // 只有要碰**壳本身**时才需要它 —— 应用与自己的后端同源,`fetch("/api/…")` 直接就通,
 // 不需要任何 SDK。这里提供的是应用够不到的东西:弹提示、开另一个应用、拿实例信息。
 // 走 postMessage 到父窗口(iframe 是不透明源,拿不到父窗口的对象)。
-export const SDK_SOURCE = `(() => {
+//
+// 每次请求现拼:把当前界面语言(见 data/settings.ts 的 currentLanguage())塞进
+// window.wandesk.lang,同时把 document.documentElement.lang 设成 zh-CN / en。
+// 调用方(kernel/api/apps.ts、runtime/overseer.js)必须带 cache-control: no-store,
+// 否则语言切换后应用页面还会拿到缓存住的旧 SDK。
+import { currentLanguage } from "../data/settings.js";
+
+export const sdkSource = (): string => {
+  const lang = currentLanguage();
+  const htmlLang = lang === "en" ? "en" : "zh-CN";
+  return `(() => {
+  try { document.documentElement.lang = ${JSON.stringify(htmlLang)}; } catch {}
   const pending = new Map();
   let seq = 0;
 
@@ -31,6 +42,8 @@ export const SDK_SOURCE = `(() => {
   const listeners = new Map();
 
   window.wandesk = {
+    /** 当前界面语言("zh" | "en") —— 内核每次请求现拼,不会缓存出旧值。 */
+    lang: ${JSON.stringify(lang)},
     /** 本实例的上下文:appId、挂载点、当前路由。 */
     context: () => call("context", {}),
     ui: {
@@ -52,3 +65,4 @@ export const SDK_SOURCE = `(() => {
   };
 })();
 `;
+};

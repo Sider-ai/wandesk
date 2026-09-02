@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { appUrl } from "../lib/http";
+import { t } from "../lib/i18n";
 import { publish, subscribe } from "./bus";
 
 // 应用的宿主。壳对应用的全部认识就到这里为止:
@@ -36,7 +37,7 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
         if (href) { setUrl(href); return; }
         await new Promise((r) => setTimeout(r, 400));
       }
-      if (!cancelled) setError("应用运行时未就绪");
+      if (!cancelled) setError(t("appframe.notReady"));
     })();
     return () => { cancelled = true; };
   }, [appId, mount]);
@@ -67,7 +68,7 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
           case "copyText": void navigator.clipboard?.writeText(String(p.text || "")); reply({ ok: true }); break;
           case "close": onClose?.(); reply({ ok: true }); break;
           case "emit": publish(appId, String(p.event || ""), p.payload, listener); reply({ ok: true }); break;
-          default: reply(null, `未知方法:${msg.method}`);
+          default: reply(null, `未知方法:${msg.method}`); // 协议内部错误,不是用户可见文案
         }
       } catch (err: any) {
         reply(null, String(err?.message || err));
@@ -77,8 +78,8 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
     return () => { window.removeEventListener("message", onMessage); unsubscribe(); };
   }, [appId, mount, onOpenApp, onTitle, onClose, onToast]);
 
-  if (error) return <div className="appframe-msg">{error}<br /><span>先确认 workerd 已就绪(内核日志里的 [runtime])</span></div>;
-  if (!url) return <div className="appframe-msg">正在启动…</div>;
+  if (error) return <div className="appframe-msg">{error}<br /><span>{t("appframe.checkRuntime")}</span></div>;
+  if (!url) return <div className="appframe-msg">{t("appframe.starting")}</div>;
 
   return (
     <iframe

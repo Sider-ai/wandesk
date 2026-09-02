@@ -392,9 +392,10 @@ export default {
 
     // 壳的 SDK:应用 <script src="/_wd/sdk.js"> 引入
     if (url.pathname === "/_wd/sdk.js") {
+      // 内核那边按当前语言现拼;这里也不能缓存,否则切换语言后应用还拿旧的 SDK。
       const sdk = await env.NODE.fetch("http://node/api/apps/sdk.js");
       return new Response(await sdk.text(), {
-        headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-cache" },
+        headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" },
       });
     }
 

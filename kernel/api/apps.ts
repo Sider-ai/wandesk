@@ -1,9 +1,9 @@
 // 应用注册表的对外接口:壳靠它画桌面图标,overseer 靠它把 token 换成 appId。
 import type { IncomingMessage, ServerResponse } from "http";
-import { json, text, readJson } from "./http.js";
+import { json, readJson } from "./http.js";
 import { listApps, getApp } from "../apps/scan.js";
 import { appToken, appIdForToken } from "../apps/token.js";
-import { SDK_SOURCE } from "../apps/sdk.js";
+import { sdkSource } from "../apps/sdk.js";
 import { execAppSql, batchAppSql, appStoreFile } from "../syscall/db.js";
 import { runtimeOrigin, runtimePort } from "../../runtime/supervisor.js";
 
@@ -41,8 +41,12 @@ export const handleAppsApi = async (req: IncomingMessage, res: ServerResponse, r
     return appId ? json(res, 200, { appId }) : json(res, 404, { error: "未知 token" });
   }
 
-  // 应用前端的 SDK
-  if (rest === "/sdk.js") return text(res, 200, SDK_SOURCE, "text/javascript; charset=utf-8");
+  // 应用前端的 SDK —— 带当前语言,现拼现发,不能被缓存成旧语言
+  if (rest === "/sdk.js") {
+    res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" });
+    res.end(sdkSource());
+    return true;
+  }
 
   // 内核 / AI 动应用的数据走这里 —— 与应用自己的 env.DB 是同一个执行端(workerd 里的 AppStore)。
   // 直接 sqlite3 撬 apps/<id>/data.db 也行(那是个链接),但写入请走这条,别和运行中的库抢锁。

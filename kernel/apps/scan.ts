@@ -12,6 +12,7 @@ import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
 import { appsDir } from "../paths.js";
+import { currentLanguage } from "../data/settings.js";
 
 const APP_ID = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const ROUTE = /^\/[\w./-]*$/;
@@ -26,6 +27,19 @@ export type AppInfo = {
   dir: string;
   /** APP.md 全文(没有就是空串)。 */
   doc: string;
+};
+
+/** app.json 的 name / description 允许是字符串,也允许 { zh, en } 双语对象。
+ *  按当前界面语言取,缺就回落 zh,再缺取任意一个写了的语言。 */
+const localize = (raw: unknown): string => {
+  if (typeof raw === "string") return raw;
+  if (raw && typeof raw === "object") {
+    const o = raw as Record<string, unknown>;
+    const lang = currentLanguage();
+    const picked = o[lang] ?? o.zh ?? Object.values(o)[0];
+    if (typeof picked === "string") return picked;
+  }
+  return "";
 };
 
 /** APP.md 的第一段正文(跳过标题与空行)—— 用作一句话简介。 */
@@ -50,13 +64,20 @@ const readManifest = (dir: string): AppInfo | null => {
       if (typeof route === "string" && ROUTE.test(route) && !route.includes("..")) mounts[key] = route;
     }
     if (!mounts.window && !mounts.panel) mounts.window = "/"; // 没写就默认开窗口、走根路径
+    // 语言是 en 且目录里有 APP.en.md 时读它,否则读 APP.md
     let doc = "";
-    try { doc = fs.readFileSync(path.join(dir, "APP.md"), "utf8"); } catch { /* 没写说明 */ }
+    const lang = currentLanguage();
+    if (lang === "en") {
+      try { doc = fs.readFileSync(path.join(dir, "APP.en.md"), "utf8"); } catch { /* 没有英文版 */ }
+    }
+    if (!doc) {
+      try { doc = fs.readFileSync(path.join(dir, "APP.md"), "utf8"); } catch { /* 没写说明 */ }
+    }
     return {
       id,
-      name: String(raw?.name || id).slice(0, 32),
+      name: (localize(raw?.name) || id).slice(0, 32),
       icon: String(raw?.icon || "📦").slice(0, 8),
-      description: String(raw?.description || firstParagraph(doc)).slice(0, 200),
+      description: (localize(raw?.description) || firstParagraph(doc)).slice(0, 200),
       mounts,
       dir,
       doc,
@@ -85,9 +106,19 @@ export const listApps = (): AppInfo[] => {
 export const appsBlock = (): string => {
   const apps = listApps();
   if (!apps.length) return "";
+  if (currentLanguage() === "en") {
+    const lines = apps.map((a) => `- ${a.icon} ${a.name} (${a.id})${a.description ? ": " + a.description : ""}`).join("\n");
+    return `\n\n# Installed apps on the desktop (injected by the kernel)\nEach directory under apps/<id>/ in the workspace is one app; APP.md in each directory is its full description — read it when you need detail.\n${lines}`;
+  }
   const lines = apps.map((a) => `- ${a.icon} ${a.name}(${a.id})${a.description ? ":" + a.description : ""}`).join("\n");
   return `\n\n# 桌面上已安装的应用(内核注入)\n工作区 apps/<id>/ 一个目录一个应用;每个目录里的 APP.md 是它的完整说明,需要细节时 read 它。\n${lines}`;
 };
+
+/** 注入提示词的语言说明 —— 让模型知道该用哪种语言回复。 */
+export const languageBlock = (): string =>
+  currentLanguage() === "en"
+    ? "\n\n# 用户界面语言\nThe user's interface language is English. Reply in English unless the user writes in another language."
+    : "\n\n# 用户界面语言\n用户的界面语言是中文,除非用户用别的语言书写,否则请用中文回复。";
 
 export const getApp = (appId: string): AppInfo | null =>
   APP_ID.test(String(appId || "")) ? listApps().find((a) => a.id === appId) ?? null : null;

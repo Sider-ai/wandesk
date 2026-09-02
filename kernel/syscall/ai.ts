@@ -14,7 +14,7 @@ import { EVENTS } from "../ai/events.js";
 import { AGENT_LIMITS } from "../config.js";
 import { modelConfig } from "../data/settings.js";
 import { memoryBlock } from "../memory/index.js";
-import { appsBlock } from "../apps/scan.js";
+import { appsBlock, languageBlock } from "../apps/scan.js";
 import { startActivity, finishActivity } from "../data/activity.js";
 import { workspace } from "../paths.js";
 import { broadcast } from "../realtime.js";
@@ -36,7 +36,7 @@ const textItem = (text: string) => ({
 /** instructions = 应用的人格 + 内核注入的应用清单与记忆。应用拿不到这些原文,只有模型看得见。 */
 export const buildInstructions = (system?: string) => {
   const base = String(system || modelConfig().system || "").trim();
-  return `${base}${appsBlock()}${memoryBlock()}`.trim();
+  return `${base}${appsBlock()}${languageBlock()}${memoryBlock()}`.trim();
 };
 
 const buildPrompt = (req: AiRequest) => {

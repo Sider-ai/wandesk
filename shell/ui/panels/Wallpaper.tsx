@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { allWallpapers, loadCustomWallpapers, saveCustomWallpapers, cssToStyle, type Wallpaper } from '../lib/wallpapers';
+import { allWallpapers, loadCustomWallpapers, saveCustomWallpapers, cssToStyle, wallpaperName, type Wallpaper } from '../lib/wallpapers';
+import { t } from '../lib/i18n';
 import './Wallpaper.css';
 
 // The "壁纸生成器" device: a graphite panel of recessed wallpaper wells + a bottom bay
 // that describes a wallpaper and generates it (one AI turn), with a looping rainbow scan.
-const SCAN_WORDS = ["正在生成…", "正在绘制…", "马上就好…"];
+const SCAN_WORD_KEYS = ["wallpaper.scan.gen", "wallpaper.scan.draw", "wallpaper.scan.soon"];
 
 export function Wallpaper({
   current,
@@ -17,15 +18,15 @@ export function Wallpaper({
   const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [word, setWord] = useState(SCAN_WORDS[0]);
+  const [word, setWord] = useState(t(SCAN_WORD_KEYS[0]));
 
   // cycle the scan status word while the (variable-length) generation is in flight
   useEffect(() => {
     if (!busy) return;
     let i = 0;
-    setWord(SCAN_WORDS[0]);
-    const t = setInterval(() => { i = (i + 1) % SCAN_WORDS.length; setWord(SCAN_WORDS[i]); }, 900);
-    return () => clearInterval(t);
+    setWord(t(SCAN_WORD_KEYS[0]));
+    const timer = setInterval(() => { i = (i + 1) % SCAN_WORD_KEYS.length; setWord(t(SCAN_WORD_KEYS[i])); }, 900);
+    return () => clearInterval(timer);
   }, [busy]);
 
   async function create() {
@@ -39,13 +40,13 @@ export function Wallpaper({
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ prompt: desc }),
       }).then((x) => x.json());
-      if (!r?.ok || !r.id || !r.css) throw new Error(r?.error || "生成失败");
+      if (!r?.ok || !r.id || !r.css) throw new Error(r?.error || t("wallpaper.fail"));
       const wp: Wallpaper = { id: r.id, name: desc.slice(0, 8), css: r.css };
       saveCustomWallpapers([...loadCustomWallpapers(), wp]);
       setList((l) => [...l, wp]);
       onPick(wp.id); // apply + close
     } catch (e) {
-      setError((e as Error)?.message || "生成失败");
+      setError((e as Error)?.message || t("wallpaper.fail"));
       setBusy(false);
     }
   }
@@ -59,11 +60,11 @@ export function Wallpaper({
                 key={wp.id}
                 className={`wpk-cell${current === wp.id ? ' sel' : ''}`}
                 onClick={() => onPick(wp.id)}
-                title={wp.name}
+                title={wallpaperName(wp)}
               >
                 <div className="wpk-tile">
                   <div className="wpk-scene" style={cssToStyle(wp.css)} />
-                  <div className="wpk-cap">{wp.name}</div>
+                  <div className="wpk-cap">{wallpaperName(wp)}</div>
                 </div>
                 <span className="wpk-chk">✓</span>
               </button>
@@ -83,12 +84,12 @@ export function Wallpaper({
             <div className="wpk-form">
               <input
                 value={prompt}
-                placeholder={"描述你想要的壁纸,点生成…(例如:星空 / 沙丘 / 竹林)"}
+                placeholder={t("wallpaper.placeholder")}
                 maxLength={40}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) create(); }}
               />
-              <button className="wpk-genbtn" onClick={create} disabled={!prompt.trim()}>{"生成"}</button>
+              <button className="wpk-genbtn" onClick={create} disabled={!prompt.trim()}>{t("wallpaper.generate")}</button>
             </div>
           )}
         </div>

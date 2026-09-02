@@ -4,6 +4,7 @@ import {
 } from "react";
 import { fetchApps, post, type AppMeta } from "../lib/http";
 import { startRealtime, on, EV } from "../lib/realtime";
+import { initI18n, useLang, t } from "../lib/i18n";
 import {
   DEFAULT_WALLPAPER_ID, normalizeWallpaperId, wallpaperCss, cssToStyle,
 } from "../lib/wallpapers";
@@ -30,9 +31,9 @@ type Win = WinMeta & { z: number; init: Geo; min: boolean; kind: "app" | "shell"
 
 /** 壳自己的面板 —— 它们配置的是框架本身(壁纸、模型连接),不是应用。
  *  这条线不含糊:凡是「配置框架」的界面属于壳,凡是「做事」的一律是应用。 */
-const SHELL_PANELS: Record<string, { name: string; icon: string }> = {
-  "__wallpaper": { name: "个性化", icon: "🎨" },
-  "__settings": { name: "设置", icon: "⚙️" },
+const SHELL_PANELS: Record<string, { nameKey: string; icon: string }> = {
+  "__wallpaper": { nameKey: "panel.wallpaper", icon: "🎨" },
+  "__settings": { nameKey: "panel.settings", icon: "⚙️" },
 };
 
 export function Desktop() {
@@ -47,6 +48,8 @@ export function Desktop() {
   const [startOpen, setStartOpen] = useState(false);
   const [busy, setBusy] = useState(0); // 有几个应用正在调 AI
   const [toast, setToast] = useState<{ icon: string; text: string } | null>(null);
+  const [langTick, setLangTick] = useState(0); // 语言切换一次 +1,逼所有 AppFrame 重新挂载(重新加载 iframe)
+  useLang(); // 订阅语言变化 —— 变了就带着这整棵树一起重渲染,壳自己的文案立刻换语言
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
 
   const zTop = useRef(10);
@@ -151,6 +154,7 @@ export function Desktop() {
   // ── 内核事件 ──
   useEffect(() => {
     startRealtime();
+    void initI18n(); // 拉一次当前语言;之后靠下面的 LANGUAGE_CHANGED 更新
     const offs = [
       // 「安装 = 目录存在」:AI 造完应用,桌面立刻长出图标,不用刷新
       on(EV.APPS_CHANGED, () => { void reload(); }),
@@ -159,6 +163,8 @@ export function Desktop() {
       on(EV.UI_TOAST, (p) => showToast("✦", String(p?.text || ""))),
       on(EV.UI_OPEN_APP, (p) => openById(String(p?.appId || ""), String(p?.route || "/"))),
       on(EV.UI_OPEN_EXTERNAL, (p) => window.open(String(p?.url || ""), "_blank", "noopener")),
+      // 语言切换:壳自己经 useLang() 重渲染;所有应用窗口的 iframe 得重新加载才能重读 wandesk.lang
+      on(EV.LANGUAGE_CHANGED, () => setLangTick((n) => n + 1)),
     ];
     return () => { for (const off of offs) off(); };
   }, [reload, apps]);
@@ -217,7 +223,7 @@ export function Desktop() {
   const openApp = (a: AppMeta) => openWindow(a.id, a.name, a.icon || "📦", "app");
   const openById = (id: string, route = "/") => {
     const panel = SHELL_PANELS[id];
-    if (panel) return openWindow(id, panel.name, panel.icon, "shell");
+    if (panel) return openWindow(id, t(panel.nameKey), panel.icon, "shell");
     const a = apps.find((x) => x.id === id);
     if (a) openWindow(a.id, a.name, a.icon || "📦", "app", route);
   };
@@ -339,10 +345,11 @@ export function Desktop() {
                 : <Settings />)
             : (
               <AppFrame
+                key={langTick}
                 appId={w.appId}
                 mount="window"
                 onOpenApp={(id, route) => openById(id, route)}
-                onTitle={(t) => setTitle(w.id, t || w.name)}
+                onTitle={(title) => setTitle(w.id, title || w.name)}
                 onClose={() => close(w.id)}
                 onToast={(text) => showToast("✦", text)}
               />
@@ -352,7 +359,7 @@ export function Desktop() {
 
       {/* ── 任务栏:开始 + 打开的窗口 + 忙碌指示 + 助理 ── */}
       <div className="taskbar" onClick={(e) => { e.stopPropagation(); setCtx({ open: false, x: 0, y: 0 }); }}>
-        <button className={`tb-start${startOpen ? " on" : ""}`} onClick={() => setStartOpen((v) => !v)} title="应用">
+        <button className={`tb-start${startOpen ? " on" : ""}`} onClick={() => setStartOpen((v) => !v)} title={t("taskbar.apps")}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6" />
             <rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6" />
@@ -374,8 +381,8 @@ export function Desktop() {
           ))}
         </div>
         {/* 谁在调 AI —— 壳的状态指示,不是应用。应用调 env.AI 必须带 summary,就是为了这里看得见 */}
-        {busy > 0 && <span className="tb-busy" title={`${busy} 个应用正在调用 AI`}>✦ {busy}</span>}
-        <button className="tb-assistant" onClick={() => openById("chat")} title="助理">✦</button>
+        {busy > 0 && <span className="tb-busy" title={t("taskbar.busy", { n: busy })}>✦ {busy}</span>}
+        <button className="tb-assistant" onClick={() => openById("chat")} title={t("taskbar.assistant")}>✦</button>
       </div>
 
       {startOpen && (
@@ -391,7 +398,7 @@ export function Desktop() {
               {Object.entries(SHELL_PANELS).map(([id, p]) => (
                 <button key={id} className="sm-app" onClick={() => { openById(id); setStartOpen(false); }}>
                   <span className="sm-icon">{p.icon}</span>
-                  <span className="sm-name">{p.name}</span>
+                  <span className="sm-name">{t(p.nameKey)}</span>
                 </button>
               ))}
             </div>

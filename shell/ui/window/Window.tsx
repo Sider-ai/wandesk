@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
+import { t } from '../lib/i18n';
 import './Window.css';
 
 // Window frame ported from the web client: title bar (emoji + name, minimize + fullscreen +
@@ -106,17 +107,17 @@ export function Window({
           {win.name}
         </span>
         <div className="wbtns">
-          <button className="wbtn" title={"最小化"} onClick={(e) => { e.stopPropagation(); onMin(); }}>
+          <button className="wbtn" title={t("win.minimize")} onClick={(e) => { e.stopPropagation(); onMin(); }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
               <path d="M5 12h14" />
             </svg>
           </button>
-          <button className="wbtn" title={"全屏"} onClick={() => setMax((m) => !m)}>
+          <button className="wbtn" title={t("win.maximize")} onClick={() => setMax((m) => !m)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" />
             </svg>
           </button>
-          <button className="wbtn close" title={"关闭"} onClick={(e) => { e.stopPropagation(); onClose(); }}>
+          <button className="wbtn close" title={t("win.close")} onClick={(e) => { e.stopPropagation(); onClose(); }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
               <path d="M5 5l14 14M19 5L5 19" />
             </svg>

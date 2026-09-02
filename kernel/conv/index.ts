@@ -21,7 +21,7 @@ import { createFiles } from "./server/files.js";
 import { kernelDir, workspace } from "../paths.js";
 import { readSettings, writeSettings } from "../data/settings.js";
 import { AGENT_LIMITS } from "../config.js";
-import { appsBlock } from "../apps/scan.js";
+import { appsBlock, languageBlock } from "../apps/scan.js";
 import { memoryBlock } from "../memory/index.js";
 
 const WINDOWS = process.platform === "win32";
@@ -99,7 +99,7 @@ export const convApi = () => {
     ...bridged,
     getSettings: () => {
       const s = bridged.getSettings();
-      return { ...s, instructions: `${s.instructions || ""}${appsBlock()}${memoryBlock()}`.trim() };
+      return { ...s, instructions: `${s.instructions || ""}${appsBlock()}${languageBlock()}${memoryBlock()}`.trim() };
     },
   };
 

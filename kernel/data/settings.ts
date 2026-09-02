@@ -34,3 +34,13 @@ export const modelConfig = (): ModelConfig => {
     system: s.system || "",
   };
 };
+
+/** 界面语言:优先读设置表(键 language);没设置时看进程环境(LANG / LC_ALL)。 */
+export type Language = "zh" | "en";
+
+export const currentLanguage = (): Language => {
+  const saved = readSettings().language;
+  if (saved === "zh" || saved === "en") return saved;
+  const env = process.env.LANG || process.env.LC_ALL || "";
+  return env.toLowerCase().startsWith("en") ? "en" : "zh";
+};

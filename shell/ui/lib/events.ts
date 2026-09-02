@@ -8,4 +8,5 @@ export const EV = Object.freeze({
   UI_TOAST: "ui.toast",
   UI_OPEN_APP: "ui.openApp",
   UI_OPEN_EXTERNAL: "ui.openExternal",
+  LANGUAGE_CHANGED: "language.changed",
 });

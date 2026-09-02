@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { t } from './i18n';
 
 // Wallpaper list (single source of truth), inherited from the Wandesk web client.
 // css is a full background declaration, inlined by the desktop and the picker.
@@ -21,6 +22,13 @@ export const WALLPAPERS: Wallpaper[] = [
 ];
 
 export const DEFAULT_WALLPAPER_ID = WALLPAPERS[0].id;
+
+// 内置壁纸名走 t(),AI 生成的自定义壁纸没有词条,回落它自己起的名字(用户的描述截取)。
+export const wallpaperName = (w: Wallpaper): string => {
+  const key = `wallpaper.name.${w.id}`;
+  const s = t(key);
+  return s === key ? w.name : s;
+};
 
 // User-created wallpapers (via the picker's "+" — AI-generated SVGs). Source of truth is the
 // settings table (key `custom_wallpapers`, seeded by the desktop at boot); localStorage is only

@@ -8,6 +8,7 @@ export const EV = Object.freeze({
   UI_TOAST: "ui.toast",               // 应用请壳弹一条提示
   UI_OPEN_APP: "ui.openApp",          // 应用请壳打开另一个应用
   UI_OPEN_EXTERNAL: "ui.openExternal",
+  LANGUAGE_CHANGED: "language.changed", // 界面语言变了(设置里切换) —— 带 { language }
 });
 
 export type EventName = (typeof EV)[keyof typeof EV];
