@@ -187,6 +187,9 @@ export function Desktop() {
 
   // ── window management ──
   const focus = (id: number) => setWins((p) => p.map((w) => (w.id === id ? { ...w, z: ++zTop.current } : w)));
+  // The one window that is on top and not minimized. Only it gets animation frames; the rest are told to
+  // pause (see AppFrame `active` → SDK requestAnimationFrame gate). Five open games otherwise cost five GPUs' worth.
+  const activeWinId = wins.reduce<number | null>((top, w) => (!w.min && (top === null || w.z > wins.find((x) => x.id === top)!.z) ? w.id : top), null);
   const close = (id: number) => setWins((p) => p.filter((w) => w.id !== id));
   const minimize = (id: number) => setWins((p) => p.map((w) => (w.id === id ? { ...w, min: true } : w)));
   const setTitle = (id: number, name: string) => setWins((p) => p.map((w) => (w.id === id ? { ...w, name } : w)));
@@ -350,6 +353,7 @@ export function Desktop() {
                 key={langTick}
                 appId={w.appId}
                 mount="window"
+                active={w.id === activeWinId}
                 onOpenApp={(id, route) => openById(id, route)}
                 onTitle={(title) => setTitle(w.id, title || w.name)}
                 onClose={() => close(w.id)}

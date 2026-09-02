@@ -37,16 +37,47 @@ export const sdkSource = (): string => {
       msg.error ? reject(new Error(msg.error)) : resolve(msg.result);
       return;
     }
+    if (msg.event === "__active") { setActive(Boolean(msg.payload && msg.payload.active)); return; }
     if (msg.event) for (const fn of (listeners.get(msg.event) || [])) { try { fn(msg.payload); } catch {} }
   });
 
   const listeners = new Map();
+
+  // ── Animation gate ──────────────────────────────────────────────────────
+  // The shell tells us whether this window is the focused one. While it is not, requestAnimationFrame
+  // callbacks are parked instead of scheduled, so a game or a weather scene in a background window
+  // costs nothing; on focus they are released in order. Apps need no code for this. (setInterval is
+  // not touched — use requestAnimationFrame for anything that draws.)
+  const rafNative = window.requestAnimationFrame.bind(window);
+  const cafNative = window.cancelAnimationFrame.bind(window);
+  const parked = new Map();   // fake id → callback
+  let fakeSeq = -1;           // negative so it can never collide with a real id
+  let active = true;
+  window.requestAnimationFrame = (cb) => {
+    if (active) return rafNative(cb);
+    const id = fakeSeq--;
+    parked.set(id, cb);
+    return id;
+  };
+  window.cancelAnimationFrame = (id) => { if (id < 0) parked.delete(id); else cafNative(id); };
+  const setActive = (next) => {
+    if (next === active) return;
+    active = next;
+    if (active) {
+      const cbs = [...parked.values()]; parked.clear();
+      for (const cb of cbs) rafNative(cb);
+    }
+    try { window.dispatchEvent(new CustomEvent("wandesk:active", { detail: { active } })); } catch {}
+    for (const fn of (listeners.get("active") || [])) { try { fn({ active }); } catch {} }
+  };
 
   window.wandesk = {
     /** Current UI language ("zh" | "en") — assembled fresh by the kernel on every request, never a stale cached value. */
     lang: ${JSON.stringify(lang)},
     /** This instance's context: appId, mount point, current route. */
     context: () => call("context", {}),
+    /** Whether this window is focused. Background windows get no animation frames; subscribe with wandesk.on("active", fn). */
+    get active() { return active; },
     ui: {
       toast: (text, kind) => call("toast", { text, kind }),
       confirm: (text) => call("confirm", { text }),
