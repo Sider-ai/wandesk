@@ -18,7 +18,8 @@
     "app": "npm run build && electron .",
     "dist:mac": "node scripts/pack-mac.mjs",
     "build:apps": "node appsrc/build.mjs && node appsrc/build-chat.mjs",
-    "dist:mac:release": "node scripts/pack-mac.mjs --release"
+    "dist:mac:release": "node scripts/pack-mac.mjs --release",
+    "dist:win": "node scripts/pack-win.mjs"
   },
   "dependencies": {
     "marked": "^16.4.2",
@@ -78,6 +79,23 @@
     "dmg": {
       "sign": false,
       "artifactName": "${productName}_${version}_${arch}.${ext}"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}_${version}_${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
     }
   }
 }

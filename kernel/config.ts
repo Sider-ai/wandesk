@@ -1,12 +1,14 @@
 // 程序级参数(不是用户设置)。用户设置在库里,见 data/settings.ts。
+const WINDOWS = process.platform === "win32";
+
 export const KERNEL_PORT = Number(process.env.WANDESK_PORT || 9600);
 
 export const AGENT_LIMITS = {
   maxRounds: 32,
   errorMaxChars: 4000,
   bash: {
-    executable: "/bin/bash",
-    args: ["-lc"],
+    executable: WINDOWS ? "cmd.exe" : "/bin/bash",
+    args: WINDOWS ? ["/d", "/s", "/c"] : ["-lc"],
     minTimeoutMs: 1000,
     defaultTimeoutMs: 120000,
     maxTimeoutMs: 600000,
