@@ -1,4 +1,4 @@
-// tsc 只搬 .ts/.js。内核里的非代码资源(建表脚本)得自己带过去。
+// tsc only moves .ts/.js files. Non-code assets in the kernel (table-creation scripts) have to be copied over by hand.
 import fs from "fs";
 import path from "path";
 

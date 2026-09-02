@@ -1,4 +1,4 @@
-// 具有 Bash 和文件工具的 Agent 入口。
+// Agent entry point equipped with bash and file tools.
 import { runAgent as runAi } from '../ai/index.js';
 import { bash } from './functions/bash.js';
 import { read } from './functions/read.js';

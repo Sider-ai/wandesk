@@ -1,47 +1,47 @@
-// 自绘的极简线性图标。统一 24 视窗 / 1.8 描边 / 圆头,颜色随 currentColor。
+// Hand-drawn minimal line icons. Uniform 24 viewport / 1.8 stroke / round caps, color follows currentColor.
 import type { ReactNode } from 'react';
 
 const GLYPHS: Record<string, ReactNode> = {
-    /** 新对话:方框 + 落笔 */
+    /** New conversation: a box + a pen touching down */
     compose: (<>
         <path d="M12 4.5H6.7A2.7 2.7 0 0 0 4 7.2v10.1A2.7 2.7 0 0 0 6.7 20h10.1a2.7 2.7 0 0 0 2.7-2.7V12" />
         <path d="M17.8 3.9a2 2 0 0 1 2.8 2.8l-7.6 7.6-3.6.8.8-3.6z" />
     </>),
-    /** 侧栏开关:面板 */
+    /** Sidebar toggle: panel */
     panel: (<>
         <rect x="3.5" y="4.8" width="17" height="14.4" rx="2.6" />
         <path d="M9.6 4.8v14.4" />
     </>),
-    /** 发送:上箭头 */
+    /** Send: an up arrow */
     send: (<>
         <path d="M12 19V5.6" />
         <path d="M6.2 11.2 12 5.4l5.8 5.8" />
     </>),
-    /** 停止:实心圆角方块 */
+    /** Stop: a solid rounded square */
     stop: <rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.4" fill="currentColor" stroke="none" />,
     plus: (<>
         <path d="M12 5.2v13.6" />
         <path d="M5.2 12h13.6" />
     </>),
-    /** 展开:右尖号 */
+    /** Expand: a right chevron */
     chev: <path d="m9.2 5.8 6.2 6.2-6.2 6.2" />,
-    /** bash:终端 */
+    /** bash: terminal */
     terminal: (<>
         <rect x="3.5" y="4.8" width="17" height="14.4" rx="2.6" />
         <path d="m7.2 9.3 3 2.7-3 2.7" />
         <path d="M12.8 15h4" />
     </>),
-    /** read:折角文档 */
+    /** read: a document with a folded corner */
     doc: (<>
         <path d="M13.6 3.6H8a2.2 2.2 0 0 0-2.2 2.2v12.4A2.2 2.2 0 0 0 8 20.4h8a2.2 2.2 0 0 0 2.2-2.2V8.2z" />
         <path d="M13.6 3.6v4.6h4.6" />
         <path d="M9 12.6h6M9 15.8h4" />
     </>),
-    /** write / edit:笔 */
+    /** write / edit: a pen */
     pen: <path d="M16.9 4.1a2.4 2.4 0 0 1 3.4 3.4l-9.8 9.8-4.6 1.2 1.2-4.6z" />,
-    /** 思考:四芒星 */
+    /** Reasoning: a four-pointed star */
     spark: <path d="M12 3.8l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1-5.1-1.9 5.1-1.9z" />,
-    /** 置顶:图钉 */
+    /** Pin: a pushpin */
     pin: (<>
         <path d="M14.8 3.8 20 9l-4.2 1.2-3 5.6-2.3-2.3-2.3-2.3 5.6-3z" />
         <path d="m10.4 13.6-5 5" />
@@ -67,7 +67,7 @@ const GLYPHS: Record<string, ReactNode> = {
         <path d="M12 3.2v2M12 18.8v2M3.2 12h2M18.8 12h2M5.8 5.8l1.4 1.4M16.8 16.8l1.4 1.4M18.2 5.8l-1.4 1.4M7.2 16.8l-1.4 1.4" />
     </>),
     moon: <path d="M19.8 13.7A7.8 7.8 0 0 1 10.3 4.2a7.1 7.1 0 1 0 9.5 9.5z" />,
-    /** 跟随系统:半染的圆 */
+    /** Follow system: a half-filled circle */
     auto: (<>
         <circle cx="12" cy="12" r="8" />
         <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none" />
@@ -99,7 +99,7 @@ export function Icon({ name, size = 16 }: { name: IconName | string; size?: numb
     );
 }
 
-/** 品牌标:圆角方块里一枚提示符。空状态和侧栏共用。 */
+/** Brand mark: a prompt glyph inside a rounded square. Shared by the empty state and the sidebar. */
 export function Mark({ size = 26 }: { size?: number }) {
     return (
         <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>

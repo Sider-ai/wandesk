@@ -1,8 +1,8 @@
 {
   "id": "fortune",
-  "name": "算一卦",
+  "name": "I Ching",
   "icon": "🔮",
-  "description": "周易六爻 — 写下心中所问，摇铜钱起卦，由 AI 卦师解卦断吉凶。",
+  "description": "Six-line I Ching divination — write down your question, toss coins to cast a hexagram, and let the AI diviner interpret your fortune.",
   "mounts": {
     "window": "/"
   }

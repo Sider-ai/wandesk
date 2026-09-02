@@ -1,5 +1,5 @@
-// 助理的构建:src/ → public/。源码来自 AGENT 仓库的 web/ui(与之同步,别在这里长出 Wandesk 概念)。
-// 改了 src/ 之后在本目录跑:npm install && npm run build
+// Build for Assistant: src/ → public/. Source mirrors the AGENT repo's web/ui (keep it in sync, don't grow Wandesk-specific concepts here).
+// After changing src/, run in this directory: npm install && npm run build
 import esbuild from "esbuild";
 import fs from "fs";
 import path from "path";
@@ -22,13 +22,13 @@ await esbuild.build({
   logLevel: "warning",
 });
 
-// 挂载点是 #app 不是 #root —— 沿用 AGENT 自己的 index.html,写错一个字母就是整页白。
+// The mount point is #app, not #root — this follows AGENT's own index.html; one wrong letter and the page goes blank.
 fs.writeFileSync(path.join(pub, "index.html"), `<!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>助理</title>
+    <title>Assistant</title>
     <link rel="stylesheet" href="/app.css" />
     <script src="/_wd/sdk.js"></script>
 </head>

@@ -1,4 +1,4 @@
-# 手机 · Phone
+# Phone
 
 A 2010-era 3G feature phone (Symbian S60 / MTK generation): glossy graphite candybar with a
 color TFT screen. The shell is fixed but every **screen is improvised by the AI as live HTML**
@@ -19,7 +19,7 @@ Two folders linked by the shared id (`phone`):
 
 - `apps/phone/` — definition only, no backend code
   - `app.json` — manifest
-  - `server.js` 顶部的 SCHEMA — one table (`screens`) provisioned into `data.db`
+  - `server.js` — the SCHEMA at the top provisions one table (`screens`) into `data.db`
   - `APP.md` — this file
 - src/ + `style.css` — the whole app: the cream candybar / green-LCD
   shell plus the generate-loop. The LCD renders the AI's HTML via `dangerouslySetInnerHTML`
@@ -46,9 +46,14 @@ import { agent } from './wandesk/agent';
 screens(id INTEGER PK, content TEXT, options TEXT, created_at TEXT)
 ```
 
-## 目录与修改
+## Layout and editing
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (Worker, the table-creation
+  script lives here) · `public/` built frontend output · `src/` frontend source (React)
+- **Editing the frontend**: edit `src/`, then run `npm install && npm run build` in this
+  directory; the output lands back in `public/`, and a window refresh picks it up. Requires
+  Node.js locally; skip it if you're not changing the frontend.
+- **Editing the backend**: edit `server.js` directly — it takes effect on the next request, no
+  restart needed.
+- **Data**: `data.db` is this app's SQLite database; inspect it directly with `sqlite3 data.db`.
+  The table schema is in the SCHEMA constant at the top of `server.js`.

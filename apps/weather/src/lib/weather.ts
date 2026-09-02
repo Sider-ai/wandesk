@@ -1,40 +1,40 @@
-// 天气 — WMO 天况映射、天空渐变、上游 URL、解析与展示辅助(纯函数)。
+// Weather — WMO condition mapping, sky gradients, upstream URLs, parsing and display helpers (pure functions).
 import type { Candidate, Condition, Forecast, ForecastResponse, GeoResponse, GeoResult, Now, SkyKind, DayCell } from './types';
 
-// WMO weather_code → condition (zh label + emoji)  https://open-meteo.com/en/docs
+// WMO weather_code → condition (English label + emoji)  https://open-meteo.com/en/docs
 export function describe(code: number, isDay: boolean): Condition {
   const sun = isDay ? '☀️' : '🌙';
   const partly = isDay ? '⛅' : '☁️';
   switch (code) {
-    case 0: return { label: '晴', icon: sun, sky: 'clear' };
-    case 1: return { label: '大致晴朗', icon: isDay ? '🌤️' : '🌙', sky: 'clear' };
-    case 2: return { label: '局部多云', icon: partly, sky: 'cloud' };
-    case 3: return { label: '阴', icon: '☁️', sky: 'cloud' };
-    case 45: return { label: '有雾', icon: '🌫️', sky: 'fog' };
-    case 48: return { label: '雾凇', icon: '🌫️', sky: 'fog' };
-    case 51: return { label: '小毛毛雨', icon: '🌦️', sky: 'rain' };
-    case 53: return { label: '毛毛雨', icon: '🌦️', sky: 'rain' };
-    case 55: return { label: '浓毛毛雨', icon: '🌧️', sky: 'rain' };
-    case 56: return { label: '冻毛毛雨', icon: '🌧️', sky: 'rain' };
-    case 57: return { label: '浓冻毛毛雨', icon: '🌧️', sky: 'rain' };
-    case 61: return { label: '小雨', icon: '🌦️', sky: 'rain' };
-    case 63: return { label: '中雨', icon: '🌧️', sky: 'rain' };
-    case 65: return { label: '大雨', icon: '🌧️', sky: 'rain' };
-    case 66: return { label: '冻雨', icon: '🌧️', sky: 'rain' };
-    case 67: return { label: '强冻雨', icon: '🌧️', sky: 'rain' };
-    case 71: return { label: '小雪', icon: '🌨️', sky: 'snow' };
-    case 73: return { label: '中雪', icon: '🌨️', sky: 'snow' };
-    case 75: return { label: '大雪', icon: '❄️', sky: 'snow' };
-    case 77: return { label: '雪粒', icon: '🌨️', sky: 'snow' };
-    case 80: return { label: '阵雨', icon: '🌦️', sky: 'rain' };
-    case 81: return { label: '强阵雨', icon: '🌧️', sky: 'rain' };
-    case 82: return { label: '暴雨', icon: '⛈️', sky: 'rain' };
-    case 85: return { label: '阵雪', icon: '🌨️', sky: 'snow' };
-    case 86: return { label: '强阵雪', icon: '❄️', sky: 'snow' };
-    case 95: return { label: '雷阵雨', icon: '⛈️', sky: 'thunder' };
-    case 96: return { label: '雷阵雨伴冰雹', icon: '⛈️', sky: 'thunder' };
-    case 99: return { label: '强雷雨伴冰雹', icon: '⛈️', sky: 'thunder' };
-    default: return { label: '未知', icon: partly, sky: 'cloud' };
+    case 0: return { label: 'Clear', icon: sun, sky: 'clear' };
+    case 1: return { label: 'Mostly Clear', icon: isDay ? '🌤️' : '🌙', sky: 'clear' };
+    case 2: return { label: 'Partly Cloudy', icon: partly, sky: 'cloud' };
+    case 3: return { label: 'Overcast', icon: '☁️', sky: 'cloud' };
+    case 45: return { label: 'Foggy', icon: '🌫️', sky: 'fog' };
+    case 48: return { label: 'Rime Fog', icon: '🌫️', sky: 'fog' };
+    case 51: return { label: 'Light Drizzle', icon: '🌦️', sky: 'rain' };
+    case 53: return { label: 'Drizzle', icon: '🌦️', sky: 'rain' };
+    case 55: return { label: 'Dense Drizzle', icon: '🌧️', sky: 'rain' };
+    case 56: return { label: 'Freezing Drizzle', icon: '🌧️', sky: 'rain' };
+    case 57: return { label: 'Dense Freezing Drizzle', icon: '🌧️', sky: 'rain' };
+    case 61: return { label: 'Light Rain', icon: '🌦️', sky: 'rain' };
+    case 63: return { label: 'Rain', icon: '🌧️', sky: 'rain' };
+    case 65: return { label: 'Heavy Rain', icon: '🌧️', sky: 'rain' };
+    case 66: return { label: 'Freezing Rain', icon: '🌧️', sky: 'rain' };
+    case 67: return { label: 'Heavy Freezing Rain', icon: '🌧️', sky: 'rain' };
+    case 71: return { label: 'Light Snow', icon: '🌨️', sky: 'snow' };
+    case 73: return { label: 'Snow', icon: '🌨️', sky: 'snow' };
+    case 75: return { label: 'Heavy Snow', icon: '❄️', sky: 'snow' };
+    case 77: return { label: 'Snow Grains', icon: '🌨️', sky: 'snow' };
+    case 80: return { label: 'Rain Showers', icon: '🌦️', sky: 'rain' };
+    case 81: return { label: 'Heavy Rain Showers', icon: '🌧️', sky: 'rain' };
+    case 82: return { label: 'Violent Rain Showers', icon: '⛈️', sky: 'rain' };
+    case 85: return { label: 'Snow Showers', icon: '🌨️', sky: 'snow' };
+    case 86: return { label: 'Heavy Snow Showers', icon: '❄️', sky: 'snow' };
+    case 95: return { label: 'Thunderstorm', icon: '⛈️', sky: 'thunder' };
+    case 96: return { label: 'Thunderstorm with Hail', icon: '⛈️', sky: 'thunder' };
+    case 99: return { label: 'Severe Thunderstorm with Hail', icon: '⛈️', sky: 'thunder' };
+    default: return { label: 'Unknown', icon: partly, sky: 'cloud' };
   }
 }
 
@@ -54,9 +54,9 @@ export const FORECAST_URL = (lat: number, lon: number): string =>
   `&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`;
 
 export const GEO_URL = (q: string): string =>
-  `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=zh&format=json`;
+  `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`;
 
-export const DEFAULT_CITY: Candidate = { name: '北京', lat: 39.9042, lon: 116.4074 };
+export const DEFAULT_CITY: Candidate = { name: 'New York', lat: 40.7128, lon: -74.006 };
 
 const round = (n: number | undefined): number => Math.round(typeof n === 'number' && Number.isFinite(n) ? n : 0);
 
@@ -66,14 +66,14 @@ function geoLabel(g: GeoResult): string {
   const region = g.admin1 && g.admin1 !== g.name ? g.admin1 : '';
   if (region) parts.push(region);
   if (g.country && g.country !== g.name && g.country !== region) parts.push(g.country);
-  return parts.join(' · ') || (g.name ?? '未知地点');
+  return parts.join(' · ') || (g.name ?? 'Unknown Location');
 }
 
 export function weekday(date: string, idx: number): string {
-  if (idx === 0) return '今天';
+  if (idx === 0) return 'Today';
   const t = Date.parse(date + 'T00:00:00');
   if (Number.isNaN(t)) return '';
-  const names = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return names[new Date(t).getDay()] ?? '';
 }
 
@@ -86,9 +86,9 @@ export function dayMonth(date: string): string {
 
 export function parseForecast(body: string): Forecast {
   const data = JSON.parse(body) as ForecastResponse;
-  if (data?.error) throw new Error(data?.reason || '天气服务返回了错误');
+  if (data?.error) throw new Error(data?.reason || 'The weather service returned an error');
   const c = data?.current;
-  if (!c || typeof c.temperature_2m !== 'number') throw new Error('没有拿到当前天气数据');
+  if (!c || typeof c.temperature_2m !== 'number') throw new Error('No current weather data received');
   const now: Now = {
     temp: round(c.temperature_2m),
     feels: round(c.apparent_temperature ?? c.temperature_2m),

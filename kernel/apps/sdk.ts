@@ -1,13 +1,14 @@
-// 应用前端的 SDK:<script src="/_wd/sdk.js">。
+// SDK for app frontends: <script src="/_wd/sdk.js">.
 //
-// 只有要碰**壳本身**时才需要它 —— 应用与自己的后端同源,`fetch("/api/…")` 直接就通,
-// 不需要任何 SDK。这里提供的是应用够不到的东西:弹提示、开另一个应用、拿实例信息。
-// 走 postMessage 到父窗口(iframe 是不透明源,拿不到父窗口的对象)。
+// Only needed when you have to touch the **shell itself** — an app talks to its own backend over the same origin,
+// so `fetch("/api/…")` just works with no SDK required. What's provided here is what an app can't reach on its own:
+// showing a toast, opening another app, getting instance info.
+// It goes through postMessage to the parent window (an iframe is an opaque origin and can't reach the parent window's objects).
 //
-// 每次请求现拼:把当前界面语言(见 data/settings.ts 的 currentLanguage())塞进
-// window.wandesk.lang,同时把 document.documentElement.lang 设成 zh-CN / en。
-// 调用方(kernel/api/apps.ts、runtime/overseer.js)必须带 cache-control: no-store,
-// 否则语言切换后应用页面还会拿到缓存住的旧 SDK。
+// Assembled fresh on every request: the current UI language (see currentLanguage() in data/settings.ts) is stuffed into
+// window.wandesk.lang, and document.documentElement.lang is set to zh-CN / en.
+// Callers (kernel/api/apps.ts, runtime/overseer.js) must send cache-control: no-store,
+// otherwise after a language switch the app page can still get a stale cached SDK.
 import { currentLanguage } from "../data/settings.js";
 
 export const sdkSource = (): string => {
@@ -23,7 +24,7 @@ export const sdkSource = (): string => {
     pending.set(id, { resolve, reject });
     parent.postMessage({ __wandesk: true, id, method, params }, "*");
     setTimeout(() => {
-      if (pending.has(id)) { pending.delete(id); reject(new Error("壳没有响应:" + method)); }
+      if (pending.has(id)) { pending.delete(id); reject(new Error("Shell did not respond: " + method)); }
     }, 15000);
   });
 
@@ -42,9 +43,9 @@ export const sdkSource = (): string => {
   const listeners = new Map();
 
   window.wandesk = {
-    /** 当前界面语言("zh" | "en") —— 内核每次请求现拼,不会缓存出旧值。 */
+    /** Current UI language ("zh" | "en") — assembled fresh by the kernel on every request, never a stale cached value. */
     lang: ${JSON.stringify(lang)},
-    /** 本实例的上下文:appId、挂载点、当前路由。 */
+    /** This instance's context: appId, mount point, current route. */
     context: () => call("context", {}),
     ui: {
       toast: (text, kind) => call("toast", { text, kind }),
@@ -55,7 +56,7 @@ export const sdkSource = (): string => {
       copyText: (text) => call("copyText", { text }),
       close: () => call("close", {}),
     },
-    /** 同一应用的多个实例之间发消息(窗口 ↔ 侧栏面板)。 */
+    /** Send messages between multiple instances of the same app (window ↔ sidebar panel). */
     on: (event, fn) => {
       if (!listeners.has(event)) listeners.set(event, new Set());
       listeners.get(event).add(fn);

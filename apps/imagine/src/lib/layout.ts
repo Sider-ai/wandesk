@@ -1,9 +1,10 @@
-// tidy 横向树布局(纯函数):父节点垂直居中于子树,x 按层级推进。移植自 Picker。
+// A tidy horizontal tree layout (pure function): each parent is vertically centered on its subtree,
+// x advances by depth. Ported from Picker.
 import type { TreeNode } from './types';
 
 export type Pos = { x: number; y: number; w: number; h: number };
 
-// 必须与 style.css 中 .cv-node.variant 的固定尺寸一致
+// Must match the fixed size of .cv-node.variant in style.css
 export const VARIANT_SIZE: [number, number] = [188, 176];
 const GAP_X = 120;
 const GAP_Y = 28;

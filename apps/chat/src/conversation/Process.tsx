@@ -1,16 +1,18 @@
-// 过程体系:思考 / 工具各是一行(图标位悬停换 chevron,展开转 90°),
-// 相邻的已完成工具收成一行摘要,完成的一轮整体收进「已工作X」折叠条。
-// 运行中的工具标签走扫光;整轮进行中时底部是转圈 + 「正在工作」。
+// Process system: reasoning / tools each get one row (the icon swaps to a chevron on hover,
+// rotating 90° when expanded); adjacent completed tools collapse into a one-line summary, and a
+// completed turn collapses as a whole into a "Worked for X" fold.
+// A running tool's label gets a shimmer; while the whole turn is in progress the bottom shows a
+// spinner plus "Working…".
 import { useState, type ReactNode } from 'react';
 
 import { Icon } from '../icons/Icon';
 import { fmtArgs, fmtResult, isFailed, renderMd, toolMeta, formatDuration } from './format';
 import type { Row } from './thread';
 
-/** 一轮里按序排布的条目:过程(思考 / 工具)与中间文本。 */
+/** Entries within a turn, in order: process (reasoning / tools) and intermediate text. */
 export type TurnEntry = { kind: 'think' | 'tool' | 'text'; row: Row };
 
-/* ── 行骨架:图标位(图形 ⇄ chevron)+ 标签,思考与工具共用 ── */
+/* ── Row skeleton: icon slot (glyph ⇄ chevron) + label, shared by reasoning and tools ── */
 
 function StepIcon({ icon }: { icon: ReactNode }) {
     return (
@@ -21,7 +23,7 @@ function StepIcon({ icon }: { icon: ReactNode }) {
     );
 }
 
-/* ── 思考条目 ── */
+/* ── Reasoning entry ── */
 
 export function ThinkItem({ row, compact }: { row: Row; compact?: boolean }) {
     const [open, setOpen] = useState(false);
@@ -30,7 +32,7 @@ export function ThinkItem({ row, compact }: { row: Row; compact?: boolean }) {
         <div className={`step${open ? ' open' : ''}${compact ? ' sm' : ''}`}>
             <button className="step-head" onClick={() => setOpen(!open)}>
                 <StepIcon icon={<Icon name="spark" size={compact ? 12 : 14} />} />
-                <span className="step-label"><i className={thinking ? 'sheen' : undefined}>{thinking ? '思考中' : '已思考'}</i></span>
+                <span className="step-label"><i className={thinking ? 'sheen' : undefined}>{thinking ? 'Thinking' : 'Thought'}</i></span>
             </button>
             {open && (
                 <div className="step-body">
@@ -41,7 +43,7 @@ export function ThinkItem({ row, compact }: { row: Row; compact?: boolean }) {
     );
 }
 
-/* ── 工具条目 ── */
+/* ── Tool entry ── */
 
 export function ToolItem({ row, compact }: { row: Row; compact?: boolean }) {
     const [open, setOpen] = useState(false);
@@ -64,14 +66,14 @@ export function ToolItem({ row, compact }: { row: Row; compact?: boolean }) {
             {open && (
                 <div className="step-body">
                     <div className="step-block">{fmtArgs(row.args)}</div>
-                    <div className="step-block">{row.result ? fmtResult(row.result) : '没有输出'}</div>
+                    <div className="step-block">{row.result ? fmtResult(row.result) : 'No output'}</div>
                 </div>
             )}
         </div>
     );
 }
 
-/* ── 相邻已完成工具 ≥2 收成一行摘要 ── */
+/* ── 2 or more adjacent completed tools collapse into a one-line summary ── */
 
 type GroupKind = 'create' | 'edit' | 'read' | 'exec';
 
@@ -82,7 +84,7 @@ function groupKind(row: Row): GroupKind {
     return 'exec';
 }
 
-/** 文件类按去重后的路径数计,执行类按次数计。 */
+/** File-based kinds are counted by deduplicated path; the exec kind is counted by call count. */
 function groupCount(rows: Row[], kind: GroupKind) {
     if (kind === 'exec') return rows.length;
     const paths = new Set<string>();
@@ -91,10 +93,10 @@ function groupCount(rows: Row[], kind: GroupKind) {
 }
 
 const GROUP_TEXT: Record<GroupKind, (n: number) => string> = {
-    create: (n) => `创建了 ${n} 个文件`,
-    edit: (n) => `修改了 ${n} 个文件`,
-    read: (n) => `读取了 ${n} 个文件`,
-    exec: (n) => `执行了 ${n} 条命令`,
+    create: (n) => `Created ${n} file${n === 1 ? '' : 's'}`,
+    edit: (n) => `Edited ${n} file${n === 1 ? '' : 's'}`,
+    read: (n) => `Read ${n} file${n === 1 ? '' : 's'}`,
+    exec: (n) => `Ran ${n} command${n === 1 ? '' : 's'}`,
 };
 
 function groupSummary(rows: Row[]) {
@@ -103,10 +105,10 @@ function groupSummary(rows: Row[]) {
         const matching = rows.filter((row) => groupKind(row) === kind);
         if (matching.length) parts.push(GROUP_TEXT[kind](groupCount(matching, kind)));
     }
-    return parts.join(',');
+    return parts.join(', ');
 }
 
-/** 分组头部图标:取代表(edit > create > read > exec)。 */
+/** Group header icon: pick a representative one (edit > create > read > exec). */
 function groupIcon(rows: Row[]) {
     const pick = rows.find((row) => groupKind(row) === 'edit')
         || rows.find((row) => groupKind(row) === 'create')
@@ -133,12 +135,12 @@ export function ToolGroup({ rows }: { rows: Row[] }) {
     );
 }
 
-/* ── 轮折叠条:「已工作 X ›」+ 通栏细线 ── */
+/* ── Turn fold: "Worked for X ›" + a full-width hairline ── */
 
 export function TurnFold({ durationMs, children }: { durationMs: number | null; children: ReactNode }) {
     const [open, setOpen] = useState(false);
-    // 进折叠条的一定是已收尾的轮;算不出时长也绝不能显示成「执行中」
-    const label = durationMs != null && durationMs > 0 ? `已工作 ${formatDuration(durationMs)}` : '过程';
+    // Anything that reaches the fold is a turn that's already wrapped up; even if the duration can't be computed, it must never read as "running"
+    const label = durationMs != null && durationMs > 0 ? `Worked for ${formatDuration(durationMs)}` : 'Process';
     return (
         <div className={`fold${open ? ' open' : ''}`}>
             <button className="fold-head" onClick={() => setOpen(!open)}>
@@ -153,8 +155,9 @@ export function TurnFold({ durationMs, children }: { durationMs: number | null; 
     );
 }
 
-/* ── 有序渲染一串条目:过程做相邻分组,中间文本按 markdown 平铺 ──
-   inFold=true 时条目裸排(折叠条内部自带 gap);否则每条包一层消息行。 */
+/* ── Render a sequence of entries in order: process items group when adjacent, intermediate text
+   is laid out flat as markdown — with inFold=true, entries render bare (the fold provides its own
+   gap); otherwise each one is wrapped in a message row. ── */
 
 export function TurnEntries({ items, inFold }: { items: TurnEntry[]; inFold?: boolean }) {
     const nodes: ReactNode[] = [];
@@ -171,7 +174,7 @@ export function TurnEntries({ items, inFold }: { items: TurnEntry[]; inFold?: bo
 
     for (const item of items) {
         if (item.kind === 'tool') {
-            // 运行中的工具不进分组 —— 它要单独一行走扫光
+            // A running tool doesn't join a group — it gets its own row with the shimmer
             if (item.row.status === 'running') {
                 flushTools();
                 nodes.push(<ToolItem key={item.row.key} row={item.row} />);
@@ -195,13 +198,13 @@ export function TurnEntries({ items, inFold }: { items: TurnEntry[]; inFold?: bo
     return <>{nodes.map((node, index) => <div key={index} className="msg agent">{node}</div>)}</>;
 }
 
-/* ── 正在工作:转圈 + 扫光文字 ── */
+/* ── Working: spinner + shimmering text ── */
 
 export function Working() {
     return (
         <div className="working">
             <span className="orbit" />
-            <span className="working-text sheen">正在工作…</span>
+            <span className="working-text sheen">Working…</span>
         </div>
     );
 }

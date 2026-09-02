@@ -1,6 +1,6 @@
 import './ContextMenu.css';
 import { t } from '../lib/i18n';
-// 桌面右键菜单 —— Aero 玻璃菜单,分组 + 图标,像 Vista 的桌面菜单。
+// Desktop right-click menu — an Aero glass menu, grouped with icons, like the Vista desktop menu.
 export function ContextMenu({ x, y, onSelect }: { x: number; y: number; onSelect: (key: string) => void }) {
   const item = (key: string, ico: string, labelKey: string) => (
     <button onClick={() => onSelect(key)}>

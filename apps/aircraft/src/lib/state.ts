@@ -1,4 +1,4 @@
-// 飞机大战 — 初始化(星野 / 全局状态)与波次生成。
+// Aircraft — initialization (starfield / global state) and wave generation.
 import { BOSS_EVERY, cl, rng, TAU } from './constants';
 import { showBanner } from './fx';
 import { T } from './text';

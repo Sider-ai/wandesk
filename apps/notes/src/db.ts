@@ -1,4 +1,4 @@
-// 笔记本 — 客户端数据层。所有 SQL 收在这里,组件/hook 只调这些函数。
+// Notebook — client-side data layer. All SQL lives here; components/hooks only call these functions.
 import { db } from './wandesk/db';
 import type { Page } from './lib/paper';
 

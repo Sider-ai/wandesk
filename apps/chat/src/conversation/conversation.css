@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
-   对话列:顶栏 · 消息流(按轮收纳)· 输入区
+   Conversation column: top bar · message stream (organized by turn) · input area
    ═══════════════════════════════════════════════════════════════ */
 .conversation { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; background: var(--surface); }
 
-/* ── 顶栏 ── */
+/* ── Top bar ── */
 .topbar {
     flex-shrink: 0; height: 46px;
     display: flex; align-items: center; gap: 10px;
@@ -21,7 +21,7 @@
 }
 .offline-pill i { width: 5px; height: 5px; border-radius: 99px; background: currentColor; animation: breathe 1.4s ease-in-out infinite; }
 
-/* ── 消息流 ── */
+/* ── Message stream ── */
 .stream { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 .stream-inner {
     width: 100%; max-width: min(768px, 100%); min-width: 0;
@@ -29,7 +29,7 @@
     display: flex; flex-direction: column; overflow-x: hidden;
 }
 
-/* 日期是坐标不是内容,退到最浅一档 */
+/* The date is a coordinate, not content — pushed to the lightest tier */
 .day-chip { align-self: center; margin: 18px 0 8px; font-size: 11px; font-weight: 500; color: var(--text-4); }
 .chip {
     align-self: center; margin: 10px 16px;
@@ -41,12 +41,12 @@
 .chip-btn { cursor: pointer; opacity: .75; }
 .chip-btn:hover { opacity: 1; }
 
-/* ── 消息行 ── */
+/* ── Message row ── */
 .msg { padding: 0 16px 12px; display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-width: 0; }
 .msg.mine { align-items: flex-end; }
 .msg.mine + .msg.agent, .msg.agent + .msg.mine { margin-top: 12px; }
 
-/* 用户气泡:字面量文本,不走 markdown */
+/* User bubble: literal text, no markdown rendering */
 .bubble {
     max-width: 85%; border-radius: 14px 14px 4px 14px; padding: 10px 13px;
     background: var(--fill-2); color: var(--text-1);
@@ -58,7 +58,7 @@
 .send-retry { margin-top: 4px; font-size: 10.5px; font-weight: 600; color: var(--danger); }
 .send-retry:hover { text-decoration: underline; }
 
-/* 复制行:悬停出现,最后一条常显 */
+/* Copy row: appears on hover, always shown for the last message */
 .act-row {
     margin-top: 4px; transform: translateX(-5px);
     display: flex; align-items: center; gap: 4px;
@@ -73,7 +73,7 @@
 }
 .act:hover { background: var(--hover); }
 
-/* ── 轮折叠条:「已工作X ›」+ 通栏细线 ── */
+/* ── Turn fold: "Worked for X ›" + a full-width hairline ── */
 .fold { width: 100%; min-width: 0; }
 .fold-head { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0; text-align: left; }
 .fold-row { display: flex; width: 100%; align-items: center; gap: 6px; padding: 2px 0; }
@@ -90,7 +90,7 @@
 .fold-body { padding-top: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .fold-body .md { width: 100%; }
 
-/* ── 过程条目:思考 / 工具 / 分组共用的骨架 ── */
+/* ── Process entry: skeleton shared by reasoning / tools / groups ── */
 .step { width: 100%; min-width: 0; }
 .step-head {
     display: flex; align-items: center; gap: 8px; width: 100%;
@@ -113,13 +113,13 @@
 .step-label { display: flex; align-items: center; gap: 5px; min-width: 0; flex: 1; overflow: hidden; }
 .step-label > i { font-style: normal; flex: none; white-space: nowrap; }
 
-/* compact:分组展开后的子条目 */
+/* compact: sub-entries inside an expanded group */
 .step.sm > .step-head { padding: 1px 0; font-size: 12px; line-height: 18px; }
 .step.sm .step-ic { width: 12px; height: 12px; }
 .step.sm .step-body { padding-left: 18px; }
 .step.sm .step-block { font-size: 11px; line-height: 16px; }
 
-/* 展开的内容块:参数 / 输出 / 思考全文 */
+/* Expanded content block: arguments / output / full reasoning text */
 .step-body { margin-top: 4px; display: flex; flex-direction: column; gap: 4px; padding-left: 22px; }
 .step-block {
     background: var(--fill); border-radius: 8px; padding: 8px 12px;
@@ -131,7 +131,7 @@
 }
 .step-group { margin-top: 4px; display: flex; flex-direction: column; gap: 4px; }
 
-/* 参数胶囊 */
+/* Argument pill */
 .step-pill {
     display: inline-flex; align-items: center;
     background: var(--fill); border-radius: 99px; padding: 0 7px; height: 18px;
@@ -141,7 +141,7 @@
 }
 .step-pill span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-/* ── 正在工作:转圈 + 扫光 ── */
+/* ── Working: spinner + shimmer ── */
 .working { display: flex; align-items: center; gap: 9px; min-height: 24px; }
 .orbit {
     width: 14px; height: 14px; flex: none; border-radius: 50%;
@@ -151,7 +151,7 @@
 @keyframes orbit-spin { to { transform: rotate(360deg); } }
 .working-text { font-size: 13.5px; line-height: 20px; white-space: nowrap; }
 
-/* ── 空状态:居中的起手式 ── */
+/* ── Empty state: centered starter prompts ── */
 .conversation.is-blank .stream-inner { min-height: 100%; justify-content: center; }
 .blank { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 20px 24px; }
 .blank-title { font-size: 18px; line-height: 26px; font-weight: 600; color: var(--text-1); }
@@ -175,7 +175,7 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 
-/* ── 输入区:圆角边框盒,底部操作行 ── */
+/* ── Input area: rounded bordered box with an action row at the bottom ── */
 .composer-wrap { flex-shrink: 0; padding: 8px 16px; }
 .composer {
     max-width: 768px; margin: 0 auto;
@@ -211,7 +211,7 @@
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     padding: 0 8px 0 10px;
 }
-/* 让位次序:发送键寸土不让,模型名和目录名先缩 */
+/* Yield order: the send button never gives up space; the model name and directory name shrink first */
 .composer-left { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
 .composer-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-width: 0; }
 
@@ -242,7 +242,7 @@
 
 .foot-note { text-align: center; font-size: 11px; line-height: 16px; color: var(--text-5); padding: 5px 0 2px; }
 
-/* ── Markdown(助理最终文本:无气泡全宽)── */
+/* ── Markdown (the assistant's final text: bubble-free, full width) ── */
 .md {
     max-width: 100%; min-width: 0; width: 100%;
     color: var(--text-1); font-size: 14px; line-height: 23px;
@@ -281,6 +281,6 @@
 @media (max-width: 640px) {
     .topbar { padding: 0 10px; }
     .composer-wrap { padding: 8px 10px 10px; }
-    /* 窄屏侧栏是抽屉,唤它回来的键必须常在 */
+    /* On narrow screens the sidebar is a drawer; the button that brings it back must always be visible */
     .menu-btn { display: grid; }
 }

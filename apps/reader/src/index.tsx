@@ -4,13 +4,15 @@ import { ReaderView } from './components/ReaderView';
 import './style.css';
 
 /* ════════════════════════════════════════════════════
-   阅读 —— 晨光里的浅桦木书架(iReader Birch)。
-   首屏"书架":浅桦木书柜,书封按体裁排版;阅读页:米白纸面通栏长文,
-   宋体、朱红首字下沉、"你选择了"朱批,抉择随内容滚动。
-   一本 book 对应一个引擎会话(原生多轮续写),失效则用已存 pages 重建;
-   进度全量持久化,重开整篇载入并停在抉择点。
-   本文件只做视图切换;状态与逻辑在 lib/useReader,数据在 db.ts,
-   人设/解析在 lib/story,视图在 components/。
+   Reader —— a pale birchwood bookcase in the morning light (iReader Birch).
+   Home screen "shelf": pale birchwood bookcase, covers styled by genre;
+   reader page: off-white paper, long-form single-column text,
+   serif type, vermilion drop cap, "You chose:" vermilion annotation, choices scroll with the content.
+   Each book maps to one engine session (native multi-turn continuation); rebuilt from
+   stored pages if the session goes stale. Progress is fully persisted; reopening loads
+   the whole book and stops at the decision point.
+   This file only switches views; state and logic live in lib/useReader, data access in db.ts,
+   persona/parsing in lib/story, views in components/.
    ════════════════════════════════════════════════════ */
 
 export default function Reader({ appId }: { appId: string }) {

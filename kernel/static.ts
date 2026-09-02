@@ -1,4 +1,4 @@
-// 生产态托管壳的前端产物。开发态由 vite 顶上,这里不会被走到。
+// Serves the shell's frontend build output in production. In development, vite handles this instead and this code path is never hit.
 import fs from "fs";
 import path from "path";
 import type { ServerResponse } from "http";
@@ -22,7 +22,7 @@ export const serveStatic = (urlPath: string, res: ServerResponse): boolean => {
   let abs = path.normalize(path.join(root, rel.replace(/^\/+/, "")));
   if (!abs.startsWith(root)) return false;
   if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
-    abs = path.join(root, "index.html"); // SPA 兜底
+    abs = path.join(root, "index.html"); // SPA fallback
     if (!fs.existsSync(abs)) return false;
   }
   res.writeHead(200, { "content-type": MIME[path.extname(abs)] || "application/octet-stream" });

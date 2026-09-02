@@ -1,5 +1,7 @@
-// 炸金花 — AI 的一步:向模型要决策(附带牌桌局势 + schema),兜底本地决策,再落到牌局上。
-// 与状态解耦:所有 state 通过 ctx 里的 ref / setter 读写,usePoker 组装 ctx 并在 AI 回合触发。
+// Zhajinhua — the AI's turn: ask the model for a decision (with table state + schema),
+// fall back to local logic if needed, then apply it to the game.
+// Decoupled from state: all state is read/written through the refs/setters on ctx;
+// usePoker assembles ctx and triggers this on the AI's turn.
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { agent } from '../wandesk/agent';
 import { TYPE_NAME, cardText, compare, strength } from './cards';
@@ -38,15 +40,15 @@ export async function runAiTurn(ctx: PokerCtx) {
   const potNow = me.bet + opp.bet;
   const callCost = curStake;
   const oppAllIn = opp.chips === 0;
-  const handDesc = `你的牌是 ${TYPE_NAME[me.eval.type]}(${me.cards.map(cardText).join(' ')})`;
-  const lastAct = ctx.lastHumanActionRef.current ? `对手刚刚:${ctx.lastHumanActionRef.current}` : '你先手行动';
+  const handDesc = `Your hand is ${TYPE_NAME[me.eval.type]} (${me.cards.map(cardText).join(' ')})`;
+  const lastAct = ctx.lastHumanActionRef.current ? `Your opponent just: ${ctx.lastHumanActionRef.current}` : 'You act first';
   const prompt =
-    `单挑炸金花,现在轮到你。\n` +
-    `${handDesc}。对手的牌你看不到。\n` +
-    `底池 ${potNow} 筹码,当前注 ${curStake}。\n` +
-    `你的剩余筹码 ${me.chips}${oppAllIn ? '(对手已梭哈全下,你只能 compare 比牌 或 fold 弃牌)' : ''}。本局已加注 ${ctx.raisesRef.current} 次(上限 ${MAX_RAISES})。\n` +
-    `${lastAct}。\n` +
-    `综合牌力、底池和对手动作,做出你的决策(raise/allin/compare/fold)并说一句台词。`;
+    `Heads-up Zhajinhua, it's your turn.\n` +
+    `${handDesc}. You cannot see your opponent's cards.\n` +
+    `Pot is ${potNow} chips, current stake is ${curStake}.\n` +
+    `Your remaining chips: ${me.chips}${oppAllIn ? ' (your opponent is already all in — you can only compare or fold)' : ''}. This hand has been raised ${ctx.raisesRef.current} times (cap ${MAX_RAISES}).\n` +
+    `${lastAct}.\n` +
+    `Weigh your hand strength, the pot, and your opponent's action, then make your decision (raise/allin/compare/fold) and say one line.`;
 
   let decision: AiDecision | null = null;
   try {
@@ -80,7 +82,7 @@ function applyAiDecision(ctx: PokerCtx, d: AiDecision) {
   if (d.action === 'fold') {
     const updated = arr.map((s, i) => (i === idx ? { ...s, folded: true, mood: 'down' as Mood } : s));
     ctx.setSeats(updated);
-    ctx.pushFeed({ kind: 'ai', who: BOT.name, text: '弃牌离场。', action: 'fold' });
+    ctx.pushFeed({ kind: 'ai', who: BOT.name, text: 'Folds and walks away.', action: 'fold' });
     void ctx.settle(updated, opp.id); // last player standing wins
     return;
   }
@@ -90,7 +92,7 @@ function applyAiDecision(ctx: PokerCtx, d: AiDecision) {
     const meP = paid.updated[idx];
     const oppP = paid.updated.find((s) => s.isHuman)!;
     const cmp = compare(meP.eval, oppP.eval);
-    ctx.pushFeed({ kind: 'ai', who: BOT.name, text: '摊牌比大小!', action: 'show' });
+    ctx.pushFeed({ kind: 'ai', who: BOT.name, text: 'Showdown — let\'s compare!', action: 'show' });
     const aiWins = cmp > 0; // on a tie the challenger (AI) loses
     const revealed = paid.updated.map((s) => ({ ...s, peeked: true }));
     ctx.setSeats(revealed);
@@ -99,25 +101,25 @@ function applyAiDecision(ctx: PokerCtx, d: AiDecision) {
     return;
   }
 
-  if (d.action === 'allin') { // 梭哈 — push everything
+  if (d.action === 'allin') { // all in — push everything
     const pay = me.chips;
     const updated = arr.map((s, i) => (i === idx ? { ...s, chips: 0, bet: s.bet + pay, mood: 'smug' as Mood } : s));
     ctx.raisesRef.current += 1;
     ctx.setSeats(updated);
     ctx.setStake(updated[idx].bet);
     ctx.setPot(updated.reduce((s, x) => s + x.bet, 0));
-    ctx.pushFeed({ kind: 'ai', who: BOT.name, action: 'allin', text: `梭哈全下 ${pay}` });
+    ctx.pushFeed({ kind: 'ai', who: BOT.name, action: 'allin', text: `Goes all in for ${pay}` });
     ctx.setTurn(0);
     return;
   }
 
-  // 加注 (raise)
+  // raise
   const res = placeBet(arr, idx, true, curStake);
   ctx.raisesRef.current += 1;
   const mood: Mood = strength(me.eval) > 0.5 ? 'smug' : 'nervous';
   ctx.setSeats(res.updated.map((s) => (s.id === me.id ? { ...s, mood } : s)));
   ctx.setStake(res.newStake);
   ctx.setPot(res.updated.reduce((s, x) => s + x.bet, 0));
-  ctx.pushFeed({ kind: 'ai', who: BOT.name, action: 'raise', text: `加注施压 ${res.pay} 筹码 (跟注线 ${res.newStake})。` });
+  ctx.pushFeed({ kind: 'ai', who: BOT.name, action: 'raise', text: `Raises the pressure by ${res.pay} chips (call is now ${res.newStake}).` });
   ctx.setTurn(0); // action returns to the human
 }

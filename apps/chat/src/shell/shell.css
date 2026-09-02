@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   壳:左侧栏(宽屏可收起,窄屏成抽屉)
+   Shell: left sidebar (collapsible on wide screens, a drawer on narrow ones)
    ═══════════════════════════════════════════════════════════════ */
 .sidebar {
     flex-shrink: 0;
@@ -39,7 +39,7 @@
 }
 .side-scroll::-webkit-scrollbar { width: 8px; }
 
-/* 一行对话:标题为主,悬停露操作;正在跑的行画呼吸点 */
+/* A conversation row: title takes the lead, actions appear on hover; a running row shows a breathing dot */
 .conv {
     position: relative; flex-shrink: 0;
     display: flex; align-items: center; gap: 8px;
@@ -57,7 +57,7 @@
     animation: breathe 2s ease-in-out infinite;
 }
 
-/* 操作区悬停出现,渐变遮罩盖住被压的文字 —— 遮罩要复现此刻这行的实际底色 */
+/* The action area appears on hover, with a gradient mask covering the text it overlaps — the mask must match this row's actual background color at the moment */
 .conv-ops {
     display: none; align-items: center; gap: 1px;
     position: absolute; right: 4px; top: 0; bottom: 0;
@@ -99,7 +99,7 @@
 
 .side-veil { display: none; }
 
-/* 窄屏:侧栏成抽屉,盖在内容上 */
+/* Narrow screens: the sidebar becomes a drawer, overlaying the content */
 @media (max-width: 640px) {
     .side-veil {
         display: block; position: fixed; inset: 0; z-index: 79;

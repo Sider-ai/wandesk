@@ -1,4 +1,4 @@
-// 设置:模型连接 + 系统提示词 + 壳的偏好。KV 一张表,值一律是字符串。
+// Settings: model connection + system prompt + shell preferences. A single KV table, values are always strings.
 import { all, run } from "./db.js";
 
 export type Settings = Record<string, string>;
@@ -15,7 +15,7 @@ export const writeSettings = (patch: Settings) => {
   }
 };
 
-/** 起一轮 agent 时读一次快照 —— 跑到一半改设置不影响正在跑的那轮。 */
+/** Read a snapshot once when an agent turn starts — changing settings mid-turn doesn't affect the turn already running. */
 export type ModelConfig = {
   driver: string;
   url: string;
@@ -35,12 +35,10 @@ export const modelConfig = (): ModelConfig => {
   };
 };
 
-/** 界面语言:优先读设置表(键 language);没设置时看进程环境(LANG / LC_ALL)。 */
+/** UI language: read from the settings table (key "language"); defaults to "en" for anything else. */
 export type Language = "zh" | "en";
 
 export const currentLanguage = (): Language => {
   const saved = readSettings().language;
-  if (saved === "zh" || saved === "en") return saved;
-  const env = process.env.LANG || process.env.LC_ALL || "";
-  return env.toLowerCase().startsWith("en") ? "en" : "zh";
+  return saved === "zh" || saved === "en" ? saved : "en";
 };

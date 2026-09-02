@@ -1,4 +1,4 @@
-// 通用弹层:点蒙层关,Esc 关。一次只有一层,不管栈。
+// Generic overlay sheet: click the backdrop to close, Esc to close. Only one layer at a time, no stack.
 import { useEffect, type ReactNode } from 'react';
 
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {

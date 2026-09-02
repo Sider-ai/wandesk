@@ -1,8 +1,8 @@
 {
   "id": "racing",
-  "name": "极品飞车",
+  "name": "Dusk Racer",
   "icon": "🏎️",
-  "description": "一场黄昏赛道上的三圈街机竞速：与 AI 对手争夺第一，漂移回充氮气，直道全速冲刺。",
+  "description": "A three-lap arcade race on a dusk-lit track: battle AI rivals for first place, drift to refill nitro, and floor it on the straights.",
   "mounts": {
     "window": "/"
   }

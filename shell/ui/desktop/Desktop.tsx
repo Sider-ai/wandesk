@@ -16,11 +16,12 @@ import { Settings } from "../panels/Settings";
 import "./Desktop.css";
 import "../appframe/AppFrame.css";
 
-// 桌面:壁纸 + 图标网格 + 窗口管理器 + 任务栏。
+// Desktop: wallpaper + icon grid + window manager + taskbar.
 //
-// 壳只管画。窗口里装的一律是 AppFrame(一个 iframe),壳不知道里面是什么应用、
-// 更不知道那个应用是干嘛的。桌面布局落在内核的 settings 表(键 desktop),
-// localStorage 只是首屏同步渲染用的缓存。
+// The shell only draws. Every window holds an AppFrame (an iframe) — the shell doesn't
+// know which app is inside, let alone what that app does. Desktop layout lives in the
+// kernel's settings table (key `desktop`); localStorage is only a cache for the
+// synchronous first-paint render.
 const CW = 88, CH = 104, IW = 68, EDGE = 12;
 const LS_KEY = "wandesk.desktop";
 const clampN = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -29,8 +30,9 @@ type Cell = { c: number; r: number };
 type Cells = Record<string, Cell>;
 type Win = WinMeta & { z: number; init: Geo; min: boolean; kind: "app" | "shell"; route: string };
 
-/** 壳自己的面板 —— 它们配置的是框架本身(壁纸、模型连接),不是应用。
- *  这条线不含糊:凡是「配置框架」的界面属于壳,凡是「做事」的一律是应用。 */
+/** The shell's own panels — they configure the framework itself (wallpaper, model
+ *  connection), not an app. This line stays firm: whatever configures the framework
+ *  belongs to the shell, whatever does work is always an app. */
 const SHELL_PANELS: Record<string, { nameKey: string; icon: string }> = {
   "__wallpaper": { nameKey: "panel.wallpaper", icon: "🎨" },
   "__settings": { nameKey: "panel.settings", icon: "⚙️" },
@@ -46,10 +48,10 @@ export function Desktop() {
   const [sel, setSel] = useState<string | null>(null);
   const [ctx, setCtx] = useState({ open: false, x: 0, y: 0 });
   const [startOpen, setStartOpen] = useState(false);
-  const [busy, setBusy] = useState(0); // 有几个应用正在调 AI
+  const [busy, setBusy] = useState(0); // how many apps are currently calling AI
   const [toast, setToast] = useState<{ icon: string; text: string } | null>(null);
-  const [langTick, setLangTick] = useState(0); // 语言切换一次 +1,逼所有 AppFrame 重新挂载(重新加载 iframe)
-  useLang(); // 订阅语言变化 —— 变了就带着这整棵树一起重渲染,壳自己的文案立刻换语言
+  const [langTick, setLangTick] = useState(0); // bumped +1 on each language switch, forcing every AppFrame to remount (reload its iframe)
+  useLang(); // subscribe to language changes — re-renders this whole tree so the shell's own copy switches language immediately
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
 
   const zTop = useRef(10);
@@ -57,7 +59,7 @@ export function Desktop() {
   const layerRef = useRef<HTMLDivElement>(null);
   const dragXYRef = useRef({ x: 0, y: 0 });
 
-  // ── 网格计算 ──
+  // ── grid math ──
   const gridCols = () => Math.max(1, Math.floor((vp.w - 2 * EDGE - IW) / CW) + 1);
   const cellXY = (c: number, r: number) => ({ x: EDGE + c * CW, y: EDGE + r * CH });
   const occSet = (cs: Cells, except?: string) => {
@@ -87,7 +89,7 @@ export function Desktop() {
     return best || { c: tc, r: tr };
   };
 
-  // 只保留仍存在的应用的格子。删掉的应用会留下隐形残格,让那个看着空的位置拖不进东西。
+  // Keep only the cells of apps that still exist. A deleted app leaves an invisible leftover cell, so that spot — which looks empty — refuses to accept a drop.
   const placeMissing = (list: AppMeta[], cs: Cells): Cells => {
     const cols = gridCols();
     const live = new Set(list.map((a) => a.id));
@@ -100,14 +102,14 @@ export function Desktop() {
     return next;
   };
 
-  // 布局落库:本地缓存即时写,库端防抖写(拖拽中别刷请求)
+  // Persisting the layout: local cache writes immediately, the kernel write is debounced (no request spam while dragging)
   const persistTimer = useRef(0);
   const persist = (cs: Cells, wp: string) => {
     const payload = JSON.stringify({ cells: cs, wallpaper: wp });
-    try { localStorage.setItem(LS_KEY, payload); } catch { /* 隐私模式 */ }
+    try { localStorage.setItem(LS_KEY, payload); } catch { /* private browsing mode */ }
     window.clearTimeout(persistTimer.current);
     persistTimer.current = window.setTimeout(() => {
-      void post("/api/settings", { desktop: payload }).catch(() => { /* 缓存已写,下次再同步 */ });
+      void post("/api/settings", { desktop: payload }).catch(() => { /* cache already written, will sync again next time */ });
     }, 500);
   };
 
@@ -118,15 +120,15 @@ export function Desktop() {
     return list;
   }, [vp.w, vp.h]);
 
-  // ── 启动 ──
+  // ── startup ──
   useEffect(() => {
     let saved: { cells?: Cells; wallpaper?: string } = {};
-    try { saved = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch { /* 无缓存 */ }
+    try { saved = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); } catch { /* no cache */ }
     if (saved.wallpaper) setWallpaper(normalizeWallpaperId(saved.wallpaper));
 
     let cancelled = false;
     (async () => {
-      // 内核可能还在起(要先拉 workerd),多试几次别一上来就画个空桌面
+      // The kernel might still be starting up (workerd has to come up first) — retry a few times instead of painting an empty desktop right away
       for (let attempt = 0; attempt < 24 && !cancelled; attempt++) {
         const list = await fetchApps().catch(() => [] as AppMeta[]);
         if (cancelled) return;
@@ -139,7 +141,7 @@ export function Desktop() {
               saved = d;
               if (d.wallpaper) setWallpaper(normalizeWallpaperId(d.wallpaper));
             }
-          } catch { /* 库读不到就用缓存 */ }
+          } catch { /* fall back to the cache if the kernel read fails */ }
           if (cancelled) return;
           setApps(list);
           setCells((prev) => placeMissing(list, saved.cells || prev));
@@ -151,19 +153,19 @@ export function Desktop() {
     return () => { cancelled = true; };
   }, []);
 
-  // ── 内核事件 ──
+  // ── kernel events ──
   useEffect(() => {
     startRealtime();
-    void initI18n(); // 拉一次当前语言;之后靠下面的 LANGUAGE_CHANGED 更新
+    void initI18n(); // pull the current language once; after that, updates come from LANGUAGE_CHANGED below
     const offs = [
-      // 「安装 = 目录存在」:AI 造完应用,桌面立刻长出图标,不用刷新
+      // "Install = the directory exists": once the AI finishes building an app, the desktop grows an icon immediately, no refresh needed
       on(EV.APPS_CHANGED, () => { void reload(); }),
       on(EV.ACTIVITY_START, () => setBusy((n) => n + 1)),
       on(EV.ACTIVITY_END, () => setBusy((n) => Math.max(0, n - 1))),
       on(EV.UI_TOAST, (p) => showToast("✦", String(p?.text || ""))),
       on(EV.UI_OPEN_APP, (p) => openById(String(p?.appId || ""), String(p?.route || "/"))),
       on(EV.UI_OPEN_EXTERNAL, (p) => window.open(String(p?.url || ""), "_blank", "noopener")),
-      // 语言切换:壳自己经 useLang() 重渲染;所有应用窗口的 iframe 得重新加载才能重读 wandesk.lang
+      // Language switch: the shell re-renders itself via useLang(); every app window's iframe must reload to re-read wandesk.lang
       on(EV.LANGUAGE_CHANGED, () => setLangTick((n) => n + 1)),
     ];
     return () => { for (const off of offs) off(); };
@@ -183,7 +185,7 @@ export function Desktop() {
     window.setTimeout(() => setToast(null), 5000);
   };
 
-  // ── 窗口管理 ──
+  // ── window management ──
   const focus = (id: number) => setWins((p) => p.map((w) => (w.id === id ? { ...w, z: ++zTop.current } : w)));
   const close = (id: number) => setWins((p) => p.filter((w) => w.id !== id));
   const minimize = (id: number) => setWins((p) => p.map((w) => (w.id === id ? { ...w, min: true } : w)));
@@ -228,7 +230,7 @@ export function Desktop() {
     if (a) openWindow(a.id, a.name, a.icon || "📦", "app", route);
   };
 
-  // ── 图标拖拽 ──
+  // ── icon dragging ──
   function onDown(appId: string, e: ReactPointerEvent) {
     if (e.button) return;
     setSel(appId);
@@ -357,7 +359,7 @@ export function Desktop() {
         </Window>
       ))}
 
-      {/* ── 任务栏:开始 + 打开的窗口 + 忙碌指示 + 助理 ── */}
+      {/* ── taskbar: start + open windows + busy indicator + assistant ── */}
       <div className="taskbar" onClick={(e) => { e.stopPropagation(); setCtx({ open: false, x: 0, y: 0 }); }}>
         <button className={`tb-start${startOpen ? " on" : ""}`} onClick={() => setStartOpen((v) => !v)} title={t("taskbar.apps")}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -380,7 +382,7 @@ export function Desktop() {
             </button>
           ))}
         </div>
-        {/* 谁在调 AI —— 壳的状态指示,不是应用。应用调 env.AI 必须带 summary,就是为了这里看得见 */}
+        {/* Who's calling AI — a status indicator owned by the shell, not an app. Apps calling env.AI must include a summary, exactly so this is visible */}
         {busy > 0 && <span className="tb-busy" title={t("taskbar.busy", { n: busy })}>✦ {busy}</span>}
         <button className="tb-assistant" onClick={() => openById("chat")} title={t("taskbar.assistant")}>✦</button>
       </div>

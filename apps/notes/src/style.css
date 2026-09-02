@@ -1,13 +1,13 @@
 /* ════════════════════════════════════════════════════════════════════
-   笔记本 — 一本拟物的皮面笔记本
-   皮革封面 · 双线圈装订 · 横线/方格/点阵纸 · 丝带书签 · 彩色页签 · 钢笔
-   开场:封面翻开 → 摊开对页。切页:翻页卷曲。
+   Notebook — a skeuomorphic leather-bound notebook
+   Leather cover · double-ring binding · ruled/grid/dot paper · ribbon bookmark · colored tabs · fountain pen
+   Opening: cover slowly opens → spread of open pages. Page turn: curling flip animation.
    ════════════════════════════════════════════════════════════════════ */
 
-/* 基线节奏:正文行高 = 横线间距,文字坐在线上 */
+/* Baseline rhythm: body line-height = rule spacing, text sits on the lines */
 .nb-root {
-  --rule: 30px;            /* 横线 / 正文行高 */
-  --rule-top: 60px;        /* 第一条线到页顶的距离 */
+  --rule: 30px;            /* rule spacing / body line-height */
+  --rule-top: 60px;        /* distance from the first rule to the top of the page */
   --paper-pad-l: 30px;
   --paper-pad-r: 24px;
   --ink-warm: #2b2018;
@@ -20,7 +20,7 @@
   font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--ink-warm);
   position: relative;
-  /* 桌面:深色皮垫,中心一束暖光 */
+  /* Desk: dark leather mat, warm light beam at center */
   background:
     radial-gradient(120% 100% at 50% -8%, rgba(255,236,200,0.10), transparent 56%),
     repeating-linear-gradient(91deg, rgba(0,0,0,0.045) 0 2px, transparent 2px 8px),
@@ -33,7 +33,7 @@
   mix-blend-mode: screen;
 }
 
-/* ───────── 皮面封面 ───────── */
+/* ───────── Leather cover ───────── */
 .nb-cover {
   flex: 1; min-height: 0; margin: 14px;
   padding: 12px;
@@ -41,7 +41,7 @@
   position: relative;
   z-index: 1;
   perspective: 1900px;
-  /* 棕皮革:细密噪声 + 暗角 + 渐变 */
+  /* Brown leather: fine noise + vignette + gradient */
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.10  0 0 0 0 0.05  0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)'/%3E%3C/svg%3E"),
     radial-gradient(130% 120% at 50% 26%, rgba(155,105,58,0.40), transparent 72%),
@@ -55,7 +55,7 @@
     0 22px 44px -14px rgba(0,0,0,0.70),
     0 5px 0 rgba(0,0,0,0.28);
 }
-/* 封面压纹边框 */
+/* Cover embossed border */
 .nb-cover::before {
   content: ""; position: absolute; inset: 7px; border-radius: 10px;
   border: 1.5px solid rgba(40,24,10,0.55);
@@ -64,14 +64,14 @@
     inset 0 1px 2px rgba(0,0,0,0.4);
   pointer-events: none; z-index: 6;
 }
-/* 顶部高光,像打蜡皮面 */
+/* Top highlight, like waxed leather */
 .nb-cover::after {
   content: ""; position: absolute; inset: 12px; border-radius: 11px;
   background: linear-gradient(180deg, rgba(255,240,210,0.12), transparent 22%);
   pointer-events: none; z-index: 6; mix-blend-mode: screen;
 }
 
-/* 两页摊开 + 中缝 */
+/* Two open pages + center gutter */
 .nb-book {
   position: relative; height: 100%; border-radius: 8px; overflow: hidden;
   display: grid; grid-template-columns: 258px 40px 1fr; grid-template-rows: minmax(0, 1fr);
@@ -79,7 +79,7 @@
   box-shadow: inset 0 0 28px rgba(0,0,0,0.62);
 }
 
-/* ════════ 开场:封皮翻开(WOW 时刻) ════════ */
+/* ════════ Opening: cover flips open (the wow moment) ════════ */
 .nb-lid {
   position: absolute; inset: 12px; z-index: 30; border-radius: 8px;
   transform-origin: left center;
@@ -131,10 +131,10 @@
   transform: translateZ(-1px);
 }
 
-/* ════════ 左页:目录 ════════ */
+/* ════════ Left page: index ════════ */
 .nb-index {
   position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
-  /* 米色纸 + 靠中缝的弯曲阴影 */
+  /* Cream paper + curved shadow near the gutter */
   background-color: #f0e7d2;
   background-image:
     radial-gradient(140% 100% at 100% 50%, rgba(120,80,40,0.12), transparent 30%),
@@ -199,7 +199,7 @@
 .nb-empty-l1 { font-size: 13px; color: #7a6240; font-style: normal; font-weight: 700; margin-top: 6px; }
 .nb-empty-l2 { font-size: 11.5px; color: #9a8259; }
 
-/* 目录条目 = 一张小卡片,左侧有彩色页签,可挂丝带 */
+/* An index entry = a small card with a colored tab on the left, can carry a ribbon */
 .nb-entry {
   position: relative; width: 100%; margin-bottom: 6px;
 }
@@ -295,7 +295,7 @@
   100% { transform: scale(0.6); opacity: 0.5; }
 }
 
-/* ════════ 书脊:双线圈装订 + 丝带 + 钢笔 ════════ */
+/* ════════ Spine: double-ring binding + ribbon + pen ════════ */
 .nb-spine {
   position: relative;
   background:
@@ -304,7 +304,7 @@
   box-shadow: inset 0 0 14px rgba(0,0,0,0.72);
   z-index: 4;
 }
-/* 双线圈:一排金属环,穿过中缝 */
+/* Double-ring binding: a row of metal rings running through the gutter */
 .nb-spiral {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: space-around; padding: 12px 0;
@@ -320,7 +320,7 @@
     inset 0 -1px 1px rgba(0,0,0,0.5);
   position: relative;
 }
-/* 环穿进纸里的两个小孔的暗影 */
+/* Shadows of the two holes the rings pass through in the paper */
 .nb-ring::before, .nb-ring::after {
   content: ""; position: absolute; top: 50%; width: 5px; height: 5px;
   border-radius: 50%; transform: translateY(-50%);
@@ -330,7 +330,7 @@
 .nb-ring::before { left: -2px; }
 .nb-ring::after { right: -2px; }
 
-/* 丝带书签:从顶端垂下,标记当前页 */
+/* Ribbon bookmark: hangs from the top, marks the current page */
 .nb-bookmark {
   position: absolute; top: -2px; left: 50%; transform: translateX(-50%);
   width: 12px; height: 128px; border-radius: 0 0 2px 2px; z-index: 5;
@@ -346,7 +346,7 @@
   filter: brightness(0.82);
 }
 
-/* 一支斜插的钢笔 */
+/* A fountain pen tucked in at an angle */
 .nb-pen {
   position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%) rotate(7deg);
   width: 12px; height: 188px; z-index: 6; pointer-events: none;
@@ -364,7 +364,7 @@
   background: linear-gradient(90deg, #6e5a2a 0%, #ddb650 44%, #8a6e28 62%, #4a3a12 100%);
   box-shadow: inset 0 0 0 1px rgba(255,240,180,0.22), 0 1px 2px rgba(0,0,0,0.4);
 }
-.nb-pen-cap::after { /* 笔夹 */
+.nb-pen-cap::after { /* pen clip */
   content: ""; position: absolute; top: 8px; right: -1.5px; width: 3px; height: 26px;
   border-radius: 2px; background: linear-gradient(90deg, #c8a24a, #7a5e1e);
   box-shadow: 0 1px 1px rgba(0,0,0,0.4);
@@ -381,7 +381,7 @@
   box-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
-/* ════════ 右页:摊开的纸 ════════ */
+/* ════════ Right page: open sheet of paper ════════ */
 .nb-sheet {
   position: relative; min-width: 0; display: flex; flex-direction: column;
   padding: 18px var(--paper-pad-r) 0 var(--paper-pad-l);
@@ -391,7 +391,7 @@
   transform-origin: left center;
   transform-style: preserve-3d;
 }
-/* 纸张本身的纤维微噪 + 靠中缝的内页弯曲阴影 */
+/* Fine paper-fiber noise + curved inner-page shadow near the gutter */
 .nb-sheet::before {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background:
@@ -399,14 +399,14 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='pn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0 0.18 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23pn)'/%3E%3C/svg%3E");
   background-size: cover, 200px 200px;
 }
-/* 翻页时的卷曲高光/暗影层 */
+/* Curl highlight/shadow layer during page turn */
 .nb-page-curl {
   position: absolute; top: 0; bottom: 0; left: 0; width: 64%;
   pointer-events: none; z-index: 5; opacity: 0;
   background: linear-gradient(100deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.12) 16%, transparent 40%, rgba(0,0,0,0.16) 78%, rgba(0,0,0,0.32) 100%);
   transform-origin: left center;
 }
-/* 翻页动效:右页像被掀起又落下,卷曲光影扫过 */
+/* Page-turn animation: the right page lifts and falls, curl light/shadow sweeps across */
 .nb-sheet.flipping { animation: nb-flip-next 0.54s cubic-bezier(0.36, 0, 0.2, 1); }
 .nb-sheet.flip-prev { animation: nb-flip-prev 0.54s cubic-bezier(0.36, 0, 0.2, 1); }
 .nb-sheet.flipping .nb-page-curl { animation: nb-curl 0.54s ease-out; }
@@ -426,7 +426,7 @@
   100% { opacity: 0; transform: scaleX(1); }
 }
 
-/* 各种纸张底纹(横线/方格/点阵/牛皮/信笺) — 基线对齐到 --rule-top + --rule */
+/* Various paper textures (ruled/grid/dot/kraft/cream) — baseline aligned to --rule-top + --rule */
 .nb-sheet > * { position: relative; z-index: 1; }
 .pg-ruled {
   background-color: #fbf7ea;
@@ -467,7 +467,7 @@
   background-size: 100% 100%, 100% auto;
 }
 
-/* 整页滚动:标题 + 日期 + 正文一起滚,两个输入框都自适应高度不再各自滚 */
+/* Whole-page scroll: title + date + body scroll together, both inputs auto-size instead of scrolling separately */
 .nb-scroll {
   flex: 1; min-height: 0; display: flex; flex-direction: column;
   overflow-y: auto; overflow-x: hidden;
@@ -517,7 +517,7 @@
 }
 .nb-body::placeholder { color: rgba(120,90,60,0.38); font-style: italic; }
 
-/* 空白页占位 */
+/* Blank-page placeholder */
 .nb-blank {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
 }
@@ -529,8 +529,8 @@
 }
 .nb-blank-text { font-size: 13px; color: #9a8259; font-style: italic; }
 
-/* ════════ 页脚工具条 ════════ */
-/* ════════ 页脚:一条指令输入(AI 直接改写本页)+ 撤销 ════════ */
+/* ════════ Footer toolbar ════════ */
+/* ════════ Footer: a single instruction input (AI rewrites this page directly) + undo ════════ */
 .nb-cmdbar {
   flex: none; display: flex; align-items: center; gap: 9px;
   margin: 6px calc(var(--paper-pad-r) * -1) 0 calc(var(--paper-pad-l) * -1);
@@ -585,7 +585,7 @@
 }
 .nb-paper-dot:hover { transform: translateY(-2px); }
 .nb-paper-dot.on { box-shadow: 0 0 0 2px rgba(236,200,90,0.95), 0 3px 7px rgba(0,0,0,0.45); transform: translateY(-2px); }
-/* 小样张:用纯色近似各纸 */
+/* Mini swatches: flat colors approximating each paper */
 .pg-ruled-chip { background: #fbf7ea; }
 .pg-grid-chip { background: #f1efe2; background-image: linear-gradient(rgba(60,90,60,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(60,90,60,0.5) 1px, transparent 1px); background-size: 6px 6px; }
 .pg-dot-chip { background: #eef3f7; background-image: radial-gradient(circle, rgba(40,70,110,0.6) 1px, transparent 1px); background-size: 6px 6px; }
@@ -620,7 +620,7 @@
 .nb-del:hover { background: linear-gradient(180deg, #9a3a30, #701e1e); transform: translateY(-1px); }
 .nb-del:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(50,10,10,0.6), inset 0 1px 3px rgba(0,0,0,0.3); }
 
-/* ════════ AI 抽屉 ════════ */
+/* ════════ AI drawer ════════ */
 .nb-ai-drawer {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 7;
   max-height: 0; overflow: hidden;
@@ -689,7 +689,7 @@
 .nb-ink-dots i:nth-child(3) { animation-delay: 0.36s; }
 @keyframes nb-dot { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 
-/* ════════ 撕页确认 ════════ */
+/* ════════ Tear-page confirmation ════════ */
 .nb-modal {
   position: absolute; inset: 0; z-index: 20; display: grid; place-items: center;
   background: rgba(20,12,6,0.56); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
@@ -726,7 +726,7 @@
 .nb-modal-ok:hover { filter: brightness(1.1); }
 .nb-modal-ok:active { transform: translateY(2px); box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
 
-/* ════════ 自适应 ════════ */
+/* ════════ Responsive ════════ */
 @media (max-width: 720px) {
   .nb-book { grid-template-columns: 210px 34px 1fr; }
   .nb-ring { width: 22px; }
@@ -737,7 +737,7 @@
   .nb-ai { padding: 6px 9px; }
 }
 
-/* 尊重“减少动效”偏好 */
+/* Respect the "reduced motion" preference */
 @media (prefers-reduced-motion: reduce) {
   .nb-lid { transition: opacity 0.3s ease; transform: rotateY(-164deg); opacity: 0; }
   .nb-sheet.flipping, .nb-sheet.flip-prev, .nb-bookmark, .nb-empty-quill, .nb-blank-mark { animation: none; }

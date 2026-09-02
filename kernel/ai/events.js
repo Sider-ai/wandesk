@@ -1,4 +1,4 @@
-// AI 内核的输出事件契约。
+// Output event contract for the AI kernel.
 export const EVENTS = Object.freeze({
     MESSAGE: 'message',
     REASONING: 'reasoning',

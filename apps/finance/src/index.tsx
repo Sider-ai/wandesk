@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { db } from './wandesk/db';
 import './style.css';
 
-// 记账本 — 一本拟物红皮存折(移植自 AIOS,按 Wandesk 架构重做)。
-// 皮革书脊 + 烫金书名、金属订线、米色账页 + 点阵字体;按月翻查,行内双击改,底部一行录入。
-// 纯本地:一张 app_finance_transactions 表,无 AI。
+// Ledger — a skeuomorphic red leather passbook (ported from AIOS, rebuilt for the Wandesk architecture).
+// Leather spine + gold-stamped title, metal binding, cream ledger pages + dot-matrix font;
+// browse by month, double-click a row to edit, one entry row at the bottom.
+// Purely local: a single app_finance_transactions table, no AI.
 
 const APP = 'finance';
 type Row = { id: number; type: 'income' | 'expense'; amount: number; note: string; date: string };
@@ -13,20 +14,20 @@ type Edit = { id: number; field: 'date' | 'note' | 'amount'; value: string } | n
 const pad = (n: number) => String(n).padStart(2, '0');
 const monthKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 const fmtAmt = (n: number) =>
-  (Number(n) || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (s: string) => (s ? `${s.slice(5, 7)}-${s.slice(8, 10)}` : '');
 
-// 首次打开(整表为空)播种几条示例流水,落在当前月,顺手演示用法
+// First open (table is empty): seed a few sample entries in the current month, as a quick demo
 const seedRows = (month: string): [Row['type'], number, string, string][] => [
-  ['income', 880000, '卖掉了老家祖传的陨石,鉴定说是火星来的', `${month}-03T09:15:00`],
-  ['income', 5200, '帮邻居大妈设计了一款广场舞队服,爆单了', `${month}-08T11:00:00`],
-  ['income', 1500, '教楼下咖啡店老板拉花,他按杯付费', `${month}-14T08:30:00`],
-  ['expense', 140000, '冲动买了一匹退役赛马,说是要陪它跑步', `${month}-20T14:30:00`],
-  ['expense', 299, '给自己买了一本《如何停止乱花钱》', `${month}-26T15:30:00`],
+  ['income', 880000, 'Sold a meteorite that had been in the family for generations — turns out it was from Mars', `${month}-03T09:15:00`],
+  ['income', 5200, 'Designed a matching outfit for the neighborhood dance troupe, orders went through the roof', `${month}-08T11:00:00`],
+  ['income', 1500, 'Taught the barista downstairs latte art, he pays by the cup', `${month}-14T08:30:00`],
+  ['expense', 140000, 'Impulse-bought a retired racehorse, said I would jog with it', `${month}-20T14:30:00`],
+  ['expense', 299, 'Bought myself a copy of "How to Stop Overspending"', `${month}-26T15:30:00`],
 ];
 
 export default function Finance({ appId }: { appId: string }) {
-  void appId; // 数据固定走本应用自己的表
+  void appId; // Data always goes through this app's own table
   const [month, setMonth] = useState(() => monthKey(new Date()));
   const [rows, setRows] = useState<Row[]>([]);
   const [income, setIncome] = useState(0);
@@ -140,7 +141,7 @@ export default function Finance({ appId }: { appId: string }) {
 
   return (
     <div className="fin-root">
-      <header className="fin-spine"><span className="fin-title">记账本</span></header>
+      <header className="fin-spine"><span className="fin-title">LEDGER</span></header>
       <div className="fin-binding" />
 
       <div className="fin-pages">
@@ -153,9 +154,9 @@ export default function Finance({ appId }: { appId: string }) {
             <button className={isCurrent ? 'off' : ''} disabled={isCurrent} onClick={() => shiftMonth(1)}>►</button>
           </div>
           <div className="fin-summary">
-            <div className="fin-sumcol"><span className="fin-sumlbl">收入</span><span className="fin-inc">+ {fmtAmt(income)}</span></div>
-            <div className="fin-sumcol div"><span className="fin-sumlbl">支出</span><span className="fin-exp">- {fmtAmt(expense)}</span></div>
-            <div className="fin-sumcol div"><span className="fin-sumlbl bold">结余</span><span className="fin-bal">{fmtAmt(balance)}</span></div>
+            <div className="fin-sumcol"><span className="fin-sumlbl">Income</span><span className="fin-inc">+ {fmtAmt(income)}</span></div>
+            <div className="fin-sumcol div"><span className="fin-sumlbl">Expense</span><span className="fin-exp">- {fmtAmt(expense)}</span></div>
+            <div className="fin-sumcol div"><span className="fin-sumlbl bold">Balance</span><span className="fin-bal">{fmtAmt(balance)}</span></div>
           </div>
         </div>
 
@@ -163,11 +164,11 @@ export default function Finance({ appId }: { appId: string }) {
           <table className="fin-table fin-dot">
             <thead>
               <tr>
-                <th className="w-date">日期</th>
-                <th>摘要</th>
-                <th className="w-amt">支出</th>
-                <th className="w-amt">存入</th>
-                <th className="w-op">操作</th>
+                <th className="w-date">Date</th>
+                <th>Note</th>
+                <th className="w-amt">Withdrawn</th>
+                <th className="w-amt">Deposited</th>
+                <th className="w-op">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -177,7 +178,7 @@ export default function Finance({ appId }: { appId: string }) {
                     {editCell(row, 'date', 'c') || <span>{fmtDate(row.date)}</span>}
                   </td>
                   <td className="c" onDoubleClick={() => beginEdit(row, 'note')}>
-                    {editCell(row, 'note', 'c') || <span>{row.note || (row.type === 'income' ? '入账' : '支出')}</span>}
+                    {editCell(row, 'note', 'c') || <span>{row.note || (row.type === 'income' ? 'Deposit' : 'Expense')}</span>}
                   </td>
                   <td className="r exp" onDoubleClick={() => row.type === 'expense' && beginEdit(row, 'amount')}>
                     {(row.type === 'expense' && editCell(row, 'amount', 'r exp')) || <span>{row.type === 'expense' ? '-' + fmtAmt(row.amount) : ''}</span>}
@@ -186,17 +187,17 @@ export default function Finance({ appId }: { appId: string }) {
                     {(row.type === 'income' && editCell(row, 'amount', 'r inc')) || <span>{row.type === 'income' ? '+' + fmtAmt(row.amount) : ''}</span>}
                   </td>
                   <td className="c">
-                    <button className="fin-del" onClick={() => remove(row.id)}>删除</button>
+                    <button className="fin-del" onClick={() => remove(row.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
 
               <tr className="fin-addrow">
                 <td className="c"><input className="fin-inl c" value={form.date} placeholder={todayStr} onChange={(e) => setForm({ ...form, date: e.target.value })} /></td>
-                <td className="c"><input className="fin-inl c" value={form.note} placeholder="写点什么…" onChange={(e) => setForm({ ...form, note: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && addRow()} /></td>
+                <td className="c"><input className="fin-inl c" value={form.note} placeholder="Write something…" onChange={(e) => setForm({ ...form, note: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && addRow()} /></td>
                 <td className="r"><input className="fin-inl r exp" value={form.withdraw} placeholder="0.00" onChange={(e) => setForm({ ...form, withdraw: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && addRow()} /></td>
                 <td className="r"><input className="fin-inl r inc" value={form.deposit} placeholder="0.00" onChange={(e) => setForm({ ...form, deposit: e.target.value })} onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && addRow()} /></td>
-                <td className="c"><button className="fin-add" disabled={saving || (!form.withdraw && !form.deposit)} onClick={addRow}>记一笔</button></td>
+                <td className="c"><button className="fin-add" disabled={saving || (!form.withdraw && !form.deposit)} onClick={addRow}>Add entry</button></td>
               </tr>
 
               {Array.from({ length: 6 }, (_, i) => (

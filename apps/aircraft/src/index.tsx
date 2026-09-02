@@ -9,9 +9,10 @@ import type { GS } from './lib/types';
 import './style.css';
 
 // ═══════════════════════════════════════════════════════════════════════
-//  飞机大战 / SKY STRIKE — 霓虹街机弹幕射击。视差星野、粒子、震屏、慢镜、
-//  敌机与首领、增益掉落。本文件只做:画布 + 游戏循环 + 输入 + 存档;
-//  游戏逻辑在 lib/(update/state/fx),渲染在 render/,文案在 lib/text。
+//  AIRCRAFT / SKY STRIKE — neon arcade bullet-hell shooter. Parallax starfield,
+//  particles, screen shake, slow-mo, enemies and bosses, power-up drops. This file
+//  only handles: canvas + game loop + input + save data;
+//  game logic lives in lib/ (update/state/fx), rendering in render/, copy in lib/text.
 // ═══════════════════════════════════════════════════════════════════════
 
 export default function Aircraft({ appId }: { appId: string }) {

@@ -1,5 +1,5 @@
-// 工具调用消息专门放在这个文件来执行。
-// 接收工具调用数组，返回工具结果数组。
+// Tool call messages are executed in this file specifically.
+// Takes an array of tool calls, returns an array of tool results.
 const parse = (value) => {
     if (value && typeof value === 'object') return value;
     try { return JSON.parse(String(value || '{}')); } catch { return {}; }
@@ -15,7 +15,7 @@ export async function runTools(calls = [], toolHandlers, context = {}) {
         try {
             result = typeof execute === 'function'
                 ? await execute(parse(call.arguments), context)
-                : { error: `未知工具:${name}` };
+                : { error: `Unknown tool: ${name}` };
         } catch (error) {
             if (error?.name === 'AbortError' || context.signal?.aborted) throw error;
             result = { error: error?.message || String(error) };

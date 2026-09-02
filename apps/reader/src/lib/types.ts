@@ -1,4 +1,4 @@
-// 阅读 — 类型定义。
+// Reader — type definitions.
 export type BookRow = {
   id: number;
   title: string;
@@ -7,14 +7,14 @@ export type BookRow = {
   status: string;
   updated_at: string;
 };
-// 一页:叙事 + 玩家走出的行动 + 这一页给出的待选项(用于恢复抉择点)
+// One page: narrative + the action the player took to leave it + the pending choices offered on this page (used to restore a decision point)
 export type Page = { idx: number; narrative: string; chosen: string; choices: string[] };
 export type Turn = { narrative: string; choices: string[]; title?: string };
 
-// 题材体裁 —— 每一种一款封面版式。
+// Genre — each one gets its own cover style.
 export type Genre = 'cyberpunk' | 'wuxia' | 'apocalypse' | 'gothic' | 'scifi' | 'fantasy' | 'classic';
 
-// 预置故事(书架上的成书,点封面即开局)。
+// Preset story (a finished book on the shelf; clicking the cover starts it).
 export type Preset = {
   key: string;
   title: string;

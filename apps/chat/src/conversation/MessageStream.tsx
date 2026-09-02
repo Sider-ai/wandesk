@@ -1,9 +1,12 @@
-// 消息流 —— 按轮收纳:
-//   · 一条用户消息起一轮。轮内的思考 / 工具 / 中间文本是过程,最后那条正文是结果。
-//   · 轮完成且有最终文本 → 过程整体收进「已工作X」折叠条,最终文本站在外面;
-//   · 轮还在进行中(或没有最终文本,比如中途停掉)→ 平铺,过程依次展示;
-//   · 用户消息是右侧灰底气泡;助理最终文本无气泡全宽 markdown,
-//     悬停出现复制行,最后一条常显。
+// Message stream — organized by turn:
+//   · One user message starts a turn. Reasoning / tools / intermediate text within the turn are
+//     process, and the final text is the result.
+//   · A completed turn with final text → the process collapses into a "Worked for X" fold, with
+//     the final text standing outside it;
+//   · A turn still in progress (or with no final text, e.g. stopped partway) → laid out flat,
+//     process shown in order;
+//   · User messages are gray bubbles on the right; the assistant's final text is bubble-free,
+//     full-width markdown, with a copy row that appears on hover (always shown for the last one).
 import { useEffect, useMemo, useRef } from 'react';
 
 import { Icon, Mark } from '../icons/Icon';
@@ -14,11 +17,11 @@ import { loadOlder, retrySend, useConversation } from './store';
 import { seedDraft } from './draft';
 import type { Row } from './thread';
 
-/** 空白对话的起手式:每一条都是这个 Agent 真做得到的事。点了填进输入框,不直接发。 */
+/** Starter prompts for a blank conversation: each one is something this Agent can actually do. Clicking fills the input, doesn't send. */
 const STARTERS: Array<{ icon: string; text: string }> = [
-    { icon: 'doc', text: '看一下这个项目的结构,总结每个目录是干什么的' },
-    { icon: 'terminal', text: '运行测试,把失败的原因整理给我' },
-    { icon: 'pen', text: '把 README 里过时的部分改成现在的实际情况' },
+    { icon: 'doc', text: 'Look at this project\'s structure and summarize what each directory is for' },
+    { icon: 'terminal', text: 'Run the tests and summarize why any failures happened' },
+    { icon: 'pen', text: 'Update the outdated parts of the README to match the current state' },
 ];
 
 type Block =
@@ -32,7 +35,8 @@ export function MessageStream() {
     const scrollRef = useRef<HTMLElement>(null);
     const innerRef = useRef<HTMLDivElement>(null);
 
-    // 「粘底」:贴着底部时任何高度变化都跟着走;用户上滚就不打扰,滚回底部重新粘上
+    // "Stick to bottom": while pinned to the bottom, any height change follows along; scrolling up
+    // stops the auto-follow, and scrolling back to the bottom re-engages it
     const stick = useRef(true);
     const restoreFromTop = useRef(0);
 
@@ -48,9 +52,9 @@ export function MessageStream() {
         const noteAt = (at?: number) => { if (at) turnLastAt = at; };
 
         /**
-         * 收掉当前这轮。live = 最后一轮且还在跑。
-         * 有最终文本且已完成 → 过程进折叠条、最终文本在外;否则平铺。
-         * 最终文本 = 轮里最后一条带正文的已完成 assistant 行。
+         * Flush the current turn. live = it's the last turn and still running.
+         * Has final text and is complete → process goes into the fold, final text stays outside; otherwise flat.
+         * Final text = the last completed assistant row in the turn that carries body text.
          */
         const flushTurn = (live: boolean) => {
             if (!entries.length) { turnStartAt = undefined; turnLastAt = undefined; return; }
@@ -79,7 +83,7 @@ export function MessageStream() {
         for (const row of rows) {
             const day = dayLabel(row.at);
             if (day && day !== lastDay) {
-                flushTurn(false); // 换天先收上一轮,日期条不站在折叠条中间
+                flushTurn(false); // flush the previous turn before switching days, so the date chip doesn't end up inside the fold
                 output.push({ kind: 'day', key: `day:${row.key}`, label: day });
                 lastDay = day;
             }
@@ -97,22 +101,22 @@ export function MessageStream() {
                 continue;
             }
             if (row.kind === 'assistant') {
-                // 同一行可能既有思考又有正文 —— 思考属于过程,正文属于文本
+                // One row can carry both reasoning and body text — reasoning is process, body is text
                 if (row.reasoning) entries.push({ kind: 'think', row });
                 if (row.content) entries.push({ kind: 'text', row });
                 noteAt(row.at);
                 continue;
             }
-            // 系统注解独立成块,不搅进轮里
+            // System notes form their own block and don't get mixed into a turn
             flushTurn(false);
             output.push({ kind: 'message', key: row.key, row });
         }
         flushTurn(busy);
         return output;
-        // tick 是「行内容原地变过」的信号,必须进依赖,否则流式不重算
+        // tick signals "row content changed in place" and must be a dependency, or streaming won't recompute
     }, [rows, busy, tick]);
 
-    // 最后那条最终文本:复制行常显(其余悬停出现)
+    // The last final-text row: its copy row is always shown (others appear on hover)
     const lastFinalKey = useMemo(() => {
         for (let i = blocks.length - 1; i >= 0; i--) {
             const block = blocks[i];
@@ -124,7 +128,7 @@ export function MessageStream() {
     const showWorking = useMemo(() => {
         if (!busy) return false;
         const last = rows[rows.length - 1];
-        // 正文在流式输出,或过程行自己带着扫光 —— 都轮不到等待动画
+        // Body text is streaming, or a process row already has its own shimmer — either way, no waiting animation needed
         if (last && last.kind === 'assistant' && last.streaming && last.content) return false;
         if (last && last.kind === 'tool' && last.status === 'running') return false;
         return true;
@@ -135,13 +139,14 @@ export function MessageStream() {
         if (!element) return;
         stick.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80;
         if (element.scrollTop < 60 && hasMore && !loadingOlder) {
-            restoreFromTop.current = element.scrollHeight; // 记住旧高度,加载后保持视口
+            restoreFromTop.current = element.scrollHeight; // remember the old height so the viewport holds steady after loading
             void loadOlder();
         }
     };
 
-    // 依赖 currentId:内层容器按对话 key 重挂,换对话后要观察的是新节点 ——
-    // 盯着旧节点的观察器一次都不会再触发,粘底从此失灵
+    // Depends on currentId: the inner container remounts keyed by conversation, and after switching
+    // the node to observe is a new one — an observer still watching the old node would never fire
+    // again, and stick-to-bottom would silently break
     useEffect(() => {
         const element = scrollRef.current;
         const inner = innerRef.current;
@@ -159,7 +164,7 @@ export function MessageStream() {
         return () => observer.disconnect();
     }, [currentId]);
 
-    // 切对话 / 自己发消息:强制回底并重新粘上
+    // Switching conversations / sending your own message: force back to the bottom and re-engage sticking
     useEffect(() => {
         stick.current = true;
         restoreFromTop.current = 0;
@@ -167,7 +172,8 @@ export function MessageStream() {
         if (element) element.scrollTop = element.scrollHeight;
     }, [viewSeq]);
 
-    // 自动填屏:首页不满一屏就没有滚动条,onScroll 永不触发 —— 有更早的就继续拉
+    // Auto-fill the screen: if the first page doesn't fill the viewport there's no scrollbar and
+    // onScroll never fires — keep pulling more while there's earlier content available
     useEffect(() => {
         if (!ready || !hasMore || loadingOlder || !rows.length) return;
         const element = scrollRef.current;
@@ -177,24 +183,24 @@ export function MessageStream() {
 
     const copyText = (content?: string) => {
         void navigator.clipboard.writeText(content || '');
-        toast('已复制');
+        toast('Copied');
     };
 
     return (
         <main ref={scrollRef} className="stream" onScroll={onScroll}>
-            {/* key 按对话换:换对话 = 整棵子树重挂,行数组是可变结构,重挂一了百了 */}
+            {/* key changes per conversation: switching conversations remounts the whole subtree; the rows array is a mutable structure, and remounting sidesteps that entirely */}
             <div key={currentId || '__draft__'} ref={innerRef} className="stream-inner">
-                {loadingOlder && <span className="chip">加载更早的消息…</span>}
+                {loadingOlder && <span className="chip">Loading earlier messages…</span>}
                 {!loadingOlder && hasMore && rows.length > 0 && (
-                    <button className="chip chip-btn" onClick={() => void loadOlder()}>查看更早的消息</button>
+                    <button className="chip chip-btn" onClick={() => void loadOlder()}>View earlier messages</button>
                 )}
 
-                {!ready && !rows.length && <span className="chip">正在打开对话…</span>}
+                {!ready && !rows.length && <span className="chip">Opening conversation…</span>}
 
                 {ready && !rows.length && (
                     <div className="blank float-in">
                         <Mark size={60} />
-                        <div className="blank-title">这次做点什么?</div>
+                        <div className="blank-title">What should we do?</div>
                         <div className="starters">
                             {STARTERS.map((starter) => (
                                 <button key={starter.text} className="starter" onClick={() => seedDraft(starter.text)}>
@@ -231,9 +237,9 @@ export function MessageStream() {
                                     ))}</div>}
                                     {row.content}
                                 </div>
-                                {row.sending && <div className="send-state">发送中…</div>}
+                                {row.sending && <div className="send-state">Sending…</div>}
                                 {!row.sending && row.failed && (
-                                    <button className="send-retry" onClick={() => void retrySend(row)}>发送失败,点击重试</button>
+                                    <button className="send-retry" onClick={() => void retrySend(row)}>Failed to send, click to retry</button>
                                 )}
                             </div>
                         );
@@ -244,7 +250,7 @@ export function MessageStream() {
                             <div key={block.key} className="msg agent float-in">
                                 <div className="md" dangerouslySetInnerHTML={{ __html: renderMd(row.content) }} />
                                 <div className={`act-row${always ? ' always' : ''}`}>
-                                    <button className="act" title="复制" onClick={() => copyText(row.content)}>
+                                    <button className="act" title="Copy" onClick={() => copyText(row.content)}>
                                         <Icon name="copy" size={14} />
                                     </button>
                                 </div>
@@ -253,7 +259,7 @@ export function MessageStream() {
                     }
                     return (
                         <span key={block.key} className={`chip${row.code === 'error' ? ' chip-bad' : ''}`}>
-                            {row.code === 'stopped' ? '已停止' : row.content}
+                            {row.code === 'stopped' ? 'Stopped' : row.content}
                         </span>
                     );
                 })}

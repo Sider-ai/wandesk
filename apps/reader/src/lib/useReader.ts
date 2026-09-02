@@ -1,4 +1,4 @@
-// 阅读 — 全部状态与操作收进这个 hook;index 只切视图,视图组件读 ReaderCtx。
+// Reader — all state and actions live in this hook; index just switches views, view components read ReaderCtx.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { agent } from '../wandesk/agent';
 import * as data from '../db';
@@ -7,23 +7,23 @@ import type { BookRow, Genre, Page, Turn } from './types';
 
 export function useReader(appId: string) {
   const [books, setBooks] = useState<BookRow[]>([]);
-  const [counts, setCounts] = useState<Record<number, number>>({}); // 每本书已有的页数
+  const [counts, setCounts] = useState<Record<number, number>>({}); // number of pages each book already has
   const [view, setView] = useState<'shelf' | 'reader'>('shelf');
-  const [composing, setComposing] = useState(false); // 添加位打开的自定义设定纸页
+  const [composing, setComposing] = useState(false); // the custom-setup sheet opened by the add slot
 
-  // 当前打开的书
+  // the currently open book
   const [book, setBook] = useState<BookRow | null>(null);
   const [pages, setPages] = useState<Page[]>([]);
   const [choices, setChoices] = useState<string[]>([]);
-  const [convId, setConvId] = useState<string | null>(null); // 活会话:有则原生续写
+  const [convId, setConvId] = useState<string | null>(null); // live session: if present, continue natively
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [custom, setCustom] = useState('');
   const [premise, setPremise] = useState('');
-  const idxOfNew = useRef(0); // 给新落地的一页一个递增 key,确保过渡动画重新触发
+  const idxOfNew = useRef(0); // gives each newly landed page an incrementing key, ensuring the transition animation re-fires
 
-  // 阅读器控件:字号档位 + 日夜纸色(不持久化,重开归零)
+  // Reader controls: font-size step + day/night paper tone (not persisted, resets on reopen)
   const [fontStep, setFontStep] = useState(1);
   const [theme, setTheme] = useState<'day' | 'night'>('day');
   const lastPageRef = useRef<HTMLDivElement>(null);
@@ -39,18 +39,18 @@ export function useReader(appId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 新一页落地后,滚到这一页的开头,从新章节读起
+  // once a new page lands, scroll to its start so the new chapter reads from the top
   useEffect(() => {
     if (view === 'reader') lastPageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [pages.length, view]);
 
-  // ── 跑一轮引擎:优先原生续写,会话失效则用 pages 重建一个新会话 ──
+  // ── Run one engine turn: prefer native continuation; if the session is invalid, rebuild a new one from pages ──
   async function runTurn(prompt: string, useConv: string | null, recap: string | null): Promise<{ turn: Turn; conversationId: string | null } | null> {
     let r = useConv
       ? await agent(appId, prompt, { conversationId: useConv, schema: TURN_SCHEMA })
       : await agent(appId, recap ? `${recap}\n\n${prompt}` : prompt, { system: GM, schema: TURN_SCHEMA });
     let turn = extractTurn(r);
-    if (!turn && useConv) { // 会话失效 / 解析失败 → 用 recap 重建全新会话再试一次
+    if (!turn && useConv) { // session invalid / parse failed → rebuild a fresh session from the recap and try once more
       r = await agent(appId, recap ? `${recap}\n\n${prompt}` : prompt, { system: GM, schema: TURN_SCHEMA });
       turn = extractTurn(r);
     }
@@ -58,7 +58,7 @@ export function useReader(appId: string) {
     return { turn, conversationId: r.conversationId ?? useConv ?? null };
   }
 
-  // ── 开新书(预置书 / 自定义设定都走这里)。forcedTitle:预置书用固定书名。 ──
+  // ── Start a new book (both preset books and custom setups go through here). forcedTitle: presets use a fixed title. ──
   async function startBook(p: string, forcedTitle?: string) {
     const text = p.trim();
     if (!text || busy) return;
@@ -67,15 +67,15 @@ export function useReader(appId: string) {
     setFontStep(1); setTheme('day');
     idxOfNew.current = 0;
 
-    const prompt = `请为下面的设定开启一个互动故事,写出引人入胜的开场第一页,并给出 2–4 个抉择。\n设定:${text}`;
+    const prompt = `Begin an interactive story from the setup below. Write a gripping opening page and offer 2–4 choices.\nSetup: ${text}`;
     const out = await runTurn(prompt, null, null);
-    if (!out) { setError('故事没能展开,请再试一次。'); setBusy(false); setView('shelf'); return; }
+    if (!out) { setError('The story failed to start. Please try again.'); setBusy(false); setView('shelf'); return; }
     const { turn, conversationId } = out;
-    const title = (forcedTitle || turn.title || '无题').slice(0, 24);
+    const title = (forcedTitle || turn.title || 'Untitled').slice(0, 24);
     const status = turn.choices.length ? 'ongoing' : 'ended';
 
     const bookId = await data.insertBook(appId, title, text, conversationId, status);
-    await data.insertPage(appId, bookId, 0, turn.narrative, '', turn.choices); // 开场页连同待选项一起存
+    await data.insertPage(appId, bookId, 0, turn.narrative, '', turn.choices); // store the opening page along with its pending choices
 
     setBook({ id: bookId, title, premise: text, conversation_id: conversationId, status, updated_at: '' });
     setPages([{ idx: 0, narrative: turn.narrative, chosen: '', choices: turn.choices }]);
@@ -85,13 +85,13 @@ export function useReader(appId: string) {
     loadShelf();
   }
 
-  // ── 推进一页(点选项 / 自定义行动) ──
+  // ── Advance one page (choice click / custom action) ──
   async function advance(action: string) {
     const act = action.trim();
     if (!act || busy || !book) return;
     setError(''); setCustom(''); setBusy(true);
 
-    // 把行动写到"当前最后一页"的 chosen 上,并清掉它的待选项。
+    // Write the action onto the "current last page"'s chosen field, and clear its pending choices.
     const cur = pages[pages.length - 1];
     setPages((s) => s.map((x, i) => (i === s.length - 1 ? { ...x, chosen: act, choices: [] } : x)));
     await data.setPageChoice(appId, book.id, cur.idx, act, []);
@@ -99,12 +99,12 @@ export function useReader(appId: string) {
 
     const pagesWithChoice = pages.map((x, i) => (i === pages.length - 1 ? { ...x, chosen: act } : x));
     const recap = buildRecap(book.premise || premise, pagesWithChoice);
-    const prompt = `玩家选择的行动:${act}\n\n请承接上文,写出接下来发生的这一页,并给出 2–4 个新的抉择(若故事到了有力的结局可结束)。`;
+    const prompt = `The player's chosen action: ${act}\n\nContinue from here — write the page that follows, and offer 2–4 new choices (or end the story if it has reached a strong conclusion).`;
 
     const out = await runTurn(prompt, convId, recap);
     if (!out) {
-      // 失败:把刚才的选择回滚为未选,恢复原待选项让玩家重试
-      setError('这一步没能继续,请重试,或换一个行动。');
+      // failure: roll the just-made choice back to unselected, restoring the original pending choices so the player can retry
+      setError('This step failed to continue. Please retry, or try a different action.');
       setPages((s) => s.map((x, i) => (i === s.length - 1 ? { ...x, chosen: '', choices: cur.choices } : x)));
       await data.setPageChoice(appId, book.id, cur.idx, '', cur.choices);
       setChoices((c) => (c.length ? c : cur.choices.length ? cur.choices : [act]));
@@ -115,7 +115,7 @@ export function useReader(appId: string) {
     const nextIdx = cur.idx + 1;
     const ended = turn.choices.length === 0;
 
-    await data.insertPage(appId, book.id, nextIdx, turn.narrative, '', turn.choices); // 新一页连同待选项存
+    await data.insertPage(appId, book.id, nextIdx, turn.narrative, '', turn.choices); // store the new page along with its pending choices
     await data.setBookState(appId, book.id, conversationId, ended ? 'ended' : 'ongoing');
 
     idxOfNew.current = nextIdx;
@@ -127,28 +127,28 @@ export function useReader(appId: string) {
     loadShelf();
   }
 
-  // ── 重开一本已存的书:整篇载入 + 恢复会话 + 恢复停在抉择点的待选项 ──
+  // ── Reopen an existing book: load the whole thing + restore the session + restore any pending choices at the decision point ──
   async function openBook(s: BookRow) {
     setError(''); setComposing(false); setView('reader'); setBusy(false); setCustom('');
     setBook(s); setPremise(s.premise); setConvId(s.conversation_id); setPages([]); setChoices([]);
     setFontStep(1); setTheme('day');
-    idxOfNew.current = -1; // 载入旧书不触发"新落地"动画
+    idxOfNew.current = -1; // loading an old book should not trigger the "freshly landed" animation
 
     const sc = await data.loadPages(appId, s.id);
     setPages(sc);
-    // 若停在抉择点(末页还没选),直接把存下来的待选项显示出来。
+    // If stopped at a decision point (the last page has no chosen action yet), just show the stored pending choices.
     const last = sc[sc.length - 1];
     setChoices(last && !last.chosen && s.status !== 'ended' ? last.choices : []);
   }
 
-  // 停在抉择点但没有持久化的待选项(老库或异常)→ 让引擎基于现状重新给出抉择。
+  // Stopped at a decision point but with no persisted pending choices (legacy data or an anomaly) → have the engine give fresh choices based on the current state.
   async function resumeChoices() {
     if (!book || busy) return;
     setError(''); setBusy(true);
     const recap = buildRecap(book.premise || premise, pages);
-    const prompt = '请承接上文,基于当前局面给出接下来 2–4 个可行的抉择(并用一两句话把镜头稳稳停在此刻,不要跳进新的剧情)。';
+    const prompt = 'Continue from here, and based on the current situation offer 2–4 viable choices (hold the camera steady on this moment in a sentence or two — do not jump into new plot).';
     const out = await runTurn(prompt, convId, recap);
-    if (!out) { setError('没能取回选项,请重试。'); setBusy(false); return; }
+    if (!out) { setError('Failed to retrieve choices. Please try again.'); setBusy(false); return; }
     const { turn, conversationId } = out;
     setConvId(conversationId);
     if (conversationId && conversationId !== book.conversation_id) {
@@ -166,7 +166,7 @@ export function useReader(appId: string) {
 
   async function deleteBook(id: number, e: React.MouseEvent) {
     e.stopPropagation();
-    if (!confirm('删除这个故事?此操作不可撤销。')) return;
+    if (!confirm('Delete this story? This cannot be undone.')) return;
     await data.deleteBook(appId, id);
     loadShelf();
   }

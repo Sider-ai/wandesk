@@ -1,12 +1,12 @@
-// 预装应用落地:随包的模板复制进工作区的 apps/。
-// 落地之后它就是普通应用 —— 可改可删,与用户自己造的没有任何区别。
+// Preset app seeding: copies the bundled templates into the workspace's apps/ directory.
+// Once seeded, it's just a regular app — editable, deletable, no different from one the user built themselves.
 //
-// 升级规则(只有一条):**用户没动过的,跟着新版走;动过的,一个字都不碰。**
-// 判据是内容指纹:上次落地时记下指纹,这次开机先算一遍磁盘上的。
-//   一致 = 用户没改过 → 随包版本变了就替换;
-//   不一致 = 用户(或 AI)改过 → 那是他的应用了,永不覆盖。
-// data.db(指向库的链接)不进指纹 —— 数据本来就一直在变,不能当作「被改过」。
-// public/(源码编出来的产物)与 node_modules/ 也不进 —— 用户装依赖、重编一次不算改了应用。
+// Upgrade rule (only one): **untouched by the user follows the new bundled version; touched by the user, never touched again.**
+// Judged by a content fingerprint: the fingerprint at the last seeding is recorded, and recomputed from disk on this boot.
+//   Match = the user never changed it → replace it when the bundled version changes;
+//   Mismatch = the user (or the AI) changed it → it's their app now, never overwrite it.
+// data.db (the symlink to the database) is excluded from the fingerprint — data is always changing and shouldn't count as "modified".
+// public/ (build output from source) and node_modules/ are also excluded — installing dependencies or rebuilding doesn't count as modifying the app.
 import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
@@ -16,14 +16,14 @@ const STAMP = () => path.join(kernelDir(), "preinstall.json");
 const SKIP = /^data\.db$/;
 const SKIP_DIR = /^(node_modules|public)$/;
 
-/** 目录内容指纹:相对路径 + 内容,排序后一起哈希。 */
+/** Directory content fingerprint: relative path + content, sorted and hashed together. */
 const fingerprint = (dir: string): string => {
   const hash = createHash("sha256");
   const walk = (rel: string) => {
     const abs = path.join(dir, rel);
     for (const entry of fs.readdirSync(abs, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
       if (SKIP.test(entry.name)) continue;
-      if (entry.isDirectory() && !rel && SKIP_DIR.test(entry.name)) continue; // 只跳应用根下的这两个
+      if (entry.isDirectory() && !rel && SKIP_DIR.test(entry.name)) continue; // only skip these two at the app root
       const next = rel ? path.join(rel, entry.name) : entry.name;
       if (entry.isDirectory()) walk(next);
       else { hash.update(next); hash.update(fs.readFileSync(path.join(dir, next))); }
@@ -37,7 +37,7 @@ const readStamp = (): Record<string, string> => {
   try { return JSON.parse(fs.readFileSync(STAMP(), "utf8")); } catch { return {}; }
 };
 const writeStamp = (data: Record<string, string>) => {
-  try { fs.writeFileSync(STAMP(), JSON.stringify(data, null, 2)); } catch { /* 只影响下次升级判定 */ }
+  try { fs.writeFileSync(STAMP(), JSON.stringify(data, null, 2)); } catch { /* only affects the next upgrade check */ }
 };
 
 export const seedPresetApps = () => {
@@ -58,29 +58,29 @@ export const seedPresetApps = () => {
       try {
         fs.cpSync(from, to, { recursive: true });
         stamp[entry.name] = shipped; changed = true;
-        console.log(`[apps] 预装应用已落地:apps/${entry.name}`);
+        console.log(`[apps] preset app seeded: apps/${entry.name}`);
       } catch (e: any) {
-        console.error(`[apps] 落地失败 ${entry.name}:`, e?.message);
+        console.error(`[apps] failed to seed ${entry.name}:`, e?.message);
       }
       continue;
     }
 
-    if (stamp[entry.name] === shipped) continue;              // 已是最新
-    if (stamp[entry.name] !== fingerprint(to)) continue;      // 用户改过 —— 不碰
+    if (stamp[entry.name] === shipped) continue;              // already up to date
+    if (stamp[entry.name] !== fingerprint(to)) continue;      // user modified it — leave it alone
 
     try {
-      // 只替换代码与资源,data.db 链接留在原地(用户的数据不能跟着版本走)
+      // Replace only code and assets; leave the data.db symlink in place (the user's data must not follow the version)
       for (const name of fs.readdirSync(to)) {
-        if (SKIP.test(name) || name === "node_modules") continue; // 用户装的依赖留着
+        if (SKIP.test(name) || name === "node_modules") continue; // keep the dependencies the user installed
         fs.rmSync(path.join(to, name), { recursive: true, force: true });
       }
       for (const name of fs.readdirSync(from)) {
         fs.cpSync(path.join(from, name), path.join(to, name), { recursive: true });
       }
       stamp[entry.name] = shipped; changed = true;
-      console.log(`[apps] 预装应用已更新:apps/${entry.name}`);
+      console.log(`[apps] preset app updated: apps/${entry.name}`);
     } catch (e: any) {
-      console.error(`[apps] 更新失败 ${entry.name}:`, e?.message);
+      console.error(`[apps] failed to update ${entry.name}:`, e?.message);
     }
   }
 

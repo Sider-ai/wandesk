@@ -1,8 +1,8 @@
 {
   "id": "imagine",
-  "name": "想象",
+  "name": "Imagine",
   "icon": "💭",
-  "description": "创意发散画布:一句话生成一版 HTML 设计稿,从任一版继续发散成一棵树,点开在新窗口看大图。",
+  "description": "A creative-branching canvas: turn one sentence into an HTML design draft, keep branching from any version into a tree, and click a node to open it full-size in a new window.",
   "mounts": {
     "window": "/"
   }

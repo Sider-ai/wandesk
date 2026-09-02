@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import './style.css';
 
-// 台球 — 精细版:木框 + 橡胶库边 + 钻石瞄点,实心/花色球光泽渲染 + 落影,
-// 真球杆拉杆瞄准 + 力度条,抗穿透子步进物理(摩擦 / 库边反弹 / 圆-圆弹性 / 六袋)。
+// Pool — detailed edition: wood frame + rubber cushions + diamond sights, solid/stripe ball gloss rendering + drop shadows,
+// real cue pull-back aiming + power bar, sub-stepped anti-tunneling physics (friction / cushion bounce / ball-ball elastic / six pockets).
 
 type Ball = { x: number; y: number; vx: number; vy: number; num: number; color: string; stripe: boolean; alive: boolean };
 
@@ -14,10 +14,10 @@ const COLORS: Record<number, string> = {
 const R = 11;
 const FRICTION = 0.991;
 const STOP = 0.045;
-const REST = 0.9;          // 库边弹性
+const REST = 0.9;          // cushion restitution
 const MAX_POWER = 17;
-const POCKET_R = 16;    // 袋口捕捉半径
-const MOUTH = 20;       // 袋口开口半宽(这段库边不反弹,让球滚进袋)
+const POCKET_R = 16;    // pocket capture radius
+const MOUTH = 20;       // pocket mouth half-width (this stretch of cushion doesn't bounce, so the ball rolls into the pocket)
 
 export default function Pool() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -30,17 +30,17 @@ export default function Pool() {
   const [won, setWon] = useState(false);
   const [power, setPower] = useState(0);
 
-  // toast 自动消失
+  // auto-dismiss the toast
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(''), 2200); return () => clearTimeout(t); }, [toast]);
 
   const geom = () => {
     const { w, h } = size.current;
-    const frame = 30, cush = 14;          // 木框宽 / 库边厚
+    const frame = 30, cush = 14;          // wood frame width / cushion thickness
     const L = frame + cush, T = frame + cush, Rr = w - frame - cush, B = h - frame - cush;
     return { frame, cush, L, T, Rr, B, w, h };
   };
   const pockets = () => {
-    const g = geom(); const midX = (g.L + g.Rr) / 2; const o = 7; // 袋口往边角外靠一点
+    const g = geom(); const midX = (g.L + g.Rr) / 2; const o = 7; // nudge pocket mouths slightly outward at the corners
     return [
       { x: g.L - o, y: g.T - o }, { x: midX, y: g.T - o }, { x: g.Rr + o, y: g.T - o },
       { x: g.L - o, y: g.B + o }, { x: midX, y: g.B + o }, { x: g.Rr + o, y: g.B + o },
@@ -52,7 +52,7 @@ export default function Pool() {
     const cueX = g.L + (g.Rr - g.L) * 0.26, cueY = (g.T + g.B) / 2;
     const list: Ball[] = [{ x: cueX, y: cueY, vx: 0, vy: 0, num: 0, color: '#f4f2ea', stripe: false, alive: true }];
     const apexX = g.L + (g.Rr - g.L) * 0.66, apexY = cueY;
-    const order = [1, 9, 14, 8, 11, 2, 13, 7, 3, 10, 4, 5, 12, 15, 6]; // 8 号居中,花实交错
+    const order = [1, 9, 14, 8, 11, 2, 13, 7, 3, 10, 4, 5, 12, 15, 6]; // 8-ball centered, solids/stripes interleaved
     let k = 0; const dx = R * 2 * 0.87, dy = R * 2 * 1.01;
     for (let col = 0; col < 5; col++) for (let row = 0; row <= col; row++) {
       const n = order[k++];
@@ -65,8 +65,8 @@ export default function Pool() {
 
   function collideWalls(b: Ball, g: ReturnType<typeof geom>) {
     const midX = (g.L + g.Rr) / 2;
-    const nearX = Math.abs(b.x - g.L) < MOUTH || Math.abs(b.x - midX) < MOUTH || Math.abs(b.x - g.Rr) < MOUTH; // 顶/底库的袋口
-    const nearY = Math.abs(b.y - g.T) < MOUTH || Math.abs(b.y - g.B) < MOUTH;                                   // 左/右库的袋口(四角)
+    const nearX = Math.abs(b.x - g.L) < MOUTH || Math.abs(b.x - midX) < MOUTH || Math.abs(b.x - g.Rr) < MOUTH; // pocket mouths on the top/bottom cushions
+    const nearY = Math.abs(b.y - g.T) < MOUTH || Math.abs(b.y - g.B) < MOUTH;                                   // pocket mouths on the left/right cushions (corners)
     if (b.y < g.T + R && !nearX) { b.y = g.T + R; b.vy = Math.abs(b.vy) * REST; }
     if (b.y > g.B - R && !nearX) { b.y = g.B - R; b.vy = -Math.abs(b.vy) * REST; }
     if (b.x < g.L + R && !nearY) { b.x = g.L + R; b.vx = Math.abs(b.vx) * REST; }
@@ -75,20 +75,20 @@ export default function Pool() {
 
   function step() {
     const g = geom(); const bs = balls.current;
-    // 子步进:按最大速度分片,避免穿透
+    // sub-stepping: slice by top speed to avoid tunneling through cushions/balls
     let maxSp = 0; for (const b of bs) if (b.alive) maxSp = Math.max(maxSp, Math.hypot(b.vx, b.vy));
     const sub = Math.max(1, Math.min(8, Math.ceil(maxSp / (R * 0.7))));
     for (let s = 0; s < sub; s++) {
       for (const b of bs) {
         if (!b.alive) continue;
         b.x += b.vx / sub; b.y += b.vy / sub;
-        // 落袋:球心越过台面边界(只可能从袋口穿出),或进入某个袋口捕捉范围
+        // pocketed: ball center crosses the table boundary (only possible through a pocket mouth), or enters a pocket's capture radius
         let sunk = b.x < g.L || b.x > g.Rr || b.y < g.T || b.y > g.B;
         if (!sunk) for (const p of pockets()) if (Math.hypot(b.x - p.x, b.y - p.y) < POCKET_R) { sunk = true; break; }
-        if (sunk) { b.alive = false; if (b.num === 0) setToast('🎱 白球犯规,已摆回'); else setPotted((n) => n + 1); continue; }
+        if (sunk) { b.alive = false; if (b.num === 0) setToast('🎱 Cue ball scratch — respotted'); else setPotted((n) => n + 1); continue; }
         collideWalls(b, g);
       }
-      // 球-球弹性(等质量)
+      // ball-ball elastic collision (equal mass)
       for (let i = 0; i < bs.length; i++) for (let j = i + 1; j < bs.length; j++) {
         const a = bs[i], b = bs[j]; if (!a.alive || !b.alive) continue;
         const dx = b.x - a.x, dy = b.y - a.y; const d = Math.hypot(dx, dy);
@@ -113,39 +113,39 @@ export default function Pool() {
   function draw(ctx: CanvasRenderingContext2D) {
     const g = geom(); const { w, h } = g;
     ctx.clearRect(0, 0, w, h);
-    // 木框
+    // wood frame
     const wood = ctx.createLinearGradient(0, 0, 0, h);
     wood.addColorStop(0, '#5a3820'); wood.addColorStop(.5, '#7a4e2c'); wood.addColorStop(1, '#4a2c18');
     ctx.fillStyle = wood; roundRect(ctx, 6, 6, w - 12, h - 12, 18); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = 2; ctx.stroke();
-    // 橡胶库边(木框内一整圈深绿)
+    // rubber cushions (a full dark-green ring inside the wood frame)
     ctx.fillStyle = '#14663b';
     roundRect(ctx, g.L - g.cush, g.T - g.cush, g.Rr - g.L + g.cush * 2, g.B - g.T + g.cush * 2, 8); ctx.fill();
-    // 呢面:只铺台面内,与库边干净相接,压平渐变(不再有中间那圈浅绿)
+    // felt: only covers the playing surface, meets the cushions cleanly, flat gradient (no more lighter-green ring in the middle)
     const felt = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, w / 1.05);
     felt.addColorStop(0, '#2ea360'); felt.addColorStop(1, '#249a56');
     ctx.fillStyle = felt; roundRect(ctx, g.L, g.T, g.Rr - g.L, g.B - g.T, 3); ctx.fill();
-    // 袋口
+    // pockets
     for (const p of pockets()) {
       const pg = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, POCKET_R + 3);
       pg.addColorStop(0, '#000'); pg.addColorStop(.7, '#0b120d'); pg.addColorStop(1, 'rgba(11,18,13,0)');
       ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R + 3, 0, 7); ctx.fill();
     }
-    // 落影
+    // drop shadows
     for (const b of balls.current) { if (!b.alive) continue; ctx.beginPath(); ctx.ellipse(b.x + 2.5, b.y + 3.5, R, R * .9, 0, 0, 7); ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fill(); }
-    // 球杆 + 瞄准线
+    // cue + aiming line
     const cue = balls.current[0];
     if (aim.current.active && cue?.alive) {
       const dx = cue.x - aim.current.x, dy = cue.y - aim.current.y, len = Math.hypot(dx, dy) || 1;
       const ux = dx / len, uy = dy / len; const pull = Math.min(len, 120);
-      // 瞄准虚线(向前)
+      // aiming dashed line (forward)
       ctx.save(); ctx.setLineDash([5, 7]); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(cue.x + ux * R, cue.y + uy * R); ctx.lineTo(cue.x + ux * 300, cue.y + uy * 300); ctx.stroke(); ctx.restore();
-      // 球杆(向后拉):锥形杆身 + 白箍 + 蓝皮头 + 高光
+      // cue stick (pulled back): tapered shaft + white ferrule + blue tip + highlight
       const gap = R + 8 + pull * 0.6;
-      const tipX = cue.x - ux * gap, tipY = cue.y - uy * gap;         // 皮头(近球端)
-      const fx = tipX - ux * 12, fy = tipY - uy * 12;                 // 白箍与杆身交界
-      const buttX = fx - ux * 168, buttY = fy - uy * 168;             // 尾端
+      const tipX = cue.x - ux * gap, tipY = cue.y - uy * gap;         // tip (end nearest the ball)
+      const fx = tipX - ux * 12, fy = tipY - uy * 12;                 // ferrule/shaft junction
+      const buttX = fx - ux * 168, buttY = fy - uy * 168;             // butt end
       const perpX = -uy, perpY = ux; const wt = 2.4, wb = 6.8;
       const quad = (x1: number, y1: number, w1: number, x2: number, y2: number, w2: number) => {
         ctx.beginPath();
@@ -154,32 +154,32 @@ export default function Pool() {
       };
       const shaftG = ctx.createLinearGradient(fx + perpX * wt, fy + perpY * wt, fx - perpX * wt, fy - perpY * wt);
       shaftG.addColorStop(0, '#7a4e24'); shaftG.addColorStop(.4, '#e8c98f'); shaftG.addColorStop(.55, '#f4e2ba'); shaftG.addColorStop(.7, '#c99a52'); shaftG.addColorStop(1, '#6b4020');
-      ctx.fillStyle = shaftG; quad(fx, fy, wt + 0.4, buttX, buttY, wb); ctx.fill();       // 杆身(圆柱高光靠渐变横切)
-      ctx.fillStyle = '#f3ecd8'; quad(tipX, tipY, wt, fx, fy, wt + 0.4); ctx.fill();       // 白箍
-      ctx.fillStyle = '#2f6fb0'; ctx.beginPath(); ctx.arc(tipX, tipY, wt, 0, 7); ctx.fill(); // 蓝皮头
-      ctx.fillStyle = 'rgba(60,35,12,.5)'; ctx.beginPath();                                 // 尾端护套
+      ctx.fillStyle = shaftG; quad(fx, fy, wt + 0.4, buttX, buttY, wb); ctx.fill();       // shaft (cylindrical highlight via cross gradient)
+      ctx.fillStyle = '#f3ecd8'; quad(tipX, tipY, wt, fx, fy, wt + 0.4); ctx.fill();       // white ferrule
+      ctx.fillStyle = '#2f6fb0'; ctx.beginPath(); ctx.arc(tipX, tipY, wt, 0, 7); ctx.fill(); // blue tip
+      ctx.fillStyle = 'rgba(60,35,12,.5)'; ctx.beginPath();                                 // butt sleeve
       ctx.arc(buttX, buttY, wb, 0, 7); ctx.fill();
     }
-    // 球
+    // balls
     for (const b of balls.current) {
       if (!b.alive) continue;
       ctx.save(); ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, 7); ctx.clip();
-      // 底色
+      // base color
       ctx.fillStyle = b.stripe ? '#f4f2ea' : b.color; ctx.fillRect(b.x - R, b.y - R, R * 2, R * 2);
-      // 花色带
+      // stripe band
       if (b.stripe) { ctx.fillStyle = b.color; ctx.fillRect(b.x - R, b.y - R * .5, R * 2, R); }
-      // 球面光泽
+      // ball surface gloss
       const sh = ctx.createRadialGradient(b.x - 4, b.y - 5, 1, b.x, b.y, R * 1.15);
       sh.addColorStop(0, 'rgba(255,255,255,.5)'); sh.addColorStop(.25, 'rgba(255,255,255,.08)'); sh.addColorStop(.7, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.35)');
       ctx.fillStyle = sh; ctx.fillRect(b.x - R, b.y - R, R * 2, R * 2);
       ctx.restore();
-      // 号码盘
+      // number disc
       if (b.num > 0) {
         ctx.beginPath(); ctx.arc(b.x, b.y, 5.4, 0, 7); ctx.fillStyle = '#fff'; ctx.fill();
         ctx.fillStyle = '#1a1a1a'; ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(String(b.num), b.x, b.y + 0.5);
       }
-      // 高光点
+      // highlight dot
       ctx.beginPath(); ctx.arc(b.x - 3.6, b.y - 4, 2.4, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
     }
   }
@@ -224,14 +224,14 @@ export default function Pool() {
   return (
     <div className="pool-root">
       <div className="pool-hud">
-        <div className="pool-score"><span className="pool-score-lbl">进袋</span><b>{potted}</b><span className="pool-score-sep">/</span><span className="pool-score-tot">15</span></div>
+        <div className="pool-score"><span className="pool-score-lbl">POTTED</span><b>{potted}</b><span className="pool-score-sep">/</span><span className="pool-score-tot">15</span></div>
         <div className="pool-power"><i style={{ width: `${power}%` }} /></div>
-        <button className="pool-reset" onClick={rack}>重开</button>
+        <button className="pool-reset" onClick={rack}>Reset</button>
       </div>
       <div className="pool-table" ref={wrapRef}>
         <canvas ref={canvasRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} />
         <div className={`pool-toast${toast ? ' show' : ''}`}>{toast}</div>
-        {won && <div className="pool-win"><div>🏆 清台!</div><button onClick={rack}>再来一局</button></div>}
+        {won && <div className="pool-win"><div>🏆 Table cleared!</div><button onClick={rack}>Play again</button></div>}
       </div>
     </div>
   );

@@ -9,10 +9,11 @@ import { api } from '../lib/api';
 import { toast } from '../overlay/toast';
 import type { Attachment } from './thread';
 
-/** 拼音确认的那个 Enter 不是发送。组字中看 isComposing;Safari 在
-    compositionend 之后才派发那次 keydown,所以刚结束的 50ms 内也拦。
-    只认事件自己的 isComposing,不自己攒粘性标志 —— 攒的标志一旦收不到
-    结束事件(合成输入)就永远卡死,回车从此发不出去。 */
+/** The Enter that confirms an IME composition isn't a submit. Check isComposing while composing;
+    Safari doesn't dispatch that keydown until after compositionend, so also block it within
+    50ms of the composition ending. Only trust the event's own isComposing — don't accumulate
+    a sticky flag ourselves, because if it never sees the end event (some IME inputs) it would
+    get stuck forever and Enter would stop working entirely. */
 function useComposingGuard() {
     const endedAt = useRef(0);
     return {
@@ -24,9 +25,10 @@ function useComposingGuard() {
     };
 }
 
-/** 工作目录:显示尾巴一段,点开改。目录是否存在由服务端裁决。 */
+/** Working directory: show the tail end, click to edit. Whether the directory exists is decided server-side. */
 function WorkdirChip() {
-    // 选出字符串本身:目录一变(换对话 / 改草稿 / 列表刷新)自然重渲染
+    // Select the string itself: when the directory changes (switching conversations / editing the draft /
+    // list refresh) it naturally re-renders
     const workdir = useConversation((state) => {
         void state.conversations;
         void state.draftWorkdir;
@@ -45,7 +47,7 @@ function WorkdirChip() {
             await setWorkdir(value.trim());
             setEditing(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : '保存失败');
+            setError(err instanceof Error ? err.message : 'Failed to save');
         }
     };
 
@@ -53,28 +55,28 @@ function WorkdirChip() {
         <>
             <button
                 className="tool-chip"
-                title={`工作目录:${workdir}`}
+                title={`Working directory: ${workdir}`}
                 onClick={() => { setValue(workdir); setError(''); setEditing(true); }}
             >
                 <Icon name="folder" size={14} />
                 <span className="clip">{shortPath}</span>
             </button>
             {editing && (
-                <Sheet title="工作目录" onClose={() => setEditing(false)}>
+                <Sheet title="Working directory" onClose={() => setEditing(false)}>
                     <input
                         className="field-input mono"
                         value={value}
                         autoFocus
                         spellCheck={false}
-                        placeholder="/绝对路径"
+                        placeholder="/absolute/path"
                         onChange={(event) => setValue(event.target.value)}
                         onKeyDown={(event) => { if (event.key === 'Enter') void save(); }}
                     />
-                    <div className="sheet-note">Agent 的命令和文件操作都发生在这个目录里。</div>
+                    <div className="sheet-note">The Agent's commands and file operations all happen inside this directory.</div>
                     {error && <div className="sheet-error">{error}</div>}
                     <div className="sheet-foot">
-                        <button className="btn btn-quiet" onClick={() => setEditing(false)}>取消</button>
-                        <button className="btn btn-accent" onClick={() => void save()}>保存</button>
+                        <button className="btn btn-quiet" onClick={() => setEditing(false)}>Cancel</button>
+                        <button className="btn btn-accent" onClick={() => void save()}>Save</button>
                     </div>
                 </Sheet>
             )}
@@ -92,7 +94,7 @@ export function Composer() {
     const { busy, stopping, currentId, meta } = useConversation();
     const seed = useDraftSeed();
 
-    // 草稿按对话落 localStorage,重启不丢;空白草稿记在 blank 键下
+    // Drafts persist to localStorage per conversation, surviving restarts; a blank draft is kept under the 'blank' key
     const draftKey = `agent.draft:${currentId || 'blank'}`;
     useEffect(() => {
         try { setText(localStorage.getItem(draftKey) || ''); } catch { setText(''); }
@@ -101,7 +103,7 @@ export function Composer() {
         try {
             if (value) localStorage.setItem(draftKey, value);
             else localStorage.removeItem(draftKey);
-        } catch { /* 私隐模式存不了就算了 */ }
+        } catch { /* can't persist in private mode, that's fine */ }
     };
 
     const guard = useComposingGuard();
@@ -122,7 +124,7 @@ export function Composer() {
                 next.push(result.attachment);
             }
             setAttachments((current) => [...current, ...next].slice(0, 10));
-        } catch (error) { toast(error instanceof Error ? error.message : '文件上传失败'); }
+        } catch (error) { toast(error instanceof Error ? error.message : 'File upload failed'); }
         finally { setUploading(false); if (fileRef.current) fileRef.current.value = ''; }
     };
 
@@ -131,7 +133,7 @@ export function Composer() {
         element.style.height = `${Math.min(element.scrollHeight, 200)}px`;
     };
 
-    // 起手卡点了 → 填进输入框(不发),光标落尾部
+    // Starter card was clicked → fill it into the input (not sent), cursor at the end
     useEffect(() => {
         if (!seed.seq) return;
         setText(seed.text);
@@ -162,14 +164,14 @@ export function Composer() {
                     <div className="attach-chip" key={file.id}>
                         {file.mimeType.startsWith('image/') ? <img src={file.url} alt="" /> : <Icon name="doc" size={15} />}
                         <span>{file.name}</span>
-                        <button title="移除" onClick={() => setAttachments((items) => items.filter((item) => item.id !== file.id))}><Icon name="x" size={12} /></button>
+                        <button title="Remove" onClick={() => setAttachments((items) => items.filter((item) => item.id !== file.id))}><Icon name="x" size={12} /></button>
                     </div>
                 ))}</div>}
                 <textarea
                     ref={areaRef}
                     rows={2}
                     value={text}
-                    placeholder={connected ? '交给 Agent 一件事…' : '等待本地服务连接…'}
+                    placeholder={connected ? 'Hand the Agent something to do…' : 'Waiting for the local service to connect…'}
                     disabled={!connected}
                     onChange={(event) => {
                         setText(event.target.value);
@@ -191,31 +193,31 @@ export function Composer() {
                 />
                 <div className="composer-bar">
                     <div className="composer-left">
-                        <button className="tool-chip attach-button" title="添加图片或文件" disabled={busy || uploading} onClick={() => fileRef.current?.click()}>
-                            <Icon name="plus" size={14} />{uploading && <span>上传中</span>}
+                        <button className="tool-chip attach-button" title="Add an image or file" disabled={busy || uploading} onClick={() => fileRef.current?.click()}>
+                            <Icon name="plus" size={14} />{uploading && <span>Uploading</span>}
                         </button>
                         <WorkdirChip />
                     </div>
                     <div className="composer-right">
-                        {meta.model && <span className="model-tag clip" title={`模型:${meta.model}`}>{meta.model}</span>}
+                        {meta.model && <span className="model-tag clip" title={`Model: ${meta.model}`}>{meta.model}</span>}
                         {busy ? (
                             <button
                                 className="round stop"
-                                title={stopping ? '正在停止…' : '停止'}
+                                title={stopping ? 'Stopping…' : 'Stop'}
                                 disabled={stopping}
                                 onClick={stopRun}
                             >
                                 <Icon name="stop" size={15} />
                             </button>
                         ) : (
-                            <button className="round go" title="发送" disabled={!canSend} onClick={submit}>
+                            <button className="round go" title="Send" disabled={!canSend} onClick={submit}>
                                 <Icon name="send" size={16} />
                             </button>
                         )}
                     </div>
                 </div>
             </div>
-            <div className="foot-note">Agent 会在工作目录里执行命令、读写文件</div>
+            <div className="foot-note">The Agent runs commands and reads/writes files inside the working directory</div>
         </div>
     );
 }

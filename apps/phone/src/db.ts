@@ -1,15 +1,17 @@
-// 手机 — 客户端数据层。屏幕历史 + 持久会话 id 都落库,冷启动据此续上同一段生活。
+// Phone — client-side data layer. Screen history + the persistent conversation id are both
+// stored in the db, so a cold start can resume the same unfolding life.
 import { db } from './wandesk/db';
 import type { Screen } from './lib/screen';
 
 export const saveScreen = (appId: string, s: Screen) =>
   db(appId, 'INSERT INTO app_phone_screens (content, options) VALUES (?, ?)', [s.content, JSON.stringify(s.options || [])]);
 
-// 整部手机 = 一个持久对话:conversationId 落库,跨窗口/跨重启接着同一段生活
+// The whole phone is one persistent conversation: the conversationId is stored here, carrying
+// the same unfolding life across windows/restarts
 export const persistConv = (appId: string, id: string) =>
   db(appId, "INSERT INTO app_phone_state (key, value) VALUES ('conversation', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [id]);
 
-// 老库可能还没有 state 表(schema 只在建库时跑),幂等补上
+// An older db may not have the state table yet (the schema only runs on db creation); add it idempotently
 export const ensureStateTable = (appId: string) =>
   db(appId, 'CREATE TABLE IF NOT EXISTS app_phone_state (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
 

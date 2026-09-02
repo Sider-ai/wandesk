@@ -1,4 +1,4 @@
-// 飞机大战 — HUD、横幅与各状态面板(菜单 / 暂停 / 结算)。
+// Aircraft — HUD, banners, and state panels (menu / pause / results).
 import { cl, MAX_WAVE } from '../lib/constants';
 import { T } from '../lib/text';
 import type { Banner, GS } from '../lib/types';

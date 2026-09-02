@@ -3,7 +3,7 @@ import { ProjectList } from './ProjectList';
 import Canvas from './Canvas';
 import './style.css';
 
-// 想象 — 创意发散画布。窗口内两态切换:项目列表 ↔ 画布(不引路由库)。
+// Imagine — a creative-branching canvas. Two views inside the window: project list <-> canvas (no router library).
 type View = { mode: 'list' } | { mode: 'canvas'; projectId: string };
 
 export default function Imagine() {

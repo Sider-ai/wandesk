@@ -1,4 +1,4 @@
-// 模型 → 工具 → 模型，直到模型不再调用工具。
+// Model → tools → model, until the model stops calling tools.
 import { request } from './request.js';
 import { runTools } from './runner.js';
 import { EVENTS } from './events.js';
@@ -26,8 +26,8 @@ export async function runAgent({
     emit = () => {},
     prepareInput = async (items) => items,
 }) {
-    if (!runId || !Array.isArray(input)) throw new Error('runId 和 input 必填');
-    if (!Number.isInteger(maxRounds) || maxRounds <= 0) throw new Error('maxRounds 必须是正整数');
+    if (!runId || !Array.isArray(input)) throw new Error('runId and input are required');
+    if (!Number.isInteger(maxRounds) || maxRounds <= 0) throw new Error('maxRounds must be a positive integer');
 
     try {
         const generated = [];
@@ -59,7 +59,8 @@ export async function runAgent({
             });
 
             if (!calls.length) {
-                // 截断 / 内容过滤走 incomplete。原样透出，别让上层把半截回复当完整结果。
+                // Truncation / content filtering goes through incomplete. Pass it through as-is —
+                // don't let the caller mistake a partial reply for a complete result.
                 const done = { runId, status: result.status || 'completed', usage: result.usage };
                 if (result.stopReason) done.stopReason = result.stopReason;
                 emit(EVENTS.DONE, done);
@@ -76,7 +77,7 @@ export async function runAgent({
                 emit(EVENTS.FUNCTION_CALL_OUTPUT, { item });
             }
         }
-        throw new Error(`达到工具循环上限(${maxRounds})`);
+        throw new Error(`Reached the tool loop limit (${maxRounds})`);
     } catch (error) {
         if (signal?.aborted) emit(EVENTS.DONE, { runId, status: 'aborted' });
         else emit(EVENTS.ERROR, { runId, terminal: true, error: String(error?.message || error) });

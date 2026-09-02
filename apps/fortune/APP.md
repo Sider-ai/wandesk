@@ -1,38 +1,55 @@
-# 算一卦 (fortune)
+# I Ching (fortune)
 
-周易六爻起卦 + AI 解卦。一次性:写下求问 → 摇三枚铜钱六次成卦 → 卦师断吉凶。
-只用通用的 `agent` 能力 — 没有 per-app 后端,也不再用 `db`。
+I Ching six-line divination + AI interpretation. One-shot: write down your question →
+toss three coins six times to cast a hexagram → the diviner reads its fortune.
+Uses only the generic `agent` capability — no per-app backend, and `db` is no longer used.
 
-## Data — 不存历史,只缓存最后一卦
+## Data — no history, just a cache of the last cast
 
-- **无历史、无数据库**。求问是一次性的;只把「最后一卦」缓存在浏览器
-  `localStorage["wandesk.fortune.last"]`(`{question,hexName,yaos,changing,pair,reading}`),
-  以便重开应用时仍见上一卦。点「重新起卦」即清掉该缓存、回到起卦。
-- 旧的 `readings` 表(见 `server.js` 的 SCHEMA)已弃用,不再写入(留着不影响)。
+- **No history, no database.** A question is a one-off; only the "last cast" is cached
+  in the browser at `localStorage["wandesk.fortune.last"]`
+  (`{question,hexName,yaos,changing,pair,reading}`), so reopening the app still shows
+  the previous cast. Clicking "Cast Again" clears that cache and returns to the question screen.
+- The old `readings` table (see the SCHEMA in `server.js`) is deprecated and no longer
+  written to (kept around, but harmless).
 
 ## How a divination works (src/)
 
-1. **起卦(纯前端)**:用确定性的伪随机摇三枚铜钱六次,每次得一爻(阴/阳),
-   自下而上组成六爻,按 8×8 卦表查出 64 卦之一的卦名。摇卦过程有铜钱旋转动画。
-2. **解卦(AI)**:把"求问 + 所得卦名 + 六爻阴阳"组成 prompt,
-   调用 `agent(appId, prompt, { system: 卦师人设 })` —— 人设让 Claude 扮演学识渊博、
-   文笔古雅的算命先生,要求只返回 JSON `{signName,signPoem,good,bad,advice}`。
-   前端解析 JSON(容错:从文本中抽取 `{...}`),渲染到卦象签卡。
-3. **缓存(仅最后一卦)**:解卦成功后把这一卦写入 `localStorage`,不落库、不建历史。
+1. **Casting the hexagram (pure frontend)**: uses a deterministic pseudo-random toss of
+   three coins, six times, each toss producing one line (yin/yang); the six lines are
+   stacked bottom-up, and the resulting combination is looked up in an 8×8 hexagram table
+   to find one of the 64 hexagrams by name. The casting animation shows the coins spinning.
+2. **Reading the hexagram (AI)**: assembles a prompt from "the question + the hexagram
+   drawn + the yin/yang of its six lines," and calls `agent(appId, prompt, { system: <diviner persona> })`
+   — the persona has Claude play the role of a learned, classically eloquent fortune-teller,
+   required to return only JSON `{signName,signPoem,good,bad,advice}`.
+   The frontend parses the JSON (tolerantly: extracting `{...}` from the text) and renders
+   it onto the hexagram's fortune-slip card.
+3. **Caching (last cast only)**: once the reading succeeds, that cast is written to
+   `localStorage` — never persisted to a database, and no history is built.
 
-## 布局(src/)
+## Layout (src/)
 
-单列、居中、可上下滚动:起卦前是**居中输入框**(求问 + 起卦按钮);起卦后依次
-展示 **卦区**(六爻卦象)与 **解读区**(签诗 / 宜忌 / 解读),最底部是「**重新起卦**」按钮。
+Single column, centered, scrollable: before casting, a **centered input box** (question +
+cast button); after casting, in order, the **hexagram section** (the six-line figure) and
+the **reading section** (oracle verse / do's-and-don'ts / interpretation), with a
+"**Cast Again**" button at the very bottom.
 
 ## Notes
 
-- 卦象与铜钱的随机性在前端;AI 只负责解读所得之卦,不改卦象。
-- 仅供娱乐参考 — 尽人事,听天命。
+- The randomness of the hexagram and coins lives on the frontend; the AI only interprets
+  the hexagram drawn — it never changes it.
+- For entertainment only — do what you can, and leave the rest to fate.
 
-## 目录与修改
+## Layout & making changes
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (a Worker; the
+  table-creation script lives inside it) · `public/` frontend build output · `src/` frontend
+  source (React)
+- **Changing the frontend**: edit `src/`, then in this directory run
+  `npm install && npm run build`; the output lands back in `public/`, and refreshing the
+  window picks it up. Requires Node.js locally; skip it if you're not changing the frontend.
+- **Changing the backend**: edit `server.js` directly — it takes effect on the next
+  request, no restart needed.
+- **Data**: `data.db` is this app's SQLite database; `sqlite3 data.db` can query it
+  directly. See the SCHEMA at the top of `server.js` for the table structure.

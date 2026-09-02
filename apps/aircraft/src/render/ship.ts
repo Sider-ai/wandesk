@@ -1,4 +1,4 @@
-// 飞机大战 — 玩家战机与敌机的 canvas 绘制。
+// Aircraft — canvas drawing for the player ship and enemy ships.
 import { C, cl, PH, PW, TAU } from '../lib/constants';
 import type { Enemy, Player } from '../lib/types';
 

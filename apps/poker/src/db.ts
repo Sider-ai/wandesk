@@ -1,4 +1,4 @@
-// 炸金花 — 客户端数据层。钱包(单行)+ 战绩表。
+// Zhajinhua — client-side data layer. Wallet (single row) + stats table.
 import { db } from './wandesk/db';
 
 export async function loadBank(appId: string): Promise<{ chips: number; win: number; lose: number }> {

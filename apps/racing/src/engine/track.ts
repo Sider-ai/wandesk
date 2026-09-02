@@ -28,8 +28,9 @@ export function createTrack(
 ): Track {
   const T = tuning;
   const rnd = random;
-/* ════════════════════ 赛道 ════════════════════ */
-/* 起点设在长直道中段(前后控制点共线,保证起跑区笔直) */
+/* ════════════════════ Track ════════════════════ */
+/* Start line sits mid-way along a long straight (the control points before and after are
+   collinear, so the starting area is guaranteed to be straight) */
 const CTRL = [
   [-10,-80],[-10,60],[30,150],[120,205],[225,195],[290,120],
   [285,20],[215,-25],[150,-5],[95,-60],[105,-150],[170,-195],
@@ -37,7 +38,7 @@ const CTRL = [
 ];
 const curve = new THREE.CatmullRomCurve3(CTRL.map(p=>new THREE.Vector3(p[0],0,p[1])), true, 'centripetal');
 const N = 1000;
-const SMP: TrackSample[] = [];        // {p, f(切线), r(右向), kappa}
+const SMP: TrackSample[] = [];        // {p, f(tangent), r(rightward), kappa}
 {
   for(let i=0;i<N;i++){
     const t = i/N;
@@ -48,25 +49,26 @@ const SMP: TrackSample[] = [];        // {p, f(切线), r(右向), kappa}
 }
 const LEN = curve.getLength();
 const DS = LEN/N;
-// 曲率 + AI 速度剖面
+// Curvature + AI speed profile
 const PROFILE = new Float32Array(N);
 {
   for(let i=0;i<N;i++){
     const a = SMP[i].f, b = SMP[(i+1)%N].f;
     SMP[i].kappa = Math.acos(clamp(a.dot(b),-1,1))/DS;
   }
-  for(let i=0;i<N;i++){ // 平滑曲率
+  for(let i=0;i<N;i++){ // smooth the curvature
     let k=0; for(let j=-3;j<=3;j++) k += SMP[(i+j+N)%N].kappa;
     PROFILE[i] = Math.min(T.aiVMax, Math.sqrt(T.aiLatAcc/Math.max(k/7, 1e-4)));
   }
-  for(let r=0;r<3;r++) for(let i=N-1;i>=0;i--){ // 倒推刹车点
+  for(let r=0;r<3;r++) for(let i=N-1;i>=0;i--){ // work backward to find braking points
     const nx = PROFILE[(i+1)%N];
     PROFILE[i] = Math.min(PROFILE[i], Math.sqrt(nx*nx + 2*T.aiBrake*DS));
   }
 }
 function sampleAt(s: number): TrackPose {
-  // 相邻采样点间线性插值。不可量化取整:AI 位置直接取自这里,
-  // 取整会让车在 1.56m 格点间瞬移,朝向追踪被横向残差带偏(车身横着跑)
+  // Linear interpolation between neighboring samples. Must not be rounded to a grid index:
+  // AI position is read directly from here, and rounding would make cars teleport between
+  // 1.56m grid points, throwing off heading tracking with lateral residual (car runs sideways)
   const u = ((s/DS)%N+N)%N;
   const i = Math.floor(u)%N, t = u-i, a = SMP[i], b = SMP[(i+1)%N];
   return {
@@ -85,26 +87,26 @@ function nearestIdx(pos: THREE.Vector3, hint: number): number {
   return best;
 }
 
-/* 路面贴图(程序化沥青) */
+/* Road texture (procedural asphalt) */
 function roadTexture(){
   const c = document.createElement('canvas'); c.width=512; c.height=1024;
   const g = c.getContext('2d')!;
   g.fillStyle='#33343a'; g.fillRect(0,0,512,1024);
-  const img = g.getImageData(0,0,512,1024), d = img.data;   // 颗粒噪声
+  const img = g.getImageData(0,0,512,1024), d = img.data;   // grain noise
   for(let i=0;i<d.length;i+=4){ const n=(Math.random()-0.5)*22; d[i]+=n; d[i+1]+=n; d[i+2]+=n; }
   g.putImageData(img,0,0);
-  // 车道磨亮痕
+  // Worn tire lines along the lane
   for(const x of [128, 384]){
     const lg = g.createLinearGradient(x-70,0,x+70,0);
     lg.addColorStop(0,'rgba(0,0,0,0)'); lg.addColorStop(.5,'rgba(16,16,18,0.35)'); lg.addColorStop(1,'rgba(0,0,0,0)');
     g.fillStyle=lg; g.fillRect(x-70,0,140,1024);
   }
-  // 红白路缘
+  // Red-and-white curbing
   for(let y=0;y<1024;y+=128){
     g.fillStyle = (y/128)%2 ? '#c8332e' : '#e8e4da';
     g.fillRect(0,y,14,128); g.fillRect(498,y,14,128);
   }
-  // 白边线 + 中央双黄虚线
+  // White edge lines + center double-yellow dashed line
   g.fillStyle='#dcd8cc'; g.fillRect(22,0,7,1024); g.fillRect(483,0,7,1024);
   g.fillStyle='#d8a93c';
   for(let y=0;y<1024;y+=96){ g.fillRect(249,y,5,58); g.fillRect(258,y,5,58); }
@@ -114,7 +116,7 @@ function roadTexture(){
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   return tex;
 }
-{ // 路面网格:沿样条扫掠的带状几何
+{ // Road mesh: a ribbon of geometry swept along the spline
   const pos: number[] = [], uv: number[] = [], idx: number[] = [];
   const w = T.roadHalf;
   for(let i=0;i<=N;i++){
@@ -124,7 +126,7 @@ function roadTexture(){
     pos.push(L.x,0.012,L.z, R.x,0.012,R.z);
     const v = i*DS/14;
     uv.push(0,v, 1,v);
-    if(i<N){ const a=i*2; idx.push(a,a+2,a+1, a+1,a+2,a+3); } // 逆时针绕序,法线朝上
+    if(i<N){ const a=i*2; idx.push(a,a+2,a+1, a+1,a+2,a+3); } // counter-clockwise winding, normal faces up
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
@@ -135,7 +137,7 @@ function roadTexture(){
   road.receiveShadow = true;
   scene.add(road);
 }
-{ // 护栏:连续低墙 + 立柱
+{ // Guardrail: a continuous low wall + posts
   for(const side of [-1,1]){
     const off = T.roadHalf + 1.5;
     const pos=[], idx=[];
@@ -166,7 +168,7 @@ function roadTexture(){
   posts.count = pi; scene.add(posts);
 }
 
-/* 地面 / 群山 / 树木 / 灯柱 / 广告牌 / 起点门架 */
+/* Ground / mountains / trees / lamp posts / billboards / start gantry */
 {
   const c = document.createElement('canvas'); c.width=c.height=256;
   const g = c.getContext('2d')!;
@@ -187,11 +189,11 @@ function roadTexture(){
     const m = new THREE.Mesh(new THREE.ConeGeometry(rnd(110,200), h, 7), mtnMat);
     m.position.set(Math.sin(a)*r + 120, h/2-8, Math.cos(a)*r - 40);
     m.rotation.y = rnd(Math.PI*2);
-    m.scale.x = rnd(1.2, 2.4);   // 拉宽,弱化「金字塔感」
+    m.scale.x = rnd(1.2, 2.4);   // widen it to soften the "pyramid" look
     scene.add(m);
   }
 
-  // 树:避开赛道随机散布
+  // Trees: scattered randomly, avoiding the track
   const spots: Array<[number, number, number]> = [];
   let guard = 0;
   while(spots.length < 230 && guard++ < 4000){
@@ -215,7 +217,7 @@ function roadTexture(){
   });
   scene.add(trunks, crowns);
 
-  // 路灯(发光头,无实灯,靠 bloom)
+  // Lamp posts (glowing head, no real light source, relies on bloom)
   const poleG = new THREE.CylinderGeometry(0.09,0.12,6.4,6);
   const poleM = new THREE.MeshStandardMaterial({ color:0x3c4046, metalness:0.8, roughness:0.5 });
   const headG = new THREE.BoxGeometry(0.95,0.14,0.3);
@@ -237,7 +239,7 @@ function roadTexture(){
   poles.count = heads.count = k;
   scene.add(poles, heads);
 
-  // 广告牌
+  // Billboards
   function board(text: string, sub: string, idx: number, side: number){
     const c = document.createElement('canvas'); c.width=512; c.height=224;
     const g = c.getContext('2d')!;
@@ -265,12 +267,12 @@ function roadTexture(){
     grp.lookAt(sm.p.x, 5.4, sm.p.z);
     scene.add(grp);
   }
-  board('APEX RUSH','黄昏赛道 · NITRO CIRCUIT', 60, 1);
-  board('TURN 4','减速 · 弯道见真章', 310, -1);
-  board('NITRO ⚡','按住 SHIFT 点燃氮气', 560, 1);
-  board('DRIFT','空格漂移 · 回充氮气', 800, -1);
+  board('APEX RUSH','SUNSET TRACK · NITRO CIRCUIT', 60, 1);
+  board('TURN 4','SLOW DOWN · CORNERS SEPARATE THE PROS', 310, -1);
+  board('NITRO ⚡','HOLD SHIFT TO IGNITE NITRO', 560, 1);
+  board('DRIFT','SPACE TO DRIFT · RECHARGES NITRO', 800, -1);
 
-  // 起点门架 + 格纹线
+  // Start gantry + checkered lines
   const sm0 = SMP[0];
   const gantry = new THREE.Group();
   const pilM = new THREE.MeshStandardMaterial({ color:0x2a2d33, metalness:0.85, roughness:0.4 });
@@ -294,7 +296,7 @@ function roadTexture(){
   banner.rotation.y = Math.atan2(sm0.f.x, sm0.f.z) + Math.PI/2;
   gantry.add(banner);
   scene.add(gantry);
-  // 地面格纹
+  // Ground checkered pattern
   const lc = document.createElement('canvas'); lc.width=448; lc.height=64;
   const lg = lc.getContext('2d')!;
   for(let x=0;x<28;x++) for(let y=0;y<4;y++){ lg.fillStyle=(x+y)%2?'#111':'#eee'; lg.fillRect(x*16,y*16,16,16); }

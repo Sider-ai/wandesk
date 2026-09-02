@@ -1,4 +1,4 @@
-// 飞机大战 — 特效作者层:火花、碎片、烟、光环、闪白、爆炸、飘字、横幅。
+// Aircraft — effects authoring layer: sparks, debris, smoke, halos, flashes, explosions, floating text, banners.
 import { rng, TAU } from './constants';
 import type { GS } from './types';
 

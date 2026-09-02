@@ -3,7 +3,7 @@ import { allWallpapers, loadCustomWallpapers, saveCustomWallpapers, cssToStyle, 
 import { t } from '../lib/i18n';
 import './Wallpaper.css';
 
-// The "壁纸生成器" device: a graphite panel of recessed wallpaper wells + a bottom bay
+// The "wallpaper generator" device: a graphite panel of recessed wallpaper wells + a bottom bay
 // that describes a wallpaper and generates it (one AI turn), with a looping rainbow scan.
 const SCAN_WORD_KEYS = ["wallpaper.scan.gen", "wallpaper.scan.draw", "wallpaper.scan.soon"];
 

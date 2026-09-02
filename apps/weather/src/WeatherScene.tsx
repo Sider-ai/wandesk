@@ -6,10 +6,13 @@ import {
 } from './scene/layers';
 
 // ──────────────────────────────────────────────────────────────
-// WeatherScene — 天气 UI 背后会动的天空。一张 SVG 画布(1000×640, slice),
-// 按天况叠加:发光的太阳 + 光芒、飘动的云、落雨 + 地面涟漪、飘雪、繁星 +
-// 环形山的月亮、翻滚的雾带、雷暴的闪电。全部确定式,按 (sky, isDay) memo,
-// 只有天况真正变化时才重建 —— 切城市的过渡交给 CSS 交叉淡入。
+// WeatherScene — the animated sky behind the weather UI. One SVG canvas
+// (1000×640, slice), layered by condition: a glowing sun with rays, drifting
+// clouds, falling rain + ground ripples, falling snow, a starfield + cratered
+// moon, a rolling fog band, thunderstorm lightning. Everything is
+// deterministic, memoized on (sky, isDay) — it only rebuilds when the
+// condition actually changes; the transition on city switch is left to a
+// CSS cross-fade.
 // ──────────────────────────────────────────────────────────────
 
 export type { SkyKind };

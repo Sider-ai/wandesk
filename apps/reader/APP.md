@@ -1,4 +1,4 @@
-# 阅读 (reader)
+# Reader (reader)
 
 A small interactive-fiction engine, presented as an e-reader. The user picks a premise (genre +
 setup), the AI plays game-master: it writes an opening page and offers 2–4 choices; the user
@@ -37,9 +37,9 @@ free text and does not populate `json`). So the app is engine-agnostic; Claude i
 - Wipe everything by deleting `data.db`.
 - `status='ended'` marks a finished book (the AI may return zero choices to end it).
 
-## 目录与修改
+## Layout and editing
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (a Worker, with the table-creation script inline) · `public/` frontend build output · `src/` frontend source (React)
+- **Editing the frontend**: edit `src/`, then in this directory run `npm install && npm run build`; the output lands back in `public/`, and a window refresh picks it up. Requires Node.js locally; not needed if you're not changing the frontend.
+- **Editing the backend**: edit `server.js` directly — it takes effect on the next request, no restart needed.
+- **Data**: `data.db` is this app's SQLite database; `sqlite3 data.db` can query it directly. See the SCHEMA at the top of `server.js` for the table structure.

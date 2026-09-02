@@ -1,23 +1,34 @@
-# 记账本 (finance)
+# Ledger (finance)
 
-一本拟物黑皮存折:皮革书脊 + 烫金书名、金属订线、米色账页 + 蓝色暗纹、点阵打印机字体。
-按月翻查(◄ ►,当月不能再往后),一张流水表,行内双击改、底部一行录入。纯本地,无 AI。
+A skeuomorphic black leather passbook: leather spine + gold-stamped title, metal binding,
+cream ledger pages + blue watermark pattern, dot-matrix printer font.
+Browse by month (◄ ►, can't go past the current month), a single transactions table,
+double-click a row inline to edit, one entry row at the bottom to record.
+Purely local, no AI.
 
-## 数据
+## Data
 
-`app_finance_transactions`:一笔一行。`type` income/expense、`amount` 金额、`note` 摘要、
-`date` 存 `YYYY-MM-DDT12:00:00`(按 `substr(date,1,7)` 归月)。首次打开若整表为空,播种几条
-示例流水,顺手演示用法。
+`app_finance_transactions`: one row per entry. `type` income/expense, `amount` the amount,
+`note` a description, `date` stored as `YYYY-MM-DDT12:00:00` (grouped by month via
+`substr(date,1,7)`). If the table is empty on first open, a few sample entries are seeded
+as a quick demo of how it works.
 
-## 界面
+## Interface
 
-- 头部:月份翻页 + 汇总盒(本月 收入 / 支出 / 结余)。
-- 账表:日期 / 摘要 / 支出 / 存入 / 操作。支出记在"支出"列(红),收入记在"存入"列(绿);
-  双击单元格改日期/摘要/金额,底部一行填数回车即记,悬停出删除。末尾留空行凑账本样子。
+- Header: month navigation + summary box (this month's income / expense / balance).
+- Ledger table: date / note / withdrawn / deposited / action. Expenses are recorded in the
+  "Withdrawn" column (red), income in the "Deposited" column (green); double-click a cell to
+  edit date/note/amount, fill in the bottom row and press Enter to add an entry, hover to reveal
+  delete. Trailing blank rows keep the passbook look.
 
-## 目录与修改
+## Directory & making changes
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (Worker, table-creation script
+  is in here) · `public/` frontend build output · `src/` frontend source (React)
+- **Editing the frontend**: edit `src/`, then run `npm install && npm run build` in this
+  directory; the output lands back in `public/`, and a window refresh picks it up. Requires
+  Node.js locally; not needed if you're not touching the frontend.
+- **Editing the backend**: edit `server.js` directly; takes effect on the next request, no
+  restart needed.
+- **Data**: `data.db` is this app's SQLite database — query it directly with `sqlite3 data.db`;
+  the table schema is in the SCHEMA constant at the top of `server.js`.

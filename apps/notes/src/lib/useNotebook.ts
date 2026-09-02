@@ -1,4 +1,4 @@
-// 笔记本 — 全部状态、副作用与操作收进这个 hook,index.tsx 只负责组装视图。
+// Notebook — all state, side effects, and actions are collected in this hook; index.tsx only assembles the view.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { agent } from '../wandesk/agent';
 import * as data from '../db';
@@ -13,14 +13,14 @@ export function useNotebook(appId: string) {
   const [pinned, setPinned] = useState(0);
 
   const [loaded, setLoaded] = useState(false);
-  const [saving, setSaving] = useState(false); // “墨迹未干”
-  const [savedPulse, setSavedPulse] = useState(false); // 落库瞬间的“已保存”微光
+  const [saving, setSaving] = useState(false); // "ink still wet"
+  const [savedPulse, setSavedPulse] = useState(false); // brief "saved" glow the instant it hits the database
   const [dirty, setDirty] = useState(false);
-  const [flip, setFlip] = useState<'next' | 'prev' | ''>(''); // 翻页方向
-  const [opened, setOpened] = useState(false); // 开场:封面翻开
+  const [flip, setFlip] = useState<'next' | 'prev' | ''>(''); // page-flip direction
+  const [opened, setOpened] = useState(false); // opening: cover flips open
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  // 底部指令栏:一条指令让 AI 直接改写本页
+  // Bottom command bar: a single instruction lets AI rewrite this page directly
   const [cmd, setCmd] = useState('');
   const [busy, setBusy] = useState(false);
   const [cmdErr, setCmdErr] = useState('');
@@ -30,10 +30,10 @@ export function useNotebook(appId: string) {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  // 每页笔记一个对话:同一页的指令续在同一个对话里,AI 记得之前改过什么
+  // One conversation per page: instructions for the same page continue in the same conversation, so the AI remembers earlier edits
   const convMap = useRef<Map<number, string>>(new Map());
 
-  // 标题/正文都是自适应高度的 textarea
+  // Both title and body are auto-height textareas
   const fit = (el: HTMLTextAreaElement | null) => {
     if (!el) return;
     el.style.height = 'auto';
@@ -46,7 +46,7 @@ export function useNotebook(appId: string) {
 
   const applyPage = (p: Page) => { setTitle(p.title); setBody(p.body); setPaper(p.paper); setPinned(p.pinned); };
 
-  // ── 加载 ──
+  // ── Load ──
   const load = useCallback(async (selectId?: number) => {
     const rows = await data.loadPages(appId);
     setPages(rows);
@@ -60,10 +60,10 @@ export function useNotebook(appId: string) {
   }, [appId, activeId]);
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
-  // 开场:封面缓缓翻开
+  // Opening: cover slowly flips open
   useEffect(() => { const t = setTimeout(() => setOpened(true), 180); return () => clearTimeout(t); }, []);
 
-  // 落库瞬间亮一下“已保存”
+  // Briefly light up "saved" the instant it hits the database
   useEffect(() => {
     if (saving) { setSavedPulse(false); return; }
     if (!loaded) return;
@@ -79,7 +79,7 @@ export function useNotebook(appId: string) {
     flipTimer.current = setTimeout(() => setFlip(''), 540);
   }
 
-  // ── 保存 ──
+  // ── Save ──
   const persist = useCallback(async (id: number, t: string, b: string, pp: number, pin: number) => {
     setSaving(true);
     await data.updatePage(appId, id, t, b, pp, pin);
@@ -91,7 +91,7 @@ export function useNotebook(appId: string) {
     setPages((prev) => prev.map((p) => (p.id === id ? { ...p, title: t, body: b, paper: pp, pinned: pin, updated_at: new Date().toISOString() } : p)));
   }, []);
 
-  // 立即落库(切页/新建/卸载前)
+  // Persist immediately (before switching pages / creating / unmounting)
   const flushSave = useCallback(async () => {
     if (saveTimer.current) { clearTimeout(saveTimer.current); saveTimer.current = null; }
     if (activeId == null || !dirty) return;
@@ -99,7 +99,7 @@ export function useNotebook(appId: string) {
     syncPreview(activeId, title, body, paper, pinned);
   }, [activeId, dirty, title, body, paper, pinned, persist, syncPreview]);
 
-  // 防抖自动保存:内容变了 1.1s 后落库
+  // Debounced autosave: persist 1.1s after content changes
   useEffect(() => {
     if (activeId == null || !dirty) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -111,7 +111,7 @@ export function useNotebook(appId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, body, paper, pinned, dirty, activeId]);
 
-  // 卸载时把尚未保存的写回
+  // Write back any unsaved changes on unmount
   useEffect(() => () => {
     if (activeId != null && dirty) void persist(activeId, title, body, paper, pinned);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +128,7 @@ export function useNotebook(appId: string) {
 
   const resetEditingFlags = () => { setDirty(false); setCmd(''); setCmdErr(''); };
 
-  // ── 选页 / 新建 / 删除 ──
+  // ── Select page / create / delete ──
   function openPage(p: Page) {
     if (p.id === activeId) return;
     const from = pages.findIndex((x) => x.id === activeId);
@@ -165,7 +165,7 @@ export function useNotebook(appId: string) {
     await load(nextPick?.id);
   }
 
-  // ── 指令:一条输入,让 AI 直接改写当前这页 ──
+  // ── Command: a single input lets AI rewrite the current page directly ──
   async function runCommand() {
     const instruction = cmd.trim();
     if (!instruction || busy || activeId == null) return;
@@ -173,10 +173,11 @@ export function useNotebook(appId: string) {
     setCmdErr('');
     const head = title.trim();
     const system =
-      '你是一位中文写作助手,嵌在一本笔记里。用户会给出一条针对“当前这页笔记”的指令(比如续写、总结、润色、改写语气、翻译、列要点等)。' +
-      '请据此改写这页笔记的正文,并只输出改写后的【完整正文】本身:不要解释、不要前后缀、不要 markdown 代码块、不要加引号。';
-    const prompt = `指令:${instruction}\n\n请据此改写下面这页笔记${head ? `(标题:「${head}」)` : ''}的正文,输出改写后的完整正文。`;
-    const payload = body.trim() || '(这页还是空白)';
+      'You are a writing assistant embedded in a notebook. The user will give an instruction targeting "the current notebook page" ' +
+      '(e.g. continue writing, summarize, polish, change the tone, translate, list key points, etc.). ' +
+      "Rewrite this page's body accordingly, and output only the rewritten [complete body] itself: no explanations, no prefixes or suffixes, no markdown code blocks, no quotes.";
+    const prompt = `Instruction: ${instruction}\n\nRewrite the body of the following notebook page${head ? ` (title: "${head}")` : ''} accordingly, and output the rewritten complete body.`;
+    const payload = body.trim() || '(this page is still blank)';
     const conv = convMap.current.get(activeId);
     let r = await agent(appId, prompt, { data: payload, system, conversationId: conv });
     if (!r.ok && conv) {
@@ -184,16 +185,16 @@ export function useNotebook(appId: string) {
       r = await agent(appId, prompt, { data: payload, system });
     }
     if (r.ok && r.conversationId) convMap.current.set(activeId, r.conversationId);
-    if (!r.ok) { setCmdErr('AI 处理失败，请重试'); setBusy(false); return; }
+    if (!r.ok) { setCmdErr('AI processing failed, please try again'); setBusy(false); return; }
     const out = (r.result || '').trim();
-    if (!out) { setCmdErr('AI 没有返回内容'); setBusy(false); return; }
+    if (!out) { setCmdErr('AI returned no content'); setBusy(false); return; }
     edit({ body: out });
     setCmd('');
     setBusy(false);
     requestAnimationFrame(() => {
       const ta = taRef.current;
       if (ta) { ta.focus(); ta.setSelectionRange(0, 0); }
-      scrollRef.current?.scrollTo(0, 0); // AI 改写后回到开头
+      scrollRef.current?.scrollTo(0, 0); // back to the top after AI rewrite
     });
   }
 

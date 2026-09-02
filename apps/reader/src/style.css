@@ -1,13 +1,20 @@
 /* ════════════════════════════════════════════════════════════════════
-   阅读 —— 晨光里的浅桦木书架(iReader Birch)。
-   · 书架:居中一列浅桦木书柜(近乎米色的淡木纹背板 + 每格 1px 拼板缝),
-     每层一个壁龛:龛顶柔和渐变阴影、薄搁板前缘高光、板下细影、书脚接触影
-     ——四层细影撑住"浅而有物"。书封面朝外三本一排,封面按体裁排"出版物"
-     版式(留白、衬线、小色块),左上书签形角标标状态(红=在读带页数 /
-     灰=未读 / 绿=读完),封面下书名与状态小字;末位凹进去的"添加位",
-     底下留空层,整列上下滚动。
-   · 阅读页:米白纸面通栏长文(细噪点纸纹),宋体正文、朱红首字下沉、
-     "你选择了"朱批;抉择与自写行动跟在正文末尾随页面滚动,不固定底部。
+   Reader —— a pale birchwood bookcase in the morning light (iReader Birch).
+   · Shelf: a centered column of pale birchwood bookcases (an almost-beige faint
+     wood-grain backing + a 1px seam per panel), each level a niche: a soft
+     gradient shadow at the niche top, a highlight along the shelf's front edge,
+     a thin shadow underneath, and a contact shadow under each book's foot —
+     four layers of subtle shadow give it "light but substantial" depth. Covers
+     face outward, three per row, styled by genre in a "publication" layout
+     (whitespace, serif type, small color blocks); a bookmark-shaped tab in the
+     top-left marks status (red = reading, with page count / grey = unread /
+     green = finished), with title and status caption below the cover; the last
+     slot is a recessed "add" slot, with empty space below, and the whole column
+     scrolls vertically.
+   · Reader page: off-white paper, single-column long-form text (faint noise
+     paper texture), serif body copy, a vermilion drop cap, a "You chose:"
+     vermilion annotation; choices and the custom-action field follow the end of
+     the text and scroll with the page rather than staying fixed to the bottom.
    ════════════════════════════════════════════════════════════════════ */
 
 .reader-app {
@@ -19,7 +26,7 @@
 }
 .reader-app *, .reader-app *::before, .reader-app *::after { box-sizing: border-box; }
 
-/* ══════════════════════════ 书架 ══════════════════════════ */
+/* ══════════════════════════ Shelf ══════════════════════════ */
 
 .reader-shelf {
   position: relative;
@@ -32,14 +39,14 @@
   border: 2px solid transparent; background-clip: padding-box;
 }
 
-/* 书柜通栏铺满窗口 */
+/* Bookcase column fills the window */
 .shelf-col {
   min-height: 100%;
   display: flex; flex-direction: column;
   background: #f2e8d5;
 }
 
-/* 顶部窄木楣 */
+/* Narrow wooden lintel at top */
 .lintel {
   height: 30px;
   display: flex; align-items: center; justify-content: center;
@@ -66,15 +73,15 @@
   box-shadow: 0 6px 18px -6px rgba(120, 90, 50, 0.35);
 }
 
-/* ── 书柜本体:龛(216px)+ 搁板(13px)= 一层 229px,由背景循环绘制。
-   格子只负责摆书;放不满的位置和网格下方的余量,天然就是空龛。 ── */
+/* ── Bookcase body: niche (216px) + shelf board (13px) = one level at 229px, drawn as a repeating background.
+   Grid cells only place books; unfilled positions and the leftover space below the grid are naturally empty niches. ── */
 .shelf-case {
   flex: 1;
   background-color: #f1e6cd;
   background-image:
-    /* 每层龛顶的柔和渐变阴影(纵深感,兼作上层搁板的投影) */
+    /* Soft gradient shadow at the top of each niche (adds depth, doubles as the shelf-board shadow above) */
     linear-gradient(to bottom, rgba(96, 72, 42, 0.2), rgba(96, 72, 42, 0.06) 20px, rgba(96, 72, 42, 0) 38px),
-    /* 每层底部的搁板:前缘高光 → 木色 → 下沿深缝 */
+    /* The shelf board at the bottom of each level: front-edge highlight → wood tone → deep seam underneath */
     linear-gradient(to bottom,
       rgba(0, 0, 0, 0) 215px,
       rgba(124, 94, 55, 0.22) 215.5px,
@@ -83,7 +90,7 @@
       #eedbb6 224px,
       #dcc396 228px,
       rgba(124, 94, 55, 0.4) 229px),
-    /* 低频木纹(淡到近乎米色) */
+    /* Low-frequency wood grain (faint, almost beige) */
     url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.07 0.006' numOctaves='3' seed='11'/><feColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.32  0 0 0 0 0.19  0 0 0 0.07 0'/></filter><rect width='360' height='360' filter='url(%23g)'/></svg>"),
     linear-gradient(to bottom, #f3e9d2, #eee1c4);
   background-size: 100% 229px, 100% 229px, 360px 360px, 100% 100%;
@@ -93,20 +100,20 @@
     inset -7px 0 12px -9px rgba(96, 72, 42, 0.22);
 }
 
-/* 书位网格:自适应窗宽,一层能放几本放几本 */
+/* Book-slot grid: adapts to window width, fits as many books per row as it can */
 .shelf-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 .slot {
-  height: 229px;             /* 与背景的一层严格同高 */
-  padding: 26px 10px 13px;   /* 底部 13px 让书正好立在搁板上沿 */
+  height: 229px;             /* exactly matches one level of the background */
+  padding: 26px 10px 13px;   /* the bottom 13px sits the book right on the shelf edge */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
-  /* 极淡的拼板缝 */
+  /* very faint panel seam */
   box-shadow: inset -1px 0 0 rgba(126, 98, 60, 0.08);
 }
 .book {
@@ -126,13 +133,13 @@
   border-radius: 2px;
   display: block;
   box-shadow:
-    inset 2px 0 3px -2px rgba(0, 0, 0, 0.14),      /* 书脊侧微暗 */
+    inset 2px 0 3px -2px rgba(0, 0, 0, 0.14),      /* slightly dark along the spine side */
     inset 0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 1px 2px rgba(90, 66, 36, 0.3),               /* 书脚接触影 */
-    0 5px 9px -3px rgba(96, 70, 38, 0.24);         /* 柔和体影 */
+    0 1px 2px rgba(90, 66, 36, 0.3),               /* contact shadow at the book's foot */
+    0 5px 9px -3px rgba(96, 70, 38, 0.24);         /* soft ambient shadow */
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-/* 微釉光:印刷品的覆膜感 */
+/* Subtle glaze: the laminated-print feel */
 .cover::after {
   content: "";
   position: absolute; inset: 0;
@@ -149,7 +156,7 @@
     0 10px 15px -4px rgba(96, 70, 38, 0.3);
 }
 
-/* 书签形角标 */
+/* Bookmark-shaped status tab */
 .mark-tab {
   position: absolute;
   top: -1px; left: 8px;
@@ -165,7 +172,7 @@
 .mark-tab.unread  { background: linear-gradient(#c2bcb0, #a8a091); }
 .mark-tab.done    { background: linear-gradient(#8fac77, #6e8f58); }
 
-/* 删除:悬停封面才浮现 */
+/* Delete: only surfaces when hovering the cover */
 .bk-del {
   position: absolute; top: -7px; right: -7px; z-index: 4;
   width: 20px; height: 20px; border-radius: 50%;
@@ -178,7 +185,7 @@
 .book:hover .bk-del { opacity: 1; }
 .bk-del:hover { color: #b03a2e; }
 
-/* 封面下方文字 */
+/* Text below the cover */
 .cap { margin-top: 7px; text-align: center; line-height: 1.35; display: block; }
 .cap .t {
   display: block;
@@ -193,7 +200,7 @@
   max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ── 封面版式:七种体裁,中文出版物的雅致路线 ── */
+/* ── Cover styles: seven genres, an elegant publication-design route ── */
 .cover .vt {
   position: absolute;
   writing-mode: vertical-rl;
@@ -204,14 +211,14 @@
   font-family: "Songti SC", "STSong", "SimSun", serif;
 }
 
-/* 武侠:米白 + 朱线 + 墨色小块(原型 cv-1) */
+/* Wuxia: off-white + vermilion rule + ink block (prototype cv-1) */
 .cv-wuxia { height: 150px; background: #f6f1e3; }
 .cv-wuxia .vt { top: 14px; right: 13px; font-size: 19px; letter-spacing: 7px; color: #33302a; }
 .cv-wuxia .rule { position: absolute; top: 14px; right: 38px; width: 1px; height: 96px; background: #b8493c; }
 .cv-wuxia .blk { position: absolute; left: 13px; bottom: 14px; width: 22px; height: 34px; background: #3a362c; }
 .cv-wuxia .blk::after { content: ""; position: absolute; top: 5px; left: 8px; width: 6px; height: 6px; border-radius: 50%; background: #f2e9cf; }
 
-/* 科幻:浅蓝灰 + 行星轨道(原型 cv-2) */
+/* Sci-fi: pale blue-grey + planetary orbit (prototype cv-2) */
 .cv-scifi { height: 144px; background: #edf1f4; }
 .cv-scifi .planet {
   position: absolute; top: 26px; left: 50%; margin-left: -13px;
@@ -226,13 +233,13 @@
 }
 .cv-scifi .ht { bottom: 30px; font-size: 16px; letter-spacing: 5px; text-indent: 5px; color: #2e3c4e; }
 
-/* 经典:细框 + 菱形(原型 cv-3) */
+/* Classic: thin frame + diamond (prototype cv-3) */
 .cv-classic { height: 154px; background: #fbf7ee; }
 .cv-classic .frame { position: absolute; inset: 6px; border: 1px solid rgba(150, 135, 110, 0.4); pointer-events: none; }
 .cv-classic .vt { top: 16px; left: 16px; font-size: 16px; letter-spacing: 5px; color: #3a342c; }
 .cv-classic .diamond { position: absolute; right: 16px; bottom: 18px; width: 20px; height: 20px; background: #d9c9a8; transform: rotate(45deg); }
 
-/* 赛博:深蓝夜卡 + 粉霓虹细线 */
+/* Cyberpunk: deep-blue night card + thin pink neon lines */
 .cv-cyber { height: 150px; background: linear-gradient(to bottom, #333d54, #262e42); }
 .cv-cyber .vt { top: 14px; right: 14px; font-size: 18px; letter-spacing: 6px; color: #eef2fa; }
 .cv-cyber .neon { position: absolute; top: 14px; right: 39px; width: 1px; height: 92px; background: #e2688f; box-shadow: 0 0 6px rgba(226, 104, 143, 0.8); }
@@ -242,7 +249,7 @@
 .cv-cyber .dots i:nth-child(2) { background: #62c8bd; }
 .cv-cyber .dots i:nth-child(3) { background: #8fa3d9; }
 
-/* 末日:暖沙 + 半轮落日 */
+/* Apocalypse: warm sand + half a setting sun */
 .cv-apoc { height: 147px; background: #f4ead8; }
 .cv-apoc .sun {
   position: absolute; top: 30px; left: 50%; margin-left: -17px;
@@ -252,7 +259,7 @@
 .cv-apoc .horizon { position: absolute; top: 47px; left: 16px; right: 16px; height: 1px; background: rgba(120, 84, 40, 0.5); }
 .cv-apoc .ht { bottom: 32px; font-size: 16px; letter-spacing: 5px; text-indent: 5px; color: #5a3a1c; }
 
-/* 哥特:灰紫 + 尖拱 */
+/* Gothic: grey-violet + pointed arch */
 .cv-gothic { height: 152px; background: #efecf2; }
 .cv-gothic .arch {
   position: absolute; top: 20px; left: 50%; margin-left: -16px;
@@ -263,7 +270,7 @@
 }
 .cv-gothic .vt { top: 16px; left: 15px; font-size: 16px; letter-spacing: 5px; color: #453a5c; }
 
-/* 奇幻:浅绿 + 金月与丘线 */
+/* Fantasy: pale green + gold moon and hill line */
 .cv-fantasy { height: 148px; background: #eef2e4; }
 .cv-fantasy .moon {
   position: absolute; top: 22px; right: 22px;
@@ -277,7 +284,7 @@
 }
 .cv-fantasy .ht { bottom: 34px; font-size: 16px; letter-spacing: 5px; text-indent: 5px; color: #3c4a34; }
 
-/* ── 添加位:凹进搁板的空格 ── */
+/* ── Add slot: a recessed gap in the shelf ── */
 .add-slot {
   width: 102px; height: 150px;
   border-radius: 3px;
@@ -301,7 +308,7 @@
 }
 .book:hover .add-slot { transform: translateY(-2px); }
 
-/* ── 新书扉页(自定义设定) ── */
+/* ── New-book title page (custom setup) ── */
 .rd-dlg-overlay {
   position: absolute; inset: 0; z-index: 10;
   display: flex; align-items: center; justify-content: center;
@@ -345,10 +352,10 @@
 .rd-dlg-begin:hover:not(:disabled) { background: #9c332a; transform: translateY(-1px); }
 .rd-dlg-begin:disabled { background: #cbbfa8; cursor: default; box-shadow: none; }
 
-/* ══════════════════════════ 阅读页 ══════════════════════════ */
+/* ══════════════════════════ Reader page ══════════════════════════ */
 
 .reader-read {
-  /* 日间纸色 */
+  /* Day paper tone */
   --rbg: #faf6ec;
   --rink: #3a332a;
   --rdim: #a4977e;
@@ -372,7 +379,7 @@
   --chbd: #453c2b;
 }
 
-/* 顶栏:返回 / 书名 / 页码 / 字号 / 日夜 */
+/* Top bar: back / title / page number / font size / day-night */
 .r-top {
   height: 44px; flex: none;
   display: flex; align-items: center;
@@ -408,7 +415,7 @@
 .r-key-sm { font-size: 10px; }
 .r-key-lg { font-size: 13.5px; }
 
-/* 正文长卷 */
+/* Long-form body text */
 .r-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 .r-scroll::-webkit-scrollbar { width: 9px; }
 .r-scroll::-webkit-scrollbar-thumb {
@@ -432,7 +439,7 @@
   padding: 5px 8px 0 0;
   color: var(--vermi);
 }
-/* 朱批 */
+/* Vermilion annotation */
 .zhu {
   text-indent: 0;
   margin: 1.2em 0 0.8em;
@@ -448,7 +455,7 @@
   to { opacity: 1; transform: none; }
 }
 
-/* 卷首语:设定 */
+/* Frontispiece: setup */
 .r-premise {
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 11.5px; color: var(--rdim); line-height: 1.9;
@@ -458,7 +465,7 @@
 }
 .r-premise-label { color: var(--vermi); letter-spacing: 0.2em; margin-right: 8px; }
 
-/* 展开中 / 出错 */
+/* Loading / error */
 .r-loading {
   display: flex; align-items: center; gap: 10px;
   margin: 18px 0;
@@ -481,7 +488,7 @@
   background: rgba(176, 58, 46, 0.05);
 }
 
-/* ── 抉择:跟在正文末尾,随页面滚动 ── */
+/* ── Choices: follow the end of the text, scroll with the page ── */
 .r-choices-flow { margin-top: 30px; }
 .choice {
   display: flex; align-items: center;
@@ -511,7 +518,7 @@
 .choice:disabled { opacity: 0.5; cursor: default; }
 .choice-resume { justify-content: center; color: var(--vermi); }
 
-/* 自己写一个行动 */
+/* Write your own action */
 .r-free { display: flex; align-items: flex-end; gap: 10px; margin-top: 14px; }
 .r-free-input {
   flex: 1; min-width: 0;
@@ -535,7 +542,7 @@
 .r-free-go:hover:not(:disabled) { border-color: var(--vermi); color: var(--vermi); transform: translateY(-1px); }
 .r-free-go:disabled { opacity: 0.32; cursor: default; }
 
-/* 全文完 */
+/* THE END */
 .r-end {
   display: flex; align-items: center; gap: 16px;
   margin: 40px 0 6px; color: var(--rink);
@@ -546,7 +553,7 @@
   font-size: 13px; letter-spacing: 0.5em; text-indent: 0.5em;
 }
 
-/* ── 降级 ── */
+/* ── Degradation ── */
 @media (prefers-reduced-motion: reduce) {
   .reader-app *, .reader-app *::before, .reader-app *::after {
     animation: none !important; transition: none !important;

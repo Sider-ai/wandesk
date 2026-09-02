@@ -1,4 +1,4 @@
-// 天气 — 类型定义(存储、上游数据、归一化视图模型)。
+// Weather — type definitions (storage, upstream data, normalized view models).
 export type SkyKind = 'clear' | 'cloud' | 'rain' | 'snow' | 'thunder' | 'fog';
 
 // stored city (our cities table)

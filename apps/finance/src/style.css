@@ -1,10 +1,10 @@
-/* 记账本 — 拟物红皮存折。皮革书脊 + 烫金书名 · 金属订线 · 米色账页 + 点阵字体。 */
+/* Ledger — skeuomorphic red leather passbook. Leather spine + gold-stamped title, metal binding, cream ledger pages + dot-matrix font. */
 .fin-root {
   height: 100%; min-height: 0; display: flex; flex-direction: column;
-  background: #1a1a1a; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* ── 书脊顶栏:深皮革 + 烫金书名 ── */
+/* -- Spine header bar: dark leather + gold-stamped title -- */
 .fin-spine {
   flex: none; height: 52px; display: flex; align-items: center; justify-content: center;
   position: relative; z-index: 5;
@@ -26,7 +26,7 @@
   text-shadow: 0 1px 0 rgba(120,60,0,0.85), 0 0 6px rgba(247,215,122,0.35), 0 -1px 0 rgba(0,0,0,0.4);
 }
 
-/* ── 金属订线 ── */
+/* -- Metal binding -- */
 .fin-binding {
   flex: none; height: 8px; position: relative;
   background: linear-gradient(180deg, #1a1a1a 0%, #333 30%, #555 50%, #333 70%, #1a1a1a 100%);
@@ -37,7 +37,7 @@
   background-image: repeating-linear-gradient(90deg, transparent 0 9px, rgba(255,255,255,0.08) 9px 11px);
 }
 
-/* ── 内页:米色账本纸 ── */
+/* -- Pages: cream ledger paper -- */
 .fin-pages {
   flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative;
   background-color: #f0f4f8;
@@ -51,10 +51,10 @@
   background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.12) 45%, transparent 100%);
 }
 
-/* 点阵打印机字体 */
+/* Dot-matrix printer font */
 .fin-dot { font-family: 'Courier New', Courier, monospace; color: #0b1c67; letter-spacing: 0.5px; }
 
-/* ── 头部:月份翻页 + 汇总盒 ── */
+/* -- Header: month navigation + summary box -- */
 .fin-head {
   flex: none; display: flex; flex-direction: column; gap: 16px;
   padding: 20px 16px 16px; z-index: 11;
@@ -86,7 +86,7 @@
 .fin-exp { font-size: 16px; font-weight: 700; color: #b91c1c; }
 .fin-bal { font-size: 22px; font-weight: 900; color: #000; text-decoration: underline double; }
 
-/* ── 账表 ── */
+/* -- Ledger table -- */
 .fin-tablewrap {
   flex: 1; min-height: 0; overflow-y: auto; margin: 0 12px 16px;
   border: 1px solid rgba(82,113,255,0.4); background: rgba(255,255,255,0.4);

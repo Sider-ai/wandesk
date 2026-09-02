@@ -1,8 +1,8 @@
 {
   "id": "pool",
-  "name": "台球",
+  "name": "Pool",
   "icon": "🎱",
-  "description": "一张绿呢台球桌,拖动白球瞄准蓄力,真实的碰撞与摩擦。把彩球一颗颗送进袋。",
+  "description": "A green-felt pool table — drag the cue ball to aim and power up, with realistic collisions and friction. Sink the colored balls one by one.",
   "mounts": {
     "window": "/"
   }

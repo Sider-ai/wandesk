@@ -1,4 +1,4 @@
-// 飞机大战 — 每帧渲染:背景/星野/粒子/掉落/敌机/子弹/战机/飘字/闪白/HUD/面板。
+// Aircraft — per-frame rendering: background / starfield / particles / drops / enemies / bullets / ship / floating text / flash / HUD / panels.
 import { cl, DROP_COL, DROP_GLYPH, rng, TAU } from '../lib/constants';
 import type { GS } from '../lib/types';
 import { drawEnemy, drawShip } from './ship';

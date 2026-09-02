@@ -1,4 +1,5 @@
-// 算一卦 — 周易六爻的数据与纯逻辑:卦表、起卦、解卦解析、卦师人设、展示辅助。
+// I Ching (fortune) — data and pure logic for the six-line divination: hexagram
+// table, casting, reading parsing, diviner persona, display helpers.
 
 export type Reading = {
   signName: string;
@@ -9,39 +10,47 @@ export type Reading = {
 };
 export type Phase = 'idle' | 'shaking' | 'reading' | 'done';
 
-// last cast is cached (single, not a history) so reopening shows it; 重新起卦 clears it
+// last cast is cached (single, not a history) so reopening shows it; "Cast Again" clears it
 export const CACHE_KEY = 'wandesk.fortune.last';
 
-// ── 卦师人设 ──
-export const DIVINER = `你是一位精通《周易》六爻的卦师,世外高人,学识渊博,文笔古雅,断语简练却意味深长。
-用户已通过摇铜钱起卦,得到了一个确定的卦象,你只负责解读这一卦,绝不可另起卦或更改卦象。
+// ── diviner persona ──
+export const DIVINER = `You are a master diviner of the I Ching (Book of Changes) — a sage of few words,
+learned and eloquent, whose pronouncements are terse yet resonant with meaning.
+The querent has already cast their hexagram by tossing three coins six times; you only
+interpret the hexagram they were given. Never cast a new one or alter the result.
 
-解卦要求(紧扣所得卦名与卦义,贴合用户所问):
-1. signName:卦象总评,只能取其一 —— "大吉" / "中吉" / "小吉" / "中平" / "小凶" / "凶"。
-2. signPoem:一首原创四句签诗(每句五到七言,古雅有韵),暗合卦象与所问,可用意象,不要直白。
-3. good:宜行之事,2-3 项,顿号分隔,简短。
-4. bad:忌行之事,2-3 项,顿号分隔,简短。
-5. advice:解读建议,60-90 字,有易经味道但通俗,言辞不可过于绝对,
-   收束处点到"尽人事,听天命""仅供参详,莫要执泥"之意,劝人理性看待。
+Reading requirements (stay tightly bound to the hexagram's name and meaning, and to the querent's question):
+1. signName: an overall verdict, chosen from exactly one of these six —
+   "Great Fortune" / "Good Fortune" / "Modest Fortune" / "Neutral" / "Slight Misfortune" / "Misfortune".
+2. signPoem: an original four-line oracle verse (each line roughly five to seven words,
+   in an elevated, classical register), evoking the hexagram and the question through
+   imagery rather than stating things plainly.
+3. good: 2-3 favorable actions, short phrases separated by commas.
+4. bad: 2-3 actions to avoid, short phrases separated by commas.
+5. advice: a 60-90 word interpretation with the flavor of the I Ching but plainly readable,
+   never too absolute in its claims, closing with a note in the spirit of
+   "do what you can, and leave the rest to fate" / "take this as guidance, not gospel,"
+   urging the reader to weigh it with a clear head.
 
-语气:沉静、笃定、有古意,像庙里抽到的签文旁那位捻须的老先生。
+Tone: calm, assured, touched with antiquity — like the old fortune-teller stroking his
+beard beside the temple's oracle slips.
 
-务必只输出一个 JSON 对象,不要任何解释、前后缀或代码块标记:
+Output only a single JSON object, with no explanation, no prefix or suffix, and no code fences:
 {"signName":"...","signPoem":"...","good":"...","bad":"...","advice":"..."}`;
 
-// ── 64 卦表 (upper × lower, 0=坤..7=乾 三爻索引) ──
+// ── 64-hexagram table (upper × lower, 0=Kun..7=Qian trigram index) ──
 const HEXAGRAMS: string[][] = [
-  ['坤为地', '地山谦', '地水师', '地风升', '地雷复', '地火明夷', '地泽临', '地天泰'],
-  ['山地剥', '艮为山', '山水蒙', '山风蛊', '山雷颐', '山火贲', '山泽损', '山天大畜'],
-  ['水地比', '水山蹇', '坎为水', '水风井', '水雷屯', '水火既济', '水泽节', '水天需'],
-  ['风地观', '风山渐', '风水涣', '巽为风', '风雷益', '风火家人', '风泽中孚', '风天小畜'],
-  ['雷地豫', '雷山小过', '雷水解', '雷风恒', '震为雷', '雷火丰', '雷泽归妹', '雷天大壮'],
-  ['火地晋', '火山旅', '火水未济', '火风鼎', '火雷噬嗑', '离为火', '火泽睽', '火天大有'],
-  ['泽地萃', '泽山咸', '泽水困', '泽风大过', '泽雷随', '泽火革', '兑为泽', '泽天夬'],
-  ['天地否', '天山遁', '天水讼', '天风姤', '天雷无妄', '天火同人', '天泽履', '乾为天'],
+  ['Kun (The Receptive)', 'Qian (Modesty)', 'Shi (The Army)', 'Sheng (Pushing Upward)', 'Fu (Return)', 'Mingyi (Darkening of the Light)', 'Lin (Approach)', 'Tai (Peace)'],
+  ['Bo (Splitting Apart)', 'Gen (Keeping Still)', 'Meng (Youthful Folly)', 'Gu (Work on the Decayed)', 'Yi (Nourishment)', 'Bi (Grace)', 'Sun (Decrease)', 'Daxu (Great Taming)'],
+  ['Bi (Holding Together)', 'Jian (Obstruction)', 'Kan (The Abysmal)', 'Jing (The Well)', 'Zhun (Difficulty at the Beginning)', 'Jiji (After Completion)', 'Jie (Limitation)', 'Xu (Waiting)'],
+  ['Guan (Contemplation)', 'Jian (Gradual Progress)', 'Huan (Dispersion)', 'Xun (The Gentle)', 'Yi (Increase)', 'Jiaren (The Family)', 'Zhongfu (Inner Truth)', 'Xiaochu (Small Taming)'],
+  ['Yu (Enthusiasm)', 'Xiaoguo (Small Preponderance)', 'Jie (Deliverance)', 'Heng (Duration)', 'Zhen (The Arousing)', 'Feng (Abundance)', 'Guimei (The Marrying Maiden)', 'Dazhuang (Great Power)'],
+  ['Jin (Progress)', 'Lu (The Wanderer)', 'Weiji (Before Completion)', 'Ding (The Cauldron)', 'Shike (Biting Through)', 'Li (The Clinging)', 'Kui (Opposition)', 'Dayou (Great Possession)'],
+  ['Cui (Gathering Together)', 'Xian (Influence)', 'Kun (Oppression)', 'Daguo (Great Preponderance)', 'Sui (Following)', 'Ge (Revolution)', 'Dui (The Joyous)', 'Guai (Breakthrough)'],
+  ['Pi (Standstill)', 'Dun (Retreat)', 'Song (Conflict)', 'Gou (Coming to Meet)', 'Wuwang (Innocence)', 'Tongren (Fellowship)', 'Lu (Treading)', 'Qian (The Creative)'],
 ];
-export const YAO_LABELS = ['上爻', '五爻', '四爻', '三爻', '二爻', '初爻'];
-export const TRIGRAM_NAMES = ['坤', '艮', '坎', '巽', '震', '离', '兑', '乾'];
+export const YAO_LABELS = ['Top Line', 'Fifth Line', 'Fourth Line', 'Third Line', 'Second Line', 'Initial Line'];
+export const TRIGRAM_NAMES = ['Kun (Earth)', 'Gen (Mountain)', 'Kan (Water)', 'Xun (Wind)', 'Zhen (Thunder)', 'Li (Fire)', 'Dui (Lake)', 'Qian (Heaven)'];
 export const TRIGRAM_GLYPHS = ['☷', '☶', '☵', '☴', '☳', '☲', '☱', '☰'];
 export const RING_GLYPHS = ['☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷'];
 
@@ -65,11 +74,11 @@ export function shakeOnce(): { coins: number[]; yao: number; changing: boolean }
 
 export function parseReading(raw: string): Reading {
   const fallback: Reading = {
-    signName: '中平',
-    signPoem: '天机一时未分明,且待云开月自生。\n心有所问皆有应,静守本心万事成。',
-    good: '静观、守正',
-    bad: '妄动、强求',
-    advice: '此卦机缘未显,宜静不宜躁。所问之事尚在变化之中,且尽己力,余者听之。仅供参详,莫要执泥。',
+    signName: 'Neutral',
+    signPoem: 'The heavenly workings are not yet clear;\nwait for the clouds to part and the moon to rise.\nWhat the heart asks, an answer will find;\nhold to your center and all things resolve in time.',
+    good: 'staying watchful, holding steady',
+    bad: 'acting rashly, forcing the issue',
+    advice: 'This hexagram\'s omen has not yet shown itself clearly — better to stay still than to stir. The matter you ask about is still in flux; do what you can, and leave the rest to fate. Take this as guidance, not gospel.',
   };
   let text = raw.trim();
   const m = text.match(/\{[\s\S]*\}/);
@@ -88,7 +97,7 @@ export function parseReading(raw: string): Reading {
   }
 }
 
-// ── 展示辅助 ──
+// ── display helpers ──
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 export const six = <T,>(v: T): T[] => [v, v, v, v, v, v];
 export function poemLines(poem: string): string[] {
@@ -98,13 +107,13 @@ export function listItems(s: string): string[] {
   return s.split(/[、,，;；\s]+/).map((x) => x.trim()).filter(Boolean);
 }
 export function toneOf(signName: string): 'gold' | 'jade' | 'dim' | 'omen' {
-  if (/大吉|中吉/.test(signName)) return 'gold';
-  if (/小吉/.test(signName)) return 'jade';
-  if (/凶/.test(signName)) return 'omen';
+  if (/Great Fortune|Good Fortune/.test(signName)) return 'gold';
+  if (/Modest Fortune/.test(signName)) return 'jade';
+  if (/Misfortune/.test(signName)) return 'omen';
   return 'dim';
 }
 
-// 深空背景的星点(确定式公式,非随机,便于稳定渲染)
+// Star field for the deep-space backdrop (a deterministic formula, not random, for stable rendering)
 export const STARS = Array.from({ length: 110 }, (_, i) => {
   const x = (i * 67 + 23) % 760;
   const y = (i * 41 + 13) % 560;

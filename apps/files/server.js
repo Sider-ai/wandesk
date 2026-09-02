@@ -1,5 +1,5 @@
-// 文件 —— 产品本体的第二个证明:它也只是个普通应用,用的是 env.FS。
-// 路径一律相对工作区根,内核那边会拒掉任何越界。
+// Files -- the second proof of the product itself: it's just an ordinary app too, using env.FS.
+// Paths are always relative to the workspace root; the kernel rejects any path that escapes it.
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 

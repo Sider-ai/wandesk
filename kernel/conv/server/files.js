@@ -42,8 +42,8 @@ export function createFiles(config) {
         root,
         async upload(input) {
             const bytes = Buffer.from(String(input?.dataBase64 || ''), 'base64');
-            if (!bytes.length) throw Object.assign(new Error('文件内容为空'), { status: 400 });
-            if (bytes.length > maxBytes) throw Object.assign(new Error(`文件不能超过 ${Math.floor(maxBytes / 1024 / 1024)}MB`), { status: 413 });
+            if (!bytes.length) throw Object.assign(new Error('File content is empty'), { status: 400 });
+            if (bytes.length > maxBytes) throw Object.assign(new Error(`File cannot exceed ${Math.floor(maxBytes / 1024 / 1024)}MB`), { status: 413 });
             let name = safeName(input?.name);
             let ext = extname(name).toLowerCase().slice(0, 12);
             if (!IMAGE_TYPES.has(ext) && IMAGE_EXTENSIONS.has(input?.mimeType)) {
@@ -57,7 +57,7 @@ export function createFiles(config) {
         },
         normalizeMany(values) {
             if (!Array.isArray(values)) return [];
-            if (values.length > maxPerMessage) throw Object.assign(new Error(`每条消息最多 ${maxPerMessage} 个文件`), { status: 400 });
+            if (values.length > maxPerMessage) throw Object.assign(new Error(`Each message can have at most ${maxPerMessage} files`), { status: 400 });
             return values.map(normalize).filter(Boolean);
         },
         async serve(id, response) {
@@ -83,7 +83,7 @@ export function createFiles(config) {
                     for (const attachment of item.attachments) {
                         if (String(attachment.mimeType).startsWith('image/') && attachment.size <= maxBytes) {
                             parts.push({ type: 'input_image', image_url: await dataUrl(attachment) });
-                        } else parts.push({ type: 'input_text', text: `[本地文件: ${attachment.name}\n路径: ${attachment.path}]` });
+                        } else parts.push({ type: 'input_text', text: `[Local file: ${attachment.name}\nPath: ${attachment.path}]` });
                     }
                     output.unshift({ role: 'user', content: parts });
                 } else if (item?.type === 'function_call_output' && item.image && index > lastUser && toolImages < maxLiveToolImages) {

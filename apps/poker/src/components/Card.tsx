@@ -1,8 +1,8 @@
-// 单张扑克(正反面 + 发牌动画)。
+// A single playing card (front + back, plus the deal animation).
 import { RANK_LABEL, type Card } from '../lib/cards';
 
 function CardBody({ card }: { card: Card }) {
-  // 一枚干净、清晰的点数 + 花色,居中(点阵在这个尺寸下会和角标撞车)。
+  // A clean, clear rank + suit, centered (a pip layout would collide with the corner labels at this size).
   return (
     <span className="pk-figure">
       <b className="pk-fig-rank">{RANK_LABEL[card.rank]}</b>

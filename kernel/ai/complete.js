@@ -1,4 +1,4 @@
-// 一次性无工具补全，适用于摘要和标题。
+// One-shot completion without tools, for summaries and titles.
 import { request } from './request.js';
 
 export async function complete({
@@ -13,7 +13,7 @@ export async function complete({
     errorMaxChars,
     signal,
 }) {
-    if (!Array.isArray(input)) throw new Error('input 必须是数组');
+    if (!Array.isArray(input)) throw new Error('input must be an array');
 
     const result = await request({
         driver,

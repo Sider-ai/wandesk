@@ -1,10 +1,10 @@
-// 助理 —— 界面来自 AGENT 仓库的 web/ui,后端就是内核的会话面。
+// Assistant — the UI comes from the AGENT repo's web/ui; the backend is just the kernel's conversation surface.
 //
-// 整个后端只有两行:这正是「没有原生应用」想证明的事 ——
-// 连对话都只是个普通应用,拿的是和记账本一模一样的 binding,没有任何特权。
+// The whole backend is two lines: that's exactly what "no native apps" is meant to prove —
+// even chat is just an ordinary app, using the same binding as a plain notebook app, with no special privileges.
 //
-// env.AI.fetch 把请求原样转给内核的会话 API(对话 / 消息 / 常驻 SSE / 设置 / 附件),
-// 所以 AGENT 那套 UI 一行没改就能跑;换一套 UI 接同一个口子也一样。
+// env.AI.fetch forwards the request as-is to the kernel's session API (conversations / messages / persistent SSE / settings / attachments),
+// so the AGENT UI runs unmodified; swapping in a different UI against the same endpoint works just as well.
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);

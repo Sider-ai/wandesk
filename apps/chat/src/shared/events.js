@@ -1,30 +1,30 @@
-// 服务端与界面共用的事件名 —— 跨进程的字符串只写这一份。
-// 服务端经 /api/events(SSE)广播,界面按 conversationId 认领。
+// Event names shared between the server and the UI — the cross-process strings live only here.
+// The server broadcasts them over /api/events (SSE); the UI claims them by conversationId.
 export const EVENTS = Object.freeze({
-    /** 一轮开始跑了(用户消息已落库)。 */
+    /** A turn has started running (the user message is already persisted). */
     START: 'conversation.start',
-    /** 思考流增量。 */
+    /** Reasoning stream delta. */
     REASONING: 'conversation.reasoning',
-    /** 正文流增量。 */
+    /** Main text stream delta. */
     DELTA: 'conversation.delta',
-    /** 模型转去吐工具参数了:正文行到此为止。 */
+    /** The model has switched to emitting tool arguments: the text line ends here. */
     CALL_STARTED: 'conversation.callStarted',
-    /** 一批工具调用已就绪(参数完整),即将执行。 */
+    /** A batch of tool calls is ready (arguments complete) and about to run. */
     CALLS: 'conversation.calls',
-    /** 某次工具调用出结果了。 */
+    /** A tool call has produced a result. */
     CALL_OUTPUT: 'conversation.callOutput',
-    /** 上下文压缩:开始 / 结束。 */
+    /** Context compaction: start / done. */
     COMPACT_START: 'conversation.compactStart',
     COMPACT_DONE: 'conversation.compactDone',
-    /** 终局三态。 */
+    /** The three terminal states. */
     DONE: 'conversation.done',
     ABORTED: 'conversation.aborted',
     ERROR: 'conversation.error',
-    /** 对话列表变了(标题 / 置顶 / 新建),界面重拉列表。 */
+    /** The conversation list changed (title / pin / new conversation); the UI refetches the list. */
     CONVERSATIONS_CHANGED: 'conversations.changed',
-    /** 某个对话被删了(可能来自另一个窗口)。 */
+    /** A conversation was deleted (possibly from another window). */
     CONVERSATION_DELETED: 'conversation.deleted',
 });
 
-/** SSE 通道上会出现的全部事件名,界面据此逐个 addEventListener。 */
+/** Every event name that can appear on the SSE channel; the UI adds a listener for each of these. */
 export const EVENT_NAMES = Object.freeze(Object.values(EVENTS));

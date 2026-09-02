@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
-  <!-- 光斑清晨:青蓝到暖白的散景圆斑,柔焦的一片晨光 -->
+  <!-- Bokeh Morning: teal-to-warm-white bokeh circles, a soft-focus wash of morning light -->
   <defs>
     <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#1d6b8a"/>
@@ -23,13 +23,13 @@
   <rect width="1600" height="1000" fill="url(#base)"/>
   <rect width="1600" height="1000" fill="url(#warm)"/>
 
-  <!-- 后景大光斑(更糊) -->
+  <!-- Background: large bokeh circles (more blurred) -->
   <g filter="url(#blur2)" opacity="0.8">
     <circle cx="240" cy="240" r="150" fill="url(#dot)"/>
     <circle cx="1330" cy="220" r="190" fill="url(#dot)"/>
     <circle cx="1120" cy="720" r="230" fill="url(#dot)"/>
   </g>
-  <!-- 中景 -->
+  <!-- Midground -->
   <g filter="url(#blur1)" opacity="0.85">
     <circle cx="640" cy="430" r="96" fill="url(#dot)"/>
     <circle cx="180" cy="580" r="84" fill="url(#dot)"/>

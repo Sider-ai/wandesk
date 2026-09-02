@@ -1,4 +1,5 @@
-// 驱动派发 + 重试。协议差异全在 ai/drivers/ 下,这一层不认识任何具体协议。
+// Driver dispatch + retry. All protocol differences live under ai/drivers/ — this layer
+// doesn't know about any specific protocol.
 import { EVENTS } from './events.js';
 import { driverFor } from './drivers/index.js';
 import { backoffMs, isRetryable, normalizeRetry, sleep } from './retry.js';
@@ -18,8 +19,8 @@ export async function request({
     errorMaxChars,
 }) {
     const impl = driverFor(driver);
-    if (!url || !apiKey || !model) throw new Error(`缺少接口地址、API Key 或模型名(驱动:${impl.label})`);
-    if (!Number.isInteger(errorMaxChars) || errorMaxChars <= 0) throw new Error('errorMaxChars 必须是正整数');
+    if (!url || !apiKey || !model) throw new Error(`Missing endpoint URL, API key, or model name (driver: ${impl.label})`);
+    if (!Number.isInteger(errorMaxChars) || errorMaxChars <= 0) throw new Error('errorMaxChars must be a positive integer');
 
     const policy = normalizeRetry(retry);
     const args = { url, apiKey, model, input, instructions, tools, modelOptions, signal, onEvent, errorMaxChars };
@@ -30,7 +31,7 @@ export async function request({
         } catch (error) {
             if (signal?.aborted || error?.name === 'AbortError') throw error;
             const exhausted = attemptNo > policy.maxRetries;
-            // 已经吐过内容再重试会重复一遍正文，默认不做，交给上层报错。
+            // Retrying after content has already been emitted would duplicate the body; default is not to, let the caller surface the error.
             const streamed = error?.emitted && !policy.retryAfterStream;
             if (!policy.enabled || exhausted || streamed || !isRetryable(error)) throw error;
 

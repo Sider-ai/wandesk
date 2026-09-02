@@ -1,13 +1,13 @@
-// 应用注册表 = 目录扫描。没有数组,没有 import 清单。
+// The app registry = a directory scan. No array, no import manifest.
 //
 //   <workspace>/apps/<id>/
-//     app.json    manifest —— 四个字段:id / name / icon / mounts
-//     APP.md      给 AI 看的说明:第一段是一句话简介,内核把它注入每次 AI 调用的提示词
-//     server.js   Worker:export default { async fetch(req, env) {…} }
-//     public/     静态资源(env.ASSETS 读这里)
-//     data.db     数据 —— 指向 .wandesk/store/ 里真实库的链接(env.DB 在 workerd 的 AppStore 里执行)
+//     app.json    manifest — four fields: id / name / icon / mounts
+//     APP.md      description for the AI: the first paragraph is a one-line summary the kernel injects into every AI call's prompt
+//     server.js   Worker: export default { async fetch(req, env) {…} }
+//     public/     static assets (env.ASSETS reads from here)
+//     data.db     data — a symlink to the real database in .wandesk/store/ (env.DB runs inside workerd's AppStore)
 //
-// 「安装」= 目录存在;「移除」= 删目录。AI 用 write 工具即可造应用,宿主零改动。
+// "Installed" = the directory exists; "removed" = the directory is deleted. The AI can build an app with just the write tool — zero host changes needed.
 import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
@@ -22,15 +22,15 @@ export type AppInfo = {
   name: string;
   icon: string;
   description: string;
-  /** 挂载点 = 应用内的路由路径,不是文件名。window 开窗口,panel 钉侧栏。 */
+  /** Mount point = a route path inside the app, not a filename. "window" opens a window, "panel" pins a sidebar panel. */
   mounts: { window?: string; panel?: string };
   dir: string;
-  /** APP.md 全文(没有就是空串)。 */
+  /** The full text of APP.md (empty string if there isn't one). */
   doc: string;
 };
 
-/** app.json 的 name / description 允许是字符串,也允许 { zh, en } 双语对象。
- *  按当前界面语言取,缺就回落 zh,再缺取任意一个写了的语言。 */
+/** app.json's name / description may be a plain string, or a bilingual { zh, en } object.
+ *  Picked by the current UI language; falls back to zh if missing, then to whichever language is present. */
 const localize = (raw: unknown): string => {
   if (typeof raw === "string") return raw;
   if (raw && typeof raw === "object") {
@@ -42,7 +42,7 @@ const localize = (raw: unknown): string => {
   return "";
 };
 
-/** APP.md 的第一段正文(跳过标题与空行)—— 用作一句话简介。 */
+/** The first paragraph of APP.md (skipping the heading and blank lines) — used as the one-line summary. */
 const firstParagraph = (doc: string): string => {
   const lines = doc.split(/\r?\n/);
   let i = 0;
@@ -57,21 +57,21 @@ const readManifest = (dir: string): AppInfo | null => {
     const raw = JSON.parse(fs.readFileSync(path.join(dir, "app.json"), "utf8"));
     const id = String(raw?.id || path.basename(dir)).toLowerCase();
     if (!APP_ID.test(id)) return null;
-    if (!fs.existsSync(path.join(dir, "server.js"))) return null; // 应用即网站:server.js 必备
+    if (!fs.existsSync(path.join(dir, "server.js"))) return null; // an app is a website: server.js is mandatory
     const mounts: AppInfo["mounts"] = {};
     for (const key of ["window", "panel"] as const) {
       const route = raw?.mounts?.[key];
       if (typeof route === "string" && ROUTE.test(route) && !route.includes("..")) mounts[key] = route;
     }
-    if (!mounts.window && !mounts.panel) mounts.window = "/"; // 没写就默认开窗口、走根路径
-    // 语言是 en 且目录里有 APP.en.md 时读它,否则读 APP.md
+    if (!mounts.window && !mounts.panel) mounts.window = "/"; // default to opening a window at the root route if unset
+    // If the language is "en" and the directory has APP.en.md, read that; otherwise read APP.md
     let doc = "";
     const lang = currentLanguage();
     if (lang === "en") {
-      try { doc = fs.readFileSync(path.join(dir, "APP.en.md"), "utf8"); } catch { /* 没有英文版 */ }
+      try { doc = fs.readFileSync(path.join(dir, "APP.en.md"), "utf8"); } catch { /* no English version */ }
     }
     if (!doc) {
-      try { doc = fs.readFileSync(path.join(dir, "APP.md"), "utf8"); } catch { /* 没写说明 */ }
+      try { doc = fs.readFileSync(path.join(dir, "APP.md"), "utf8"); } catch { /* no description written */ }
     }
     return {
       id,
@@ -100,30 +100,24 @@ export const listApps = (): AppInfo[] => {
 };
 
 /**
- * 注入提示词的「已安装应用」清单 —— 像 SKILL.md 一样只给名字和一句话,
- * 详情让模型自己 read apps/<id>/APP.md。内核不认识任何应用,它只是把目录念一遍。
+ * The "installed apps" list injected into the prompt — like SKILL.md, it gives only the name and a one-liner;
+ * details are left for the model to read itself via apps/<id>/APP.md. The kernel doesn't know any app — it just reads the directory listing aloud.
  */
 export const appsBlock = (): string => {
   const apps = listApps();
   if (!apps.length) return "";
-  if (currentLanguage() === "en") {
-    const lines = apps.map((a) => `- ${a.icon} ${a.name} (${a.id})${a.description ? ": " + a.description : ""}`).join("\n");
-    return `\n\n# Installed apps on the desktop (injected by the kernel)\nEach directory under apps/<id>/ in the workspace is one app; APP.md in each directory is its full description — read it when you need detail.\n${lines}`;
-  }
-  const lines = apps.map((a) => `- ${a.icon} ${a.name}(${a.id})${a.description ? ":" + a.description : ""}`).join("\n");
-  return `\n\n# 桌面上已安装的应用(内核注入)\n工作区 apps/<id>/ 一个目录一个应用;每个目录里的 APP.md 是它的完整说明,需要细节时 read 它。\n${lines}`;
+  const lines = apps.map((a) => `- ${a.icon} ${a.name} (${a.id})${a.description ? ": " + a.description : ""}`).join("\n");
+  return `\n\n# Installed apps on the desktop (injected by the kernel)\nEach directory under apps/<id>/ in the workspace is one app; APP.md in each directory is its full description — read it when you need detail.\n${lines}`;
 };
 
-/** 注入提示词的语言说明 —— 让模型知道该用哪种语言回复。 */
+/** The language note injected into the prompt — tells the model which language to reply in. */
 export const languageBlock = (): string =>
-  currentLanguage() === "en"
-    ? "\n\n# 用户界面语言\nThe user's interface language is English. Reply in English unless the user writes in another language."
-    : "\n\n# 用户界面语言\n用户的界面语言是中文,除非用户用别的语言书写,否则请用中文回复。";
+  "\n\n# User interface language\nThe user's interface language is English. Reply in English unless the user writes in another language.";
 
 export const getApp = (appId: string): AppInfo | null =>
   APP_ID.test(String(appId || "")) ? listApps().find((a) => a.id === appId) ?? null : null;
 
-/** 应用后端代码 + 版本键(内容哈希 —— 改完 server.js,下次请求就是新版,不重启)。 */
+/** App backend code + a version key (content hash — after editing server.js, the next request gets the new version, no restart needed). */
 export const appServerCode = (appId: string) => {
   const app = getApp(appId);
   if (!app) return null;
@@ -133,13 +127,13 @@ export const appServerCode = (appId: string) => {
   } catch { return null; }
 };
 
-/** env.ASSETS 的执行端:读 apps/<id>/public/,base64 回传(二进制安全)。 */
+/** The execution side of env.ASSETS: reads from apps/<id>/public/ and returns it base64-encoded (binary-safe). */
 export const appAsset = (appId: string, rel: string): string | null => {
   const app = getApp(appId);
   if (!app) return null;
   const base = path.join(app.dir, "public");
   const abs = path.normalize(path.join(base, rel.replace(/^\/+/, "")));
-  if (!abs.startsWith(base + path.sep) && abs !== base) return null; // 路径穿越防护
+  if (!abs.startsWith(base + path.sep) && abs !== base) return null; // path traversal guard
   try {
     const stat = fs.statSync(abs);
     if (!stat.isFile() || stat.size > 20 * 1024 * 1024) return null;
@@ -147,7 +141,7 @@ export const appAsset = (appId: string, rel: string): string | null => {
   } catch { return null; }
 };
 
-/** 应用目录里的 data.db:指向 AppStore 真实文件的链接。 */
+/** data.db inside the app directory: a symlink to the real file in the AppStore. */
 export const appDbPath = (appId: string): string | null => {
   const app = getApp(appId);
   return app ? path.join(app.dir, "data.db") : null;

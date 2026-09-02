@@ -1,4 +1,4 @@
-// 未来 7 天:每天图标 + 高低温 + 一条落在本周区间里的高低温条。
+// Next 7 days: a daily icon + high/low temps + a bar showing the high/low within the week's range.
 import type { Forecast } from '../lib/types';
 import { describe, dayMonth, weekday } from '../lib/weather';
 
@@ -6,7 +6,7 @@ export function Forecast7({ forecast, frac }: { forecast: Forecast; frac: (t: nu
   if (forecast.days.length === 0) return null;
   return (
     <section className="wx-forecast">
-      <div className="wx-forecast-title">未来 7 天</div>
+      <div className="wx-forecast-title">Next 7 Days</div>
       <div className="wx-fc-list">
         {forecast.days.map((d, i) => {
           const dc = describe(d.code, true);

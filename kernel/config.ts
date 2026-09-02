@@ -1,4 +1,4 @@
-// 程序级参数(不是用户设置)。用户设置在库里,见 data/settings.ts。
+// Program-level parameters (not user settings). User settings live in the database, see data/settings.ts.
 const WINDOWS = process.platform === "win32";
 
 export const KERNEL_PORT = Number(process.env.WANDESK_PORT || 9600);
@@ -17,5 +17,5 @@ export const AGENT_LIMITS = {
   retry: { attempts: 3, baseMs: 500 },
 };
 
-/** 上下文压缩水位:最近一次用量超过它,下一轮开跑前先压缩。 */
+/** Context compaction watermark: once the most recent usage exceeds it, compact before starting the next round. */
 export const COMPACT_WATERMARK = Number(process.env.WANDESK_COMPACT || 120000);

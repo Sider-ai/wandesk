@@ -1,9 +1,10 @@
-// weather —— 由 appsrc/build.mjs 生成,改这里会被下次构建覆盖。
-// 前端源码在 appsrc/apps/weather/,改完跑 `npm run build:apps`。
+// Generated once from a template; now plain source — edit freely.
+// Frontend source lives in src/; after editing, run `npm install && npm run build` in this directory.
 //
-// 应用即网站:静态资源与 API 都由它自己应答。三个 API 是从 wandesk-skill 平移过来的
-// 宿主能力,现在接在自己的 binding 上 —— 应用前端一行没改。
-const SCHEMA = "-- 天气 · 数据模型\n-- 没有每个应用单独的后端：前端用共享的 db 能力读写这张表，\n-- 用 IF NOT EXISTS 幂等地落进 database/apps/weather.db。\n--\n-- 用户收藏的城市清单。每行一个城市（来自 Open-Meteo geocoding）。\n-- is_default = 1 标记打开时默认展示的城市（最多一行）。\n-- sort 决定切换器里的排列顺序；越小越靠前。\nCREATE TABLE IF NOT EXISTS app_weather_cities (\n  id         INTEGER PRIMARY KEY AUTOINCREMENT,\n  name       TEXT NOT NULL DEFAULT '',          -- 展示名（含省/国，便于区分同名城市）\n  lat        REAL NOT NULL,                      -- 纬度\n  lon        REAL NOT NULL,                      -- 经度\n  is_default INTEGER NOT NULL DEFAULT 0,         -- 1 = 默认城市（最多一个）\n  sort       INTEGER NOT NULL DEFAULT 0,         -- 列表排序，越小越靠前\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\n\nCREATE INDEX IF NOT EXISTS app_weather_idx_cities_sort ON app_weather_cities (sort ASC, id ASC);\n";
+// The app is its own website: it answers both static assets and its API. The three API
+// routes were moved over from the wandesk-skill host capabilities, now wired to this app's
+// own bindings — the app frontend wasn't changed at all.
+const SCHEMA = "-- Weather · data model\n-- No per-app backend: the frontend reads/writes this table through the shared\n-- db capability, landing idempotently in database/apps/weather.db via IF NOT EXISTS.\n--\n-- The user's saved cities. One row per city (from Open-Meteo geocoding).\n-- is_default = 1 marks the city shown by default on open (at most one row).\n-- sort controls the order in the switcher; smaller sorts first.\nCREATE TABLE IF NOT EXISTS app_weather_cities (\n  id         INTEGER PRIMARY KEY AUTOINCREMENT,\n  name       TEXT NOT NULL DEFAULT '',          -- display name (includes region/country to disambiguate same-name cities)\n  lat        REAL NOT NULL,                      -- latitude\n  lon        REAL NOT NULL,                      -- longitude\n  is_default INTEGER NOT NULL DEFAULT 0,         -- 1 = default city (at most one)\n  sort       INTEGER NOT NULL DEFAULT 0,         -- list order, smaller sorts first\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\n\nCREATE INDEX IF NOT EXISTS app_weather_idx_cities_sort ON app_weather_cities (sort ASC, id ASC);\n";
 
 let ready = false;
 const ensure = async (env) => {
@@ -21,7 +22,7 @@ export default {
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(req);
 
     try {
-      // ── 自己的库(D1) ──
+      // ── own database (D1) ──
       if (url.pathname === "/api/db") {
         await ensure(env);
         const { sql, params } = await req.json();
@@ -30,11 +31,11 @@ export default {
         return json({ ok: true, rows: r.results, changes: r.meta?.changes ?? 0, lastInsertRowid: r.meta?.last_row_id ?? 0 });
       }
 
-      // ── 唯一的智能面 ──
+      // ── the one AI surface ──
       if (url.pathname === "/api/agent") {
         const { prompt, data, system, schema } = await req.json();
         const want = schema
-          ? "\n\n只输出符合下面 JSON Schema 的 JSON,不要代码围栏、不要解释:\n" + JSON.stringify(schema)
+          ? "\n\nOutput only JSON matching the JSON Schema below, no code fences, no explanation:\n" + JSON.stringify(schema)
           : "";
         const out = await env.AI.ask({
           summary: `weather:` + String(prompt || "").slice(0, 24),
@@ -45,12 +46,12 @@ export default {
         if (!out.ok) return json({ ok: false, error: out.error });
         let parsed;
         if (schema) {
-          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* 模型没给出合法 JSON */ }
+          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* model didn't return valid JSON */ }
         }
         return json({ ok: true, result: out.text, json: parsed, engine: "wandesk" });
       }
 
-      // ── 出网:能力全开,后端直接 fetch ──
+      // ── outbound network: no restrictions, backend fetches directly ──
       if (url.pathname === "/api/http") {
         const { url: target, method, headers, body } = await req.json();
         const res = await fetch(String(target), { method: method || "GET", headers, body });

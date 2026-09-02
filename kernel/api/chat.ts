@@ -1,7 +1,8 @@
-// 会话:产品本体的数据,但**没有域 API 给应用**。
+// Conversations: data belonging to the product itself, but **no API surface is exposed to apps**.
 //
-// 这些端点只给壳自己用(以及 chat 应用经 env.AI 间接产生的记录)。
-// 应用要用 AI 就调 env.AI,拿不到别人的会话原文 —— 见 CONTRACT.md「数据产权」。
+// These endpoints are for the shell's own use only (plus records produced indirectly by the chat app
+// via env.AI). An app that wants AI calls env.AI — it never gets hold of anyone else's raw conversation
+// content — see the "data ownership" section of CONTRACT.md.
 import type { IncomingMessage, ServerResponse } from "http";
 import { json, readJson } from "./http.js";
 import {
@@ -17,7 +18,7 @@ export const handleChatApi = async (req: IncomingMessage, res: ServerResponse, r
   if (rest === "/conversations") {
     if (req.method === "POST") {
       const body = await readJson(req);
-      return json(res, 200, { conversation: createConversation(String(body.title || "新对话")) });
+      return json(res, 200, { conversation: createConversation(String(body.title || "New conversation")) });
     }
     return json(res, 200, { conversations: listConversations() });
   }
@@ -44,7 +45,7 @@ export const handleChatApi = async (req: IncomingMessage, res: ServerResponse, r
     if (req.method === "POST") {
       const body = await readJson(req);
       if (body.forget) forget(Number(body.forget));
-      else remember(String(body.text || ""), String(body.kind || "fact"), "壳");
+      else remember(String(body.text || ""), String(body.kind || "fact"), "shell");
       return json(res, 200, { ok: true });
     }
     return json(res, 200, { memory: listMemory() });

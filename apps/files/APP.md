@@ -1,12 +1,12 @@
-# 文件(files)
+# Files (files)
 
-工作区里的真实文件 —— 浏览、打开、新建、删除。应用的家(`apps/`)也在这里,能直接看到每个应用的目录。
+The real files in your workspace -- browse, open, create, delete. The home of the apps (`apps/`) is right here too, so you can see each app's directory directly.
 
-## 能做什么
+## What it can do
 
-- 列目录、读文本、写入、删除,操作对象就是工作区(`~/wandesk`)下的真实文件。
-- 没有数据库,一切以磁盘为准。
+- List directories, read text, write, delete -- all operating on the real files in the workspace (`~/wandesk`).
+- No database; disk is the source of truth.
 
-## 目录与修改
+## Directory & edits
 
-- `server.js` 后端 · `public/index.html` 单文件前端,直接改,刷新即生效。
+- `server.js` is the backend, `public/index.html` is the single-file frontend -- edit directly, changes take effect on refresh.

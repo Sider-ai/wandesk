@@ -1,28 +1,28 @@
-# 笔记本（notes）
+# Notebook (notes)
 
-一本拟物的皮面笔记本。缝线书脊、横线/方格纸、丝带书签、压纹封面，配一支斜插的钢笔。
-左侧是「目录」，可以翻到任意一页；右侧是摊开的纸页，写下即自动保存。
-可选一个 ✦ AI 按钮，让 Claude 帮你**续写 / 总结 / 润色**当前这一页。
+A skeuomorphic leather notebook. Stitched spine, ruled/grid paper, ribbon bookmark, embossed cover, with a fountain pen tucked in at an angle.
+The left side is the "Index," which lets you jump to any page; the right side is the open sheet — write on it and it saves automatically.
+An optional ✦ AI button lets Claude help you **continue / summarize / polish** the current page.
 
-这是同一个 app（id 仍是 `notes`），换了一身拟物外观。
+This is the same app (id is still `notes`), just with a skeuomorphic look.
 
-## 数据
+## Data
 
-私有数据库 `data.db`。主表是 `pages`，每行是本子里的一页：
+Private database `data.db`. The main table is `pages`, where each row is one page in the notebook:
 
 ```sql
 pages(
   id INTEGER PK,
-  title TEXT,          -- 页标题
-  body  TEXT,          -- 正文
-  paper INTEGER,       -- 纸张样式索引（横线/方格/点阵/牛皮…）
-  pinned INTEGER,      -- 1 = 用丝带书签置顶
+  title TEXT,          -- page title
+  body  TEXT,          -- body text
+  paper INTEGER,       -- paper style index (ruled/grid/dot/kraft...)
+  pinned INTEGER,      -- 1 = pinned to top with the ribbon bookmark
   created_at TEXT,
   updated_at TEXT
 )
 ```
 
-前端通过共享的 `db` 能力读写，没有每个应用单独的后端：
+The frontend reads and writes through the shared `db` capability; there is no per-app backend:
 
 ```ts
 import { db } from './wandesk/db';
@@ -33,25 +33,25 @@ await db('notes', 'UPDATE pages SET title=?, body=?, updated_at=datetime(\'now\'
 await db('notes', 'DELETE FROM pages WHERE id = ?', [id]);
 ```
 
-`db(appId, sql, params)` 会 POST 到 `/api/db`。app id 由入口 main.tsx 传入，查询里从不写死。
+`db(appId, sql, params)` POSTs to `/api/db`. The app id is passed in from the entry point main.tsx and is never hardcoded in queries.
 
-## AI（可选）
+## AI (optional)
 
-通过共享的 `agent` 能力调用内核的 agent（用设置里配置的模型）：
+Calls the kernel's agent through the shared `agent` capability (using the model configured in settings):
 
 ```ts
 import { agent } from './wandesk/agent';
 
-const r = await agent('notes', prompt, { data: 当前页正文, system: '你是写作助手…' });
+const r = await agent('notes', prompt, { data: currentPageBody, system: 'You are a writing assistant…' });
 // r.ok / r.result
 ```
 
-界面里的 ✦ 按钮支持三种动作：**续写**、**总结**、**润色**，结果先进一个预览抽屉，
-确认后再写回当前页。Claude 的一轮大约 3–10 秒。
+The ✦ button in the UI supports three actions: **continue**, **summarize**, and **polish**. The result goes into a preview drawer first,
+and is written back to the current page only after confirmation. A Claude turn takes about 3–10 seconds.
 
-## 目录与修改
+## Directory & making changes
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (a Worker, table creation script is in there) · `public/` frontend build output · `src/` frontend source (React)
+- **Frontend changes**: edit `src/`, then run `npm install && npm run build` in this directory; the output lands back in `public/`, and refreshing the window picks it up. Requires Node.js locally; not needed if you're not making changes.
+- **Backend changes**: edit `server.js` directly, effective on the next request, no restart needed.
+- **Data**: `data.db` is this app's SQLite database, queryable directly with `sqlite3 data.db`; the schema is at the top of `server.js` under SCHEMA.

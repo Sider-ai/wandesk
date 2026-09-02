@@ -1,4 +1,4 @@
-// 天象背景:星野 + 星云 + 月 + 八卦环 + 云雾 + 火星子(纯装饰)。
+// Celestial backdrop: starfield + nebula + moon + bagua ring + mist + embers (purely decorative).
 import { type CSSProperties } from 'react';
 import { RING_GLYPHS, STARS } from '../lib/yijing';
 

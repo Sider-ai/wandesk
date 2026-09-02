@@ -1,9 +1,10 @@
-// finance —— 由 appsrc/build.mjs 生成,改这里会被下次构建覆盖。
-// 前端源码在 appsrc/apps/finance/,改完跑 `npm run build:apps`。
+// Generated once from a template; now plain source — edit freely.
+// Frontend source lives in src/; after editing, run `npm install && npm run build` in this directory.
 //
-// 应用即网站:静态资源与 API 都由它自己应答。三个 API 是从 wandesk-skill 平移过来的
-// 宿主能力,现在接在自己的 binding 上 —— 应用前端一行没改。
-const SCHEMA = "-- 记账本 (finance) — 一张流水表,收入/支出各一行。\nCREATE TABLE IF NOT EXISTS app_finance_transactions (\n  id     INTEGER PRIMARY KEY AUTOINCREMENT,\n  type   TEXT NOT NULL CHECK (type IN ('income', 'expense')),\n  amount REAL NOT NULL,\n  note   TEXT NOT NULL DEFAULT '',\n  date   TEXT NOT NULL              -- 'YYYY-MM-DDT12:00:00',按 substr(date,1,7) 归月\n);\nCREATE INDEX IF NOT EXISTS idx_app_finance_date ON app_finance_transactions (date);\n";
+// The app is its own site: both static assets and the API are served by it. The three APIs are
+// host capabilities carried over from wandesk-skill, now wired to their own bindings -- the app
+// frontend was not changed at all.
+const SCHEMA = "-- Ledger (finance) -- a single transactions table, one row per income/expense entry.\nCREATE TABLE IF NOT EXISTS app_finance_transactions (\n  id     INTEGER PRIMARY KEY AUTOINCREMENT,\n  type   TEXT NOT NULL CHECK (type IN ('income', 'expense')),\n  amount REAL NOT NULL,\n  note   TEXT NOT NULL DEFAULT '',\n  date   TEXT NOT NULL              -- 'YYYY-MM-DDT12:00:00', grouped by month via substr(date,1,7)\n);\nCREATE INDEX IF NOT EXISTS idx_app_finance_date ON app_finance_transactions (date);\n";
 
 let ready = false;
 const ensure = async (env) => {
@@ -21,7 +22,7 @@ export default {
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(req);
 
     try {
-      // ── 自己的库(D1) ──
+      // -- own database (D1) --
       if (url.pathname === "/api/db") {
         await ensure(env);
         const { sql, params } = await req.json();
@@ -30,11 +31,11 @@ export default {
         return json({ ok: true, rows: r.results, changes: r.meta?.changes ?? 0, lastInsertRowid: r.meta?.last_row_id ?? 0 });
       }
 
-      // ── 唯一的智能面 ──
+      // -- the one AI surface --
       if (url.pathname === "/api/agent") {
         const { prompt, data, system, schema } = await req.json();
         const want = schema
-          ? "\n\n只输出符合下面 JSON Schema 的 JSON,不要代码围栏、不要解释:\n" + JSON.stringify(schema)
+          ? "\n\nOutput only JSON matching the JSON Schema below, no code fences, no explanation:\n" + JSON.stringify(schema)
           : "";
         const out = await env.AI.ask({
           summary: `finance:` + String(prompt || "").slice(0, 24),
@@ -45,12 +46,12 @@ export default {
         if (!out.ok) return json({ ok: false, error: out.error });
         let parsed;
         if (schema) {
-          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* 模型没给出合法 JSON */ }
+          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* model did not return valid JSON */ }
         }
         return json({ ok: true, result: out.text, json: parsed, engine: "wandesk" });
       }
 
-      // ── 出网:能力全开,后端直接 fetch ──
+      // -- outbound network: full capability, backend fetches directly --
       if (url.pathname === "/api/http") {
         const { url: target, method, headers, body } = await req.json();
         const res = await fetch(String(target), { method: method || "GET", headers, body });

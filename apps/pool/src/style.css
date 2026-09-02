@@ -1,8 +1,8 @@
-/* 台球 — 深色台边,绿呢桌铺满;分数牌 + 居中力量条 + 拟物重开键 + 顶部通知条。 */
+/* Pool — dark table edge, felt fills the surface; scoreboard + centered power bar + skeuomorphic reset button + top toast bar. */
 .pool-root { height: 100%; min-height: 0; display: flex; flex-direction: column; background: #17120e; font-family: "PingFang SC", system-ui, sans-serif; }
 .pool-hud { flex: none; position: relative; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; color: #e8dcc8; }
 
-/* 分数牌:黑面 LED 计分器,琥珀数字 */
+/* Scoreboard: black-face LED counter, amber digits */
 .pool-score { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 13px; border-radius: 9px;
   background: linear-gradient(180deg, #0e0b08, #201812); border: 1px solid #3a2a1c;
   box-shadow: inset 0 2px 5px rgba(0,0,0,.75), inset 0 -1px 0 rgba(255,200,120,.06), 0 1px 0 rgba(255,255,255,.05); }
@@ -11,12 +11,12 @@
 .pool-score-sep { color: #6a5640; font-size: 13px; }
 .pool-score-tot { font: 700 14px/1 ui-monospace, monospace; color: #b79a6e; }
 
-/* 力量条:绝对居中于 HUD */
+/* Power bar: absolutely centered in the HUD */
 .pool-power { position: absolute; left: 50%; transform: translateX(-50%); width: 150px; height: 9px; border-radius: 6px;
   background: rgba(0,0,0,.5); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,.7), inset 0 -1px 0 rgba(255,255,255,.05); }
 .pool-power i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #3fd07a, #e6c034 55%, #e2543a); box-shadow: 0 0 8px rgba(230,180,60,.4); transition: width .05s linear; }
 
-/* 重开键:拟物 3D 按压 */
+/* Reset button: skeuomorphic 3D press */
 .pool-reset { border: none; border-radius: 9px; padding: 8px 18px; cursor: pointer;
   font: 700 13px/1 inherit; letter-spacing: .06em; color: #fff4e2;
   background: linear-gradient(180deg, #8a5a30 0%, #6f4522 52%, #5a3720 100%);
@@ -28,7 +28,7 @@
 .pool-table { flex: 1; min-height: 0; position: relative; }
 .pool-table canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
 
-/* 顶部通知条(犯规等) */
+/* Top toast bar (scratches, etc.) */
 .pool-toast { position: absolute; top: 14px; left: 50%; transform: translate(-50%, -14px); pointer-events: none;
   padding: 9px 18px; border-radius: 999px; font: 600 13px/1 inherit; color: #fff5e6; white-space: nowrap;
   background: linear-gradient(180deg, rgba(60,20,15,.96), rgba(40,12,10,.96)); border: 1px solid rgba(255,150,110,.4);

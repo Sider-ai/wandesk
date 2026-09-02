@@ -1,5 +1,6 @@
 /* ════════════════════════════════════════════════════════════
- *  算一卦 — 玄学占卜仪式 (深靛夜空 + 鎏金 · 星河 · 香烛 · 卜卦成象 · 宣纸卷轴)
+ *  Fortune (I Ching) — a cinematic divination ritual (deep indigo night + gilt gold ·
+ *  starfield · incense & candle · the hexagram taking shape · a rice-paper scroll)
  *  cinematic divination ritual — deep ink-night, gold, starfield,
  *  incense + candle ambiance, the hexagram forming line by line in light,
  *  the reading unfurling as a treasured oracle scroll.
@@ -220,7 +221,7 @@
   100% { transform: translateY(-86px) scale(2.4); opacity: 0; }
 }
 
-/* crown: 卦名 between its upper / lower trigram glyphs */
+/* crown: hexagram name between its upper / lower trigram glyphs */
 .fo-hexcrown {
   position: relative; z-index: 2;
   display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -282,7 +283,7 @@
 /* set lines gleam with gold */
 .fo-yao-row.set .fo-bar { box-shadow: 0 1px 3px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.4), 0 0 12px rgba(232,198,106,0.4); }
 
-/* changing-line mark (老阴/老阳 → 变爻) */
+/* changing-line mark (old yin/old yang → a changing line) */
 .fo-chg-dot {
   position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; border-radius: 50%;
   transform: translate(-50%,-50%);
@@ -376,7 +377,7 @@
 @keyframes fo-dot { 0%,70%,100% { opacity: 0.25; transform: scale(1); } 35% { opacity: 1; transform: scale(1.4); } }
 @keyframes fo-fade { from { opacity: 0; } to { opacity: 1; } }
 
-/* ════════ oracle scroll (宣纸卷轴签文) ════════ */
+/* ════════ oracle scroll (a fortune slip on a rice-paper scroll) ════════ */
 .fo-scroll {
   position: relative;
   animation: fo-scroll-unfurl 0.7s cubic-bezier(0.16,1,0.3,1);
@@ -566,7 +567,7 @@
 .fo-cast-coin { font-size: 16px; animation: fo-spin-slow 5s linear infinite; display: inline-block; }
 .fo-cast:disabled .fo-cast-coin { animation-duration: 1.1s; }
 
-/* ════════ history drawer (签筒) ════════ */
+/* ════════ history drawer (fortune-slip holder) ════════ */
 .fo-ovl {
   position: absolute; inset: 0; z-index: 30;
   background: rgba(5,4,14,0.58);

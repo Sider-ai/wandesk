@@ -1,4 +1,5 @@
-// 卦坛:卦名冠 + 六爻逐条(阴阳、变爻朱点、铜钱)。casting 时高亮当前起的那一爻。
+// Altar: hexagram name crown + the six lines one by one (yin/yang, red changing-line
+// dot, coins). While casting, the line currently being cast is highlighted.
 import { TRIGRAM_GLYPHS, TRIGRAM_NAMES, YAO_LABELS } from '../lib/yijing';
 
 export function Altar({
@@ -30,7 +31,7 @@ export function Altar({
           {pair && <span className="fo-tg-glyph fo-tg-dn" title={TRIGRAM_NAMES[pair.lower]}>{TRIGRAM_GLYPHS[pair.lower]}</span>}
         </div>
       ) : (
-        <div className="fo-hexname fo-hexname-ph">{phase === 'shaking' ? '正在起卦…' : '　'}</div>
+        <div className="fo-hexname fo-hexname-ph">{phase === 'shaking' ? 'Casting the hexagram…' : ' '}</div>
       )}
 
       <div className="fo-yaos">
@@ -52,7 +53,7 @@ export function Altar({
               <span className="fo-coins">
                 {(coins[i] || []).map((c, j) => (
                   <span key={j} className={`fo-coin ${c ? 'face' : 'back'} ${struck ? 'tumble' : ''}`} style={{ animationDelay: `${j * 110}ms` }}>
-                    {c ? '字' : '背'}
+                    {c ? 'H' : 'T'}
                   </span>
                 ))}
               </span>
@@ -62,7 +63,7 @@ export function Altar({
       </div>
 
       {hexName && changing.some(Boolean) && (
-        <div className="fo-chg-legend"><span className="fo-chg-dot fo-chg-dot-inline" />朱点为变爻 · 动则生变</div>
+        <div className="fo-chg-legend"><span className="fo-chg-dot fo-chg-dot-inline" />Red dot marks a changing line · movement begets change</div>
       )}
     </div>
   );

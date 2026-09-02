@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8" />
-<title>文件</title>
+<title>Files</title>
 <link rel="stylesheet" href="/style.css" />
 <script src="/_wd/sdk.js"></script>
 
@@ -8,7 +8,7 @@
   <div class="crumbs" id="crumbs"></div>
   <div class="cols">
     <ul class="list" id="list"></ul>
-    <div class="view" id="view"><p class="empty">选一个文本文件看看</p></div>
+    <div class="view" id="view"><p class="empty">Select a text file to preview</p></div>
   </div>
 </div>
 
@@ -24,7 +24,7 @@ async function load(path = "") {
   if (error) return window.wandesk.ui.toast(error);
   const parts = path ? path.split("/") : [];
   $("crumbs").innerHTML =
-    `<a data-p="">工作区</a>` +
+    `<a data-p="">Workspace</a>` +
     parts.map((seg, i) => ` / <a data-p="${parts.slice(0, i + 1).join("/")}">${seg}</a>`).join("");
   $("list").innerHTML = (entries || [])
     .sort((a, b) => (b.dir - a.dir) || a.name.localeCompare(b.name))
@@ -33,7 +33,7 @@ async function load(path = "") {
         <span class="nm">${e.name.replace(/</g, "&lt;")}</span>
         <span class="sz">${e.dir ? "" : (e.size / 1024).toFixed(1) + "K"}</span>
       </li>`).join("");
-  window.wandesk?.ui.title(path ? `文件 — ${path}` : "文件");
+  window.wandesk?.ui.title(path ? `Files — ${path}` : "Files");
 }
 
 $("crumbs").addEventListener("click", (e) => {

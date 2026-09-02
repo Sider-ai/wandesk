@@ -1,4 +1,4 @@
-// 天气 — 客户端数据层(收藏城市的 CRUD)。
+// Weather — client-side data layer (CRUD for saved cities).
 import { db } from './wandesk/db';
 import type { City } from './lib/types';
 

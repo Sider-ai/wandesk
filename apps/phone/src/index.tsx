@@ -9,10 +9,13 @@ import * as data from './db';
 import './style.css';
 
 /* ════════════════════════════════════════════════════════════════════
-   手机 · Phone — 一台 AI 现场生成的复古功能机。手机外壳固定,每一「屏」
-   都由 AI 即兴生成为实时 HTML;整部手机 = 一个持久对话(conversationId
-   落库,跨窗口/重启接着同一段生活)。本文件只做:状态 + 引擎调用 + 组装;
-   屏幕契约/解析在 lib/screen.ts,落库在 db.ts,外壳在 components/。
+   Phone — a retro feature phone generated live by AI. The phone shell
+   is fixed; every "screen" is improvised by the AI as live HTML. The
+   whole phone is one persistent conversation (conversationId is stored
+   in the db, carrying the same unfolding life across windows/restarts).
+   This file only handles: state + engine calls + assembly; the screen
+   contract/parsing lives in lib/screen.ts, storage in db.ts, the shell
+   in components/.
    ════════════════════════════════════════════════════════════════════ */
 
 export default function Phone({ appId }: { appId: string }) {
@@ -20,7 +23,7 @@ export default function Phone({ appId }: { appId: string }) {
   const [custom, setCustom] = useState('');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [toast, setToast] = useState('开机中…');
+  const [toast, setToast] = useState('Powering on…');
   const [clock, setClock] = useState('');
   const convId = useRef<string | undefined>(undefined); // native continuity for the session
   const screenRef = useRef<Screen | null>(null);
@@ -58,12 +61,12 @@ export default function Phone({ appId }: { appId: string }) {
   // boot: restore the persistent conversation + the last screen from db, else power on fresh
   const boot = useCallback(async () => {
     setLoading(true);
-    setToast('开机中…');
+    setToast('Powering on…');
     convId.current = undefined;
     try {
       await data.ensureStateTable(appId);
       convId.current = await data.loadConv(appId);
-    } catch { /* 没有会话就冷启动 */ }
+    } catch { /* no conversation yet, cold-start */ }
     try {
       const last = await data.loadLastScreen(appId);
       if (last) { setScreen(last); setLoading(false); return; }
@@ -86,18 +89,18 @@ export default function Phone({ appId }: { appId: string }) {
     setToast(text.length > 14 ? text.slice(0, 14) + '…' : text);
 
     // cold path: the agent has no session memory yet, so hand it the current screen
-    const ctx = () => `当前屏幕内容:${stripTags(screenRef.current?.content || '').slice(0, 240)}。\n`;
+    const ctx = () => `Current screen content: ${stripTags(screenRef.current?.content || '').slice(0, 240)}.\n`;
     const hadConv = !!convId.current;
-    const prompt = `${hadConv ? '' : ctx()}用户选择了:「${text}」。请生成进入后的下一屏界面内容,并给出 3 个后续选项。`;
+    const prompt = `${hadConv ? '' : ctx()}The user chose: "${text}". Generate the next screen's interface content after entering it, and give 3 follow-up options.`;
 
     let s = await ask(prompt);
     if (!s && hadConv) {
-      // 持久会话可能已失效(引擎切换/清理):重开一个,带上当前屏幕做上下文再试一次
+      // the persistent conversation may have gone stale (engine switched/cleaned up): start a new one, with the current screen as context, and retry
       convId.current = undefined;
-      s = await ask(`${ctx()}用户选择了:「${text}」。请生成进入后的下一屏界面内容,并给出 3 个后续选项。`);
+      s = await ask(`${ctx()}The user chose: "${text}". Generate the next screen's interface content after entering it, and give 3 follow-up options.`);
     }
     if (s) { setScreen(s); await data.saveScreen(appId, s).catch(() => {}); }
-    else setToast('信号中断,再按一次试试');
+    else setToast('Signal lost, try again');
     setCustom('');
     setBusy(false);
     setLoading(false);

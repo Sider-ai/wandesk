@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   天气 — a living, animated weather scene.
+   Weather — a living, animated weather scene.
    Layers (bottom → top): deep sky gradient (--wx-bg) · animated SVG
    scene (.wx-scene) · readability scrim (.wx-scrim) · UI (header/main).
    GPU-friendly transforms/opacity only; honours reduced-motion.

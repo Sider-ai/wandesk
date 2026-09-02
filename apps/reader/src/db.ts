@@ -1,4 +1,4 @@
-// 阅读 — 客户端数据层。书目/页面全量持久化,所有 SQL 收在这里。
+// Reader — client-side data layer. Books/pages are fully persisted; all SQL lives here.
 import { db } from './wandesk/db';
 import type { BookRow, Page } from './lib/types';
 import { parseChoices } from './lib/story';

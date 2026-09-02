@@ -1,20 +1,27 @@
-# 台球 (pool)
+# Pool (pool)
 
-一张绿呢台球桌的 2D 物理游戏。纯前端 canvas,无数据库、无 AI。
+A 2D physics game of green-felt pool. Pure frontend canvas, no database, no AI.
 
-## 玩法
+## Gameplay
 
-所有球停稳后,从白球拖出杆线瞄准、拉得越远力越大,松手击球。彩球进袋得分;白球进袋算犯规,
-自动摆回。全部彩球清台即胜。
+Once all balls have come to rest, drag out from the cue ball to aim — pull further for more
+power — and release to shoot. Sinking a colored ball scores a point; sinking the cue ball is a
+foul and it's automatically respotted. Clearing all the colored balls wins the game.
 
-## 实现
+## Implementation
 
-单文件 canvas + requestAnimationFrame。物理:每球位置/速度,每帧摩擦减速、库边反弹、
-圆-圆等质量弹性碰撞、六个袋口吸球。响应容器尺寸自适应。
+A single-file canvas + requestAnimationFrame loop. Physics: each ball has position/velocity;
+every frame applies friction deceleration, cushion bounces, equal-mass ball-ball elastic
+collisions, and capture at six pocket mouths. Layout is responsive to the container size.
 
-## 目录与修改
+## Layout & how to modify
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (a Worker; the table-creation
+  script lives inside it) · `public/` frontend build output · `src/` frontend source (React)
+- **Editing the frontend**: edit `src/`, then run `npm install && npm run build` in this
+  directory; the output lands back in `public/`, and refreshing the window picks it up.
+  Requires Node.js locally; not needed if you're not changing the frontend.
+- **Editing the backend**: edit `server.js` directly; it takes effect on the next request, no
+  restart needed.
+- **Data**: `data.db` is this app's SQLite database — `sqlite3 data.db` can query it directly;
+  see the SCHEMA at the top of `server.js` for the table structure.

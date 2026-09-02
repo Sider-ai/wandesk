@@ -1,8 +1,8 @@
 {
   "id": "finance",
-  "name": "记账本",
+  "name": "Ledger",
   "icon": "👛",
-  "description": "一本拟物的黑皮存折 — 烫金书名、点阵账页、按月翻查,支出存入一笔笔记清楚。",
+  "description": "A skeuomorphic black leather passbook — gold-stamped title, dot-matrix ledger pages, browse by month, every withdrawal and deposit recorded in neat rows.",
   "mounts": {
     "window": "/"
   }

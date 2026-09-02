@@ -1,5 +1,5 @@
-// 直播 reducer —— 每个打开的对话一份,事件按 conversationId 认领。
-// 行对象原地修改,改完由调用方 bump 触发重渲染。
+// Live reducer — one instance per open conversation, events are claimed by conversationId.
+// Row objects are mutated in place; the caller triggers a re-render with bump() afterward.
 import { EVENTS } from '../shared/events';
 import type { ChannelEvent } from '../lib/channel';
 import { mkKey, toolRow, type Row } from './thread';
@@ -9,7 +9,7 @@ export interface StreamPorts {
     getRows: () => Row[];
     pushRow: (row: Row) => Row;
     setBusy: (busy: boolean) => void;
-    /** 终局后的对账刷新:补齐服务端事实,不动用户视角。 */
+    /** Reconciliation refresh after completion: fill in server-side facts without moving the user's view. */
     refresh: () => void;
     bump: () => void;
 }
@@ -57,8 +57,8 @@ export function setupStream(ports: StreamPorts) {
         target.status = 'done';
     }
 
-    /** 终局时把还挂着的工具行收掉 —— 停止 / 出错后等不到 output 事件,
-        不收就永远「执行中」。 */
+    /** At the end, close out any tool rows still hanging open — after a stop/error the output event
+        never arrives, and without closing them they'd stay "running" forever. */
     function settleCalls() {
         for (const row of getRows()) {
             if (row.kind === 'tool' && row.status !== 'done') row.status = 'done';
@@ -74,7 +74,7 @@ export function setupStream(ports: StreamPorts) {
                 closeStreaming();
                 const clientId = String(event.clientId || '');
                 const mine = clientId && getRows().some((row) => row.kind === 'user' && row.clientId === clientId);
-                // 另一个窗口发起的轮:把提问补进画面,不然只看到答案不见问题
+                // A turn started from another window: add the question to the view, otherwise only the answer shows with no question
                 if (!mine) pushRow({ key: mkKey('u'), kind: 'user', content: String(event.content || ''), at: Date.now() });
                 break;
             }
@@ -91,7 +91,7 @@ export function setupStream(ports: StreamPorts) {
             }
 
             case EVENTS.CALL_STARTED:
-                // 模型转去吐工具参数了:正文行到此为止,不收会把等待动画压住
+                // The model has switched to emitting tool arguments: the text row ends here; leaving it open would block the waiting animation
                 closeStreaming();
                 break;
 
@@ -107,13 +107,13 @@ export function setupStream(ports: StreamPorts) {
 
             case EVENTS.COMPACT_START: {
                 closeStreaming();
-                const row = pushRow({ key: mkKey('s'), kind: 'system', code: 'compacting', content: '正在压缩早期对话…', at: Date.now() });
+                const row = pushRow({ key: mkKey('s'), kind: 'system', code: 'compacting', content: 'Compacting earlier conversation…', at: Date.now() });
                 compactKey = row.key;
                 break;
             }
             case EVENTS.COMPACT_DONE: {
                 const row = compactKey ? find(compactKey) : null;
-                if (row) { row.code = 'compacted'; row.content = '已压缩早期对话'; }
+                if (row) { row.code = 'compacted'; row.content = 'Earlier conversation compacted'; }
                 compactKey = '';
                 break;
             }
@@ -122,15 +122,16 @@ export function setupStream(ports: StreamPorts) {
                 closeStreaming();
                 settleCalls();
                 setBusy(false);
-                refresh(); // 对账:补齐 seq 等服务端事实,不动视角
+                refresh(); // reconcile: fill in seq and other server-side facts without moving the view
                 break;
 
             case EVENTS.ABORTED:
                 closeStreaming();
                 settleCalls();
                 setBusy(false);
-                // 停下来要留痕:不留的话半截回复像网络断了。服务端也落了持久标记,
-                // 重开对话由 thread.ts 认出来;这里只管眼下这一屏
+                // Stopping needs to leave a trace — without one, a half-finished reply looks like a dropped
+                // connection. The server also persists a marker, which thread.ts recognizes on reopening the
+                // conversation; this only handles the current screen
                 pushRow({ key: mkKey('s'), kind: 'system', code: 'stopped', content: '', at: Date.now() });
                 break;
 
@@ -138,7 +139,7 @@ export function setupStream(ports: StreamPorts) {
                 closeStreaming();
                 settleCalls();
                 setBusy(false);
-                pushRow({ key: mkKey('s'), kind: 'system', code: 'error', content: String(event.message || '运行失败'), at: Date.now() });
+                pushRow({ key: mkKey('s'), kind: 'system', code: 'error', content: String(event.message || 'Run failed'), at: Date.now() });
                 break;
 
             default:

@@ -1,4 +1,4 @@
-// 右侧实时播报的一行(系统 / 结果 / 台词气泡 / 动作)。
+// One row of the right-hand live feed (system / result / speech bubble / action).
 import { ACTION_LABEL, type FeedLine } from '../lib/game';
 
 export function FeedRow({ line, botEmoji }: { line: FeedLine; botEmoji: string }) {

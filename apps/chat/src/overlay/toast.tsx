@@ -1,4 +1,4 @@
-// 轻提示:一次一条,自己消失。
+// Lightweight toast: one at a time, dismisses itself.
 import { create } from 'zustand';
 
 const useToast = create<{ text: string }>(() => ({ text: '' }));

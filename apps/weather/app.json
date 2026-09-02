@@ -1,8 +1,8 @@
 {
   "id": "weather",
-  "name": "天气",
+  "name": "Weather",
   "icon": "⛅",
-  "description": "实时天气与 7 日预报 — Open-Meteo 免费数据，随天况与昼夜变幻的渐变天空，飘云落雨的动效。城市搜索、收藏、一键切换，离线也记得你常看的城市。",
+  "description": "Live weather and a 7-day forecast — free Open-Meteo data, a gradient sky that shifts with conditions and time of day, plus drifting clouds and falling rain. Search cities, save favorites, switch with one tap, and it remembers your go-to cities even offline.",
   "mounts": {
     "window": "/"
   }

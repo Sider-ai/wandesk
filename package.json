@@ -1,7 +1,7 @@
 {
   "name": "wandesk",
   "version": "2.0.0",
-  "description": "Wandesk —— 壳 + AI 内核 + workerd,应用一律是 worker 网站。",
+  "description": "Wandesk —— shell + AI kernel + workerd; every app is a worker site.",
   "author": "Wandesk",
   "type": "module",
   "engines": {

@@ -1,4 +1,4 @@
-// HTTP 小工具。api 层很薄,只做解析请求 / 拼响应,业务在 syscall 与 data 里。
+// Small HTTP helpers. The api layer is thin — it only parses requests / assembles responses; the actual logic lives in syscall and data.
 import type { IncomingMessage, ServerResponse } from "http";
 
 export const json = (res: ServerResponse, status: number, body: unknown): true => {
@@ -19,7 +19,7 @@ export const readJson = async (req: IncomingMessage): Promise<Record<string, unk
   let size = 0;
   for await (const chunk of req) {
     size += (chunk as Buffer).length;
-    if (size > 32 * 1024 * 1024) throw new Error("请求体过大");
+    if (size > 32 * 1024 * 1024) throw new Error("Request body too large");
     chunks.push(chunk as Buffer);
   }
   if (!chunks.length) return {};

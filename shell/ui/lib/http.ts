@@ -1,4 +1,4 @@
-// 壳与内核之间的小封装。壳只跟内核说话,从不直接碰应用 —— 应用在 workerd 自己的端口上。
+// A thin wrapper between the shell and the kernel. The shell only talks to the kernel, never directly to an app — apps live on workerd's own port.
 export const api = async <T = any>(path: string, init?: RequestInit): Promise<T> => {
   const res = await fetch(path, {
     ...init,
@@ -23,7 +23,7 @@ export const fetchApps = async (): Promise<AppMeta[]> => {
   return j.apps || [];
 };
 
-/** 拿某个应用某个挂载点的 iframe URL —— 由内核拼(它才知道 workerd 在哪个端口)。 */
+/** Gets the iframe URL for one mount point of an app — assembled by the kernel (only it knows which port workerd is on). */
 export const appUrl = async (id: string, mount: "window" | "panel" = "window"): Promise<string | null> => {
   const j = await api<{ url?: string }>(`/api/apps/url?id=${encodeURIComponent(id)}&mount=${mount}`);
   return j.url || null;

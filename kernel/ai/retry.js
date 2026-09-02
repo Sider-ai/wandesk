@@ -1,16 +1,18 @@
-// 重试判定。
+// Retry determination.
 //
-// 判定顺序固定为：额度/账单(终态) → HTTP 状态码 → 错误文本兜底。
-// 状态码是结构化的、可靠的；文本表只用来兜住 fetch 抛出的网络层和流层错误。
-// 反过来做会误伤 —— 表里的 "500"、"429" 是裸子串，会命中 "max 500 tokens" 这类正文。
+// Check order is fixed: quota/billing (terminal) → HTTP status code → error text fallback.
+// Status codes are structured and reliable; the text tables are only a fallback for the
+// network- and stream-layer errors thrown by fetch.
+// Doing it the other way round causes false positives — the "500" and "429" in the tables
+// are bare substrings that would match body text like "max 500 tokens".
 //
-// 两张分类表移植自 earendil-works/pi (MIT)
+// The two classification tables are ported from earendil-works/pi (MIT)
 // https://github.com/earendil-works/pi/blob/main/packages/ai/src/utils/retry.ts
 // Copyright (c) 2025 Mario Zechner. Licensed under the MIT License.
 
 const pattern = (parts) => new RegExp(parts.join('|'), 'i');
 
-/** 账户额度、配额、账单耗尽。长得像限流，但重试多少次都不会好。 */
+/** Account credit, quota, or billing exhausted. Looks like rate limiting, but no number of retries will fix it. */
 const NON_RETRYABLE = pattern([
     'insufficient_quota',
     'quota exceeded',
@@ -22,7 +24,7 @@ const NON_RETRYABLE = pattern([
     'FreeUsageLimitError',
 ]);
 
-/** 网络层与流层的瞬时故障。仅在拿不到 HTTP 状态码时作为兜底。 */
+/** Transient network- and stream-layer failures. Used only as a fallback when no HTTP status code is available. */
 const RETRYABLE_TEXT = pattern([
     'overloaded',
     'rate.?limit',
@@ -58,7 +60,7 @@ const RETRYABLE_TEXT = pattern([
     'http2 request did not get a response',
 ]);
 
-/** 明确可以重试的 HTTP 状态码。其余 4xx 一律终态。 */
+/** HTTP status codes that are explicitly retryable. All other 4xx codes are treated as terminal. */
 const RETRYABLE_STATUS = new Set([408, 409, 425, 429, 500, 502, 503, 504, 524]);
 
 export const DEFAULT_RETRY = Object.freeze({
@@ -66,7 +68,7 @@ export const DEFAULT_RETRY = Object.freeze({
     maxRetries: 3,
     baseDelayMs: 1_000,
     maxDelayMs: 30_000,
-    /** 流已经吐出内容后再断，重试会产生重复正文。默认不重试，交给上层报错。 */
+    /** If the stream has already emitted content before breaking, retrying would duplicate the body. Default is not to retry; let the caller surface the error. */
     retryAfterStream: false,
 });
 
@@ -76,8 +78,8 @@ export function normalizeRetry(policy) {
 }
 
 /**
- * 这个错误值不值得再试一次。
- * @param error 抛出的错误，可带 `status`(HTTP 状态码)。
+ * Whether this error is worth retrying.
+ * @param error The thrown error, which may carry a `status` (HTTP status code).
  */
 export function isRetryable(error) {
     if (error?.name === 'AbortError') return false;
@@ -88,14 +90,14 @@ export function isRetryable(error) {
     return RETRYABLE_TEXT.test(text);
 }
 
-/** 指数退避加抖动。抖动上浮不超过基数的 25%，避免多路同时回源。 */
+/** Exponential backoff with jitter. Jitter adds up to 25% on top of the base, to avoid multiple paths hitting the origin at once. */
 export function backoffMs(attempt, policy) {
     const raw = policy.baseDelayMs * 2 ** Math.max(0, attempt - 1);
     const capped = Math.min(policy.maxDelayMs, raw);
     return Math.round(capped * (1 + Math.random() * 0.25));
 }
 
-/** 可被 abort 打断的等待。 */
+/** A wait that can be interrupted by abort. */
 export function sleep(ms, signal) {
     if (signal?.aborted) return Promise.reject(new DOMException('Aborted', 'AbortError'));
     return new Promise((resolve, reject) => {

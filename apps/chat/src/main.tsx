@@ -5,7 +5,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './shell/shell.css';
 import './conversation/conversation.css';
-import './styles/touch.css'; // 放最后:要压过各模块的字号
+import './styles/touch.css'; // Keep last: it needs to override each module's font sizes
 
 import { App } from './App';
 import { initTheme } from './lib/theme';

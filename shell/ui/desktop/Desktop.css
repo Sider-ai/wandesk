@@ -1,4 +1,4 @@
-/* Desktop —— 桌面与图标网格、任务栏、开始菜单、托盘助理钮、右下角提示。 */
+/* Desktop — the desktop and icon grid, taskbar, start menu, tray assistant button, bottom-right toast. */
 
 /* ── desktop + icon grid ── */
 .desktop { position: fixed; inset: 0; overflow: hidden; background-color: var(--bg); }
@@ -27,7 +27,7 @@
 }
 .icon.sel .lb { background: rgba(255,255,255,.92); }
 
-/* ── taskbar + start menu · Aero 玻璃 ── */
+/* ── taskbar + start menu · Aero glass ── */
 .taskbar {
   position: fixed; left: 0; right: 0; bottom: 0; height: 46px; z-index: 2000;
   display: flex; align-items: center; gap: 8px; padding: 0 10px;
@@ -93,7 +93,7 @@
 .sm-icon { font-size: 24px; line-height: 1; }
 .sm-name { font-size: 11px; font-weight: 600; color: #2c4a68; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* 托盘:助理(Assistant)唤起钮 */
+/* Tray: the Assistant launch button */
 .tb-assistant {
   flex: none; height: 30px; display: grid; place-items: center; cursor: pointer;
   position: relative; margin-left: 2px; padding: 0 10px 0 14px;
@@ -102,7 +102,7 @@
   text-shadow: 0 1px 0 rgba(255,255,255,.6);
   transition: color .12s, text-shadow .12s;
 }
-.tb-assistant::before { /* 托盘分隔线:一暗一亮 */
+.tb-assistant::before { /* Tray divider: one dark line, one light */
   content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 1px;
   background: rgba(47,92,140,.45);
   box-shadow: 1px 0 0 rgba(255,255,255,.65);
@@ -120,7 +120,7 @@
 .desk-toast-ico { font-size: 22px; flex: none; }
 .desk-toast-text { font-size: 12.5px; color: #173d63; line-height: 1.5; text-shadow: 0 1px 0 rgba(255,255,255,.7); }
 
-/* 谁在调 AI —— 应用调 env.AI 必带 summary,就是为了这里看得见 */
+/* Who's calling AI — apps calling env.AI must include a summary, exactly so this is visible */
 .tb-busy {
   margin-left: auto; margin-right: 6px; padding: 2px 9px; border-radius: 999px;
   font-size: 11.5px; font-weight: 600; color: #1d4ed8;

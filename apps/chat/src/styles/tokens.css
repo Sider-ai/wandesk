@@ -1,25 +1,25 @@
 /* ═══════════════════════════════════════════════════════════════
-   AGENT 设计令牌 —— 石墨 + 蓝。
-   所有颜色只从这里取;theme.ts 把 auto 解析成具体的 light/dark
-   写在 <html data-theme> 上,样式层不感知「跟随系统」这回事。
+   AGENT design tokens — graphite + blue.
+   All colors come from here only; theme.ts resolves "auto" into a concrete light/dark value
+   written onto <html data-theme>, and the style layer never knows about "follow system".
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
     color-scheme: light;
 
-    /* 画布:主区白,侧栏浅灰,浮层白 */
+    /* Canvas: main area white, sidebar light gray, overlays white */
     --surface: #ffffff;
     --surface-side: #f4f5f8;
     --surface-float: #ffffff;
 
-    /* 文字五档 */
+    /* Five text tiers */
     --text-1: rgba(16, 19, 28, .96);
     --text-2: rgba(19, 23, 36, .86);
     --text-3: rgba(26, 32, 52, .58);
     --text-4: rgba(28, 34, 56, .42);
     --text-5: rgba(30, 36, 60, .2);
 
-    /* 主色:蓝 */
+    /* Accent color: blue */
     --accent: #2563eb;
     --accent-hover: #3b76ef;
     --accent-deep: #1d52c8;
@@ -27,12 +27,12 @@
     --accent-ring: rgba(37, 99, 235, .16);
     --on-accent: #ffffff;
 
-    /* 语义色 */
+    /* Semantic colors */
     --warn: #c2680a;   --warn-soft: rgba(194, 104, 10, .1);
     --danger: #dc3d3d; --danger-soft: rgba(220, 61, 61, .09);
     --ok: #159a6e;     --ok-soft: rgba(21, 154, 110, .1);
 
-    /* 灰阶填充与描线 */
+    /* Gray-scale fills and strokes */
     --fill: rgba(116, 122, 145, .07);
     --fill-2: rgba(116, 122, 145, .13);
     --edge: rgba(116, 122, 145, .18);
@@ -40,13 +40,13 @@
     --edge-strong: rgba(116, 122, 145, .34);
     --hover: rgba(116, 122, 145, .09);
 
-    /* 侧栏行要用实色:悬停操作区的渐变遮罩得复现此刻的真实底色 */
+    /* Sidebar rows need a solid color: the gradient mask over the hover action area must match the row's actual background at that moment */
     --row-hover: #e9ebf0;
     --row-on: #ffffff;
 
     --veil: rgba(14, 17, 28, .34);
 
-    /* 运行中扫光文字 */
+    /* Running-state shimmer text */
     --sheen-base: #9ba1b3;
     --sheen-peak: #12141c;
 

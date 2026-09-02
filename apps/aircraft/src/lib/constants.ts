@@ -1,4 +1,4 @@
-// 飞机大战 — 常量、配色、掉落表与数学小工具。
+// Aircraft — constants, color palette, drop tables, and small math utilities.
 import type { DKind } from './types';
 import { T } from './text';
 

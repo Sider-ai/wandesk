@@ -1,17 +1,18 @@
-// 应用运行时监理 —— 跑在 workerd 里,只干四件事:
+// App runtime overseer —— runs inside workerd and does exactly four things:
 //
-//   1. **路由**:<token>.localhost/* → 那个应用自己的 fetch handler(token 是路由键,见 apps/token.ts);
-//   2. **装载**:按需(首个请求才起)、按 server.js 内容哈希做版本键(改完下次请求即新版);
-//   3. **注入 binding**:把 Cloudflare 形态的 env 递给应用 —— DB / ASSETS / AI / PROC / FS / UI;
-//   4. **存数据**:env.DB 落在这里的 AppStore(Durable Object + workerd 内置 SQLite),不回内核。
+//   1. **Routing**: <token>.localhost/* → that app's own fetch handler (the token is the routing key, see apps/token.ts);
+//   2. **Loading**: on demand (starts on the first request), keyed by a version hash of server.js content (a change means a new version on the next request);
+//   3. **Binding injection**: hand the app a Cloudflare-shaped env —— DB / ASSETS / AI / PROC / FS / UI;
+//   4. **Data storage**: env.DB lives here in the AppStore (Durable Object + workerd's built-in SQLite), never back in the kernel.
 //
-// 应用本身只是一个标准 Worker 网站,静态资源与 API 都由它自己应答。
-// 与 CF 平台同构不是比喻:env.DB 就是 D1 接口,这份 server.js 原样能部署上云 ——
-// 而 D1 在 Cloudflare 上本来就是「DO + SQLite」包了一层,这里用的正是那个底层。
+// The app itself is just a standard Worker site; both static assets and the API are served by the app itself.
+// The isomorphism with the CF platform isn't a metaphor: env.DB is literally the D1 interface, and this server.js
+// can be deployed to the cloud as-is —— D1 on Cloudflare is itself just "DO + SQLite" wrapped in a layer, and this
+// is exactly that underlying layer.
 import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
 
-// ── 注入进每个应用 isolate 的运行时垫片 ─────────────────────────────
-// 应用看到的是标准形态的 env;底下这些桩把调用回环到内核(Node)。
+// ── Runtime shims injected into every app isolate ─────────────────────────────
+// The app sees a standard-shaped env; these stubs loop calls back to the kernel (Node).
 const RUNTIME_MODULE = `
 class D1Result {
   constructor(rows, meta) { this.results = rows; this.success = true; this.meta = meta; }
@@ -37,9 +38,9 @@ class D1PreparedStatement {
 class D1Database {
   constructor(host) { this.host = host; }
   prepare(sql) { return new D1PreparedStatement(this.host, String(sql), []); }
-  /** 多语句脚本(建表等)。 */
+  /** Multi-statement script (table creation etc). */
   async exec(sql) { const r = await this.host.dbExec(String(sql), []); return { count: 1, duration: 0, ...r }; }
-  /** 批量:一次往返,一个事务里跑完。 */
+  /** Batch: a single round trip, run inside one transaction. */
   async batch(statements) {
     const list = (statements || []).map((s) => ({ sql: s.sql, params: s.params || [] }));
     const out = await this.host.dbBatch(list);
@@ -74,15 +75,17 @@ class AssetsBinding {
   }
 }
 
-/** env.AI —— 唯一的智能面。stream 直接给一个 Response,应用当自己的响应体透传即可。 */
+/** env.AI —— the one and only intelligence surface. stream() hands back a Response directly; the app can pass it straight through as its own response body. */
 class AiBinding {
   constructor(host) { this.host = host; }
   ask(req)  { return this.host.aiAsk(req || {}); }
   run(req)  { return this.host.aiRun(req || {}); }
   /**
-   * 会话面:把一整个 HTTP 请求转给内核的会话 API(对话 / 消息 / 常驻 SSE / 设置 / 附件)。
-   * 应用只要 return env.AI.fetch(req) 就有了一套完整的对话后端 —— 「助理」就是这么来的,
-   * 它没有任何特权,换个 UI 照样能接。SSE 也走这条路:流是在同一条请求里下来的。
+   * Conversation surface: forwards an entire HTTP request to the kernel's conversation API
+   * (conversations / messages / persistent SSE / settings / attachments).
+   * An app just needs to return env.AI.fetch(req) to get a complete conversational backend —— that's
+   * how the "assistant" comes to exist. It has no special privileges; swap the UI and it still plugs in.
+   * SSE rides this same path: the stream comes down within the same request.
    */
   async fetch(req) {
     const url = new URL(req.url);
@@ -138,7 +141,7 @@ export const makeEnv = (raw) => {
 };
 `;
 
-// 入口垫片:包装 env 后转交给应用自己的 default export。
+// Entry shim: wraps env then hands off to the app's own default export.
 const ENTRY_MODULE = `
 import app from "app-server.js";
 import { makeEnv } from "wd-runtime.js";
@@ -146,7 +149,7 @@ import { makeEnv } from "wd-runtime.js";
 export default {
   async fetch(req, env, ctx) {
     if (typeof app?.fetch !== "function") {
-      return new Response("应用的 server.js 必须 export default { async fetch(req, env) {…} }", {
+      return new Response("The app's server.js must export default { async fetch(req, env) {…} }", {
         status: 500, headers: { "content-type": "text/plain; charset=utf-8" },
       });
     }
@@ -156,14 +159,14 @@ export default {
 `;
 
 
-// ── AppStore:env.DB 的执行端 ─────────────────────────────────
-// 每个应用一个 Durable Object(idFromName(appId)),数据在 workerd 内置的 SQLite 里,
-// 文件落在 <workspace>/.wandesk/store/<uniqueKey>/<对象ID>.sqlite。第一次开门时通知内核,
-// 内核在 apps/<id>/data.db 放一个指向它的符号链接,`sqlite3 apps/notes/data.db` 照样能查。
-const MAX_DB_BYTES = 200 * 1024 * 1024; // 单库上限:失控膨胀的保险丝
-const FORBIDDEN = /\b(attach|load_extension)\b/i;   // 「应用只该碰自己的库」—— workerd 本来也拦,双保险
+// ── AppStore: the execution side of env.DB ─────────────────────────────
+// One Durable Object per app (idFromName(appId)), data lives in workerd's built-in SQLite,
+// with the file at <workspace>/.wandesk/store/<uniqueKey>/<objectId>.sqlite. On first open it notifies
+// the kernel, which drops a symlink at apps/<id>/data.db pointing to it — `sqlite3 apps/notes/data.db` still works.
+const MAX_DB_BYTES = 200 * 1024 * 1024; // Per-database cap: a fuse against runaway growth
+const FORBIDDEN = /\b(attach|load_extension)\b/i;   // "an app should only ever touch its own database" —— workerd already blocks this too, this is belt and suspenders
 const isRead = (sql) => /^\s*(select|with|pragma|explain)\b/i.test(sql);
-const META_TABLE = "_wd_meta"; // 库里自报家门:sqlite3 打开一个 .sqlite 能知道它是哪个应用的
+const META_TABLE = "_wd_meta"; // The database identifies itself: opening a .sqlite with sqlite3 tells you which app it belongs to
 
 export class AppStore extends DurableObject {
   #ready = false;
@@ -174,7 +177,7 @@ export class AppStore extends DurableObject {
     return this.#sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", META_TABLE).toArray().length > 0;
   }
 
-  /** 首次开门:写下自己是谁,通知内核去挂 apps/<id>/data.db 链接。 */
+  /** First open: record who we are, and notify the kernel to mount the apps/<id>/data.db link. */
   async #ensure(appId) {
     if (this.#ready) return;
     if (!this.#hasMeta()) {
@@ -183,7 +186,7 @@ export class AppStore extends DurableObject {
       await this.env.NODE.fetch("http://node/api/app/db-opened", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ appId, storeId: this.ctx.id.toString() }),
-      }).catch(() => {}); // 挂不上链接只是少个快捷方式,不影响开库
+      }).catch(() => {}); // Failing to mount the link just means one fewer shortcut; it doesn't block opening the database
     }
     this.#ready = true;
   }
@@ -191,31 +194,31 @@ export class AppStore extends DurableObject {
   #assertQuota(sql) {
     if (isRead(sql)) return;
     if (this.#sql.databaseSize > MAX_DB_BYTES) {
-      throw new Error(`应用数据库已超上限(${Math.round(MAX_DB_BYTES / 1024 / 1024)}MB),仅允许读取`);
+      throw new Error(`App database has exceeded its limit (${Math.round(MAX_DB_BYTES / 1024 / 1024)}MB); read-only from here`);
     }
   }
 
   #runOne(sql, params) {
     const text = String(sql || "").trim();
-    if (!text) throw new Error("sql 不能为空");
-    if (FORBIDDEN.test(text)) throw new Error("不允许的语句:ATTACH / load_extension");
+    if (!text) throw new Error("sql must not be empty");
+    if (FORBIDDEN.test(text)) throw new Error("Disallowed statement: ATTACH / load_extension");
     this.#assertQuota(text);
     const values = (Array.isArray(params) ? params : []).map((v) => (v === undefined ? null : v));
     if (isRead(text)) return { rows: this.#sql.exec(text, ...values).toArray() };
-    // 无参多语句(建表脚本)整体执行
+    // Parameter-less multi-statement text (table-creation scripts) executes as a whole
     if (!values.length && /;\s*\S/.test(text)) { this.#sql.exec(text); return {}; }
     this.#sql.exec(text, ...values);
     const m = this.#sql.exec("SELECT changes() AS c, last_insert_rowid() AS id").one();
     return { changes: Number(m.c), lastInsertRowid: Number(m.id) };
   }
 
-  /** D1 的单条:SELECT 回 rows,写入回 changes / lastInsertRowid。 */
+  /** D1's single-statement call: SELECT returns rows, writes return changes / lastInsertRowid. */
   async exec(appId, sql, params) {
     await this.#ensure(appId);
     return this.#runOne(sql, params);
   }
 
-  /** D1 的 batch:一个事务里跑完,任一失败整体回滚。 */
+  /** D1's batch: runs inside one transaction, any failure rolls the whole thing back. */
   async batch(appId, statements) {
     await this.#ensure(appId);
     const list = (Array.isArray(statements) ? statements : []).slice(0, 200);
@@ -224,10 +227,10 @@ export class AppStore extends DurableObject {
   }
 }
 
-/** 应用 → 它的 AppStore 存根。appId 由调用方(HostGate / 内部路由)填,应用伪造不了。 */
+/** App → its AppStore stub. appId is filled in by the caller (HostGate / internal routing); the app cannot forge it. */
 const storeFor = (env, appId) => {
   const id = String(appId || "");
-  if (!id) throw new Error("缺少 appId");
+  if (!id) throw new Error("appId is missing");
   const stub = env.STORE.get(env.STORE.idFromName(id));
   return {
     exec: (sql, params) => stub.exec(id, sql, params),
@@ -236,7 +239,7 @@ const storeFor = (env, appId) => {
   };
 };
 
-/** 应用对外的唯一通道:动作全部回内核执行(DB 除外,它进 AppStore)。appId 由这里填,应用伪造不了。 */
+/** The app's one and only outward channel: every action executes back in the kernel (except DB, which goes to AppStore). appId is filled in here; the app cannot forge it. */
 export class HostGate extends WorkerEntrypoint {
   async #node(action, body) {
     const res = await this.env.NODE.fetch(`http://node/api/app/${action}`, {
@@ -245,11 +248,11 @@ export class HostGate extends WorkerEntrypoint {
       body: JSON.stringify({ appId: this.ctx.props?.appId, ...body }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok || data?.ok === false) throw new Error(String(data?.error || `内核错误 ${res.status}`));
+    if (!res.ok || data?.ok === false) throw new Error(String(data?.error || `Kernel error ${res.status}`));
     return data;
   }
 
-  // ── env.DB:不回内核,直接进 AppStore(每个应用一个 DO,SQLite 就在 workerd 进程里) ──
+  // ── env.DB: doesn't go back to the kernel, goes straight to AppStore (one DO per app, SQLite lives right in the workerd process) ──
   dbExec(sql, params) { return storeFor(this.env, this.ctx.props?.appId).exec(String(sql || ""), Array.isArray(params) ? params : []); }
   dbBatch(statements) { return storeFor(this.env, this.ctx.props?.appId).batch(Array.isArray(statements) ? statements : []); }
 
@@ -262,14 +265,14 @@ export class HostGate extends WorkerEntrypoint {
   // ── env.AI ──
   aiAsk(req) { return this.#node("ai-ask", { summary: req.summary, prompt: req.prompt, system: req.system, data: req.data }); }
   aiRun(req) { return this.#node("ai-run", { summary: req.summary, prompt: req.prompt, system: req.system, data: req.data }); }
-  /** 会话面透传。直接把 Response 交回去 —— workerd RPC 支持流式返回值,SSE 因此能一路到前端。 */
+  /** Conversation-surface passthrough. Hands the Response straight back —— workerd RPC supports streaming return values, so SSE can ride this all the way to the frontend. */
   aiFetch(path, method, body, contentType) {
     const init = { method, headers: {} };
     if (contentType) init.headers["content-type"] = contentType;
     if (body !== null && body !== undefined) init.body = body;
     return this.env.NODE.fetch("http://node/conv" + path, init);
   }
-  /** 返回 ReadableStream —— workerd RPC 支持流式返回值,SSE 因此能一路透到应用前端。 */
+  /** Returns a ReadableStream —— workerd RPC supports streaming return values, so SSE can ride this all the way through to the app frontend. */
   async aiStream(req) {
     const res = await this.env.NODE.fetch("http://node/api/app/ai-stream", {
       method: "POST",
@@ -299,7 +302,7 @@ export class HostGate extends WorkerEntrypoint {
   uiOpenApp(appId, route) { return this.#node("ui-open-app", { appId, route }); }
   uiOpenExternal(url) { return this.#node("ui-open-external", { url }); }
 
-  /** 服务端日志回流内核控制台 —— AI 调试自己写的后端要看得到。 */
+  /** Server-side logs flow back into the kernel console —— AI debugging its own backend needs to be able to see them. */
   async log(...message) {
     await this.#node("log", {
       message: message.map((m) => { try { return typeof m === "string" ? m : JSON.stringify(m); } catch { return String(m); } }).join(" "),
@@ -309,7 +312,7 @@ export class HostGate extends WorkerEntrypoint {
 
 const loadApp = async (env, ctx, appId) => {
   const res = await env.NODE.fetch(`http://node/api/app/server-code?id=${encodeURIComponent(appId)}`);
-  if (!res.ok) throw new Error(`取应用代码失败:${appId}(${res.status})`);
+  if (!res.ok) throw new Error(`Failed to fetch app code: ${appId} (${res.status})`);
   const { code, version } = await res.json();
   return env.LOADER.get(`${appId}@${version}`, () => ({
     compatibilityDate: "2026-02-01",
@@ -320,7 +323,7 @@ const loadApp = async (env, ctx, appId) => {
       "app-server.js": String(code),
     },
     env: { __WD_HOST: ctx.exports.HostGate({ props: { appId } }) },
-    // 能力全开:应用可以直接 fetch() 出网(见 CONTRACT.md「当前取舍」)
+    // Full capabilities: an app can fetch() straight out to the network (see the "current tradeoffs" section of CONTRACT.md)
   }));
 };
 
@@ -332,14 +335,16 @@ const resolveApp = async (env, token) => {
 };
 
 
-// ── 内部路由:内核 → workerd ─────────────────────────────────
-// syscall 的镜像:应用在 workerd 里调内核,这里是内核调 workerd 里的数据。
-// AI(经内核的 /api/apps/db)和内核自己要写应用数据,走这条,不绕过 AppStore 直接碰文件。
-// 只认带装机时生成的内部令牌的请求;令牌只在 overseer 的 env 里,应用拿不到。
+// ── Internal routing: kernel → workerd ─────────────────────────────
+// A mirror of the syscall path: apps call into the kernel from inside workerd; this is the kernel calling
+// into data living in workerd. The AI (via the kernel's /api/apps/db) and the kernel itself, when they need
+// to write app data, go through here rather than bypassing AppStore to touch files directly.
+// Only requests carrying the internal token generated at install time are honored; the token lives only
+// in the overseer's env — apps can never get hold of it.
 const jsonResponse = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8" } });
 
-// 行里的 BLOB 是 ArrayBuffer,JSON 带不走,包成 { __wd_b64 }
+// A BLOB in a row is an ArrayBuffer, which JSON can't carry, so wrap it as { __wd_b64 }
 const packRows = (rows) => (rows || []).map((row) => {
   const out = {};
   for (const [k, v] of Object.entries(row)) {
@@ -370,29 +375,30 @@ const internal = async (req, env, url) => {
   }
 };
 
-// 每个应用一个 origin:`http://<token>.localhost:<port>/`。
-// 为什么不是 `/app/<token>/` 路径前缀 —— 那样应用就不站在自己的网站根上,
-// `/style.css` 和契约里写的 `fetch("/api/…")` 会逃出应用根,契约立不住。
-// `*.localhost` 由浏览器直接解析到 127.0.0.1(Chromium / Firefox 原生支持,
-// 桌面壳是 Electron,所以生产路径稳)。
+// One origin per app: `http://<token>.localhost:<port>/`.
+// Why not a `/app/<token>/` path prefix —— because then the app wouldn't be standing at the root of its
+// own site: `/style.css` and the `fetch("/api/…")` the contract specifies would escape the app's root, and
+// the contract wouldn't hold. `*.localhost` is resolved straight to 127.0.0.1 by the browser (Chromium /
+// Firefox support this natively, and the desktop shell is Electron, so this stays solid in production).
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const token = /^([a-f0-9]{16,64})\.localhost$/.exec(url.hostname)?.[1];
 
     if (!token) {
-      // 没有子域 = 不是冲着某个应用来的。健康检查与内核的内部调用走这条。
+      // No subdomain = not aimed at any particular app. Health checks and the kernel's internal calls go through here.
       if (url.pathname === "/health") return new Response("ok");
       if (url.pathname.startsWith("/_wd/")) return internal(req, env, url);
-      return new Response("请经 <token>.localhost 访问应用", { status: 404 });
+      return new Response("Access apps via <token>.localhost", { status: 404 });
     }
 
     const appId = await resolveApp(env, token);
     if (!appId) return new Response("forbidden", { status: 403 });
 
-    // 壳的 SDK:应用 <script src="/_wd/sdk.js"> 引入
+    // The shell's SDK: apps pull it in with <script src="/_wd/sdk.js">
     if (url.pathname === "/_wd/sdk.js") {
-      // 内核那边按当前语言现拼;这里也不能缓存,否则切换语言后应用还拿旧的 SDK。
+      // The kernel assembles this on the fly based on the current language; it must not be cached here either,
+      // or an app would keep getting the old SDK after a language switch.
       const sdk = await env.NODE.fetch("http://node/api/apps/sdk.js");
       return new Response(await sdk.text(), {
         headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" },
@@ -403,7 +409,7 @@ export default {
       const worker = await loadApp(env, ctx, appId);
       return await worker.getEntrypoint().fetch(req);
     } catch (e) {
-      return new Response(`应用启动失败:${e?.message || e}`, {
+      return new Response(`App failed to start: ${e?.message || e}`, {
         status: 500, headers: { "content-type": "text/plain; charset=utf-8" },
       });
     }

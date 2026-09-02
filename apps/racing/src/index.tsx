@@ -19,7 +19,7 @@ export default function Racing(_props: { appId: string }) {
         if (!disposed) cleanup = mountRacing(root);
       })
       .catch((e) => {
-        if (!disposed) setError((e as Error)?.message || '游戏初始化失败');
+        if (!disposed) setError((e as Error)?.message || 'Game failed to initialize');
       });
     return () => {
       disposed = true;

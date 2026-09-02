@@ -18,5 +18,5 @@ textarea { resize: none; }
 ::-webkit-scrollbar { width: 9px; }
 ::-webkit-scrollbar-thumb { background: #d9d9dc; border-radius: 5px; border: 2px solid transparent; background-clip: content-box; }
 
-/* 共用弹层遮罩(壁纸选择器 / 新建应用浮层都用) */
+/* Shared overlay mask (used by both the wallpaper picker and the new-app overlay) */
 .wallpaper-mask { position: fixed; inset: 0; z-index: 90; background: rgba(20,45,75,.3); display: grid; place-items: center; backdrop-filter: blur(5px); }

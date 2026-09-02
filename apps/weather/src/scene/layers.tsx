@@ -1,4 +1,4 @@
-// WeatherScene 的各层元件:渐变定义 + 太阳/月亮/星空/云/雨/雪/雾/闪电。
+// The individual layers for WeatherScene: gradient defs + sun/moon/stars/clouds/rain/snow/fog/lightning.
 import {
   BOLTS, CLOUDS_FEW, CLOUDS_MANY, H, RAIN, RAYS, RIPPLES, SHOOTERS, SNOW, STARS, W,
   type CloudDef,

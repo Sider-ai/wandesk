@@ -1,18 +1,18 @@
 <!doctype html>
 <meta charset="utf-8" />
-<title>应用工坊</title>
+<title>App Workshop</title>
 <link rel="stylesheet" href="/style.css" />
 <script src="/_wd/sdk.js"></script>
 
 <div class="shop">
   <header>
-    <h1>🪄 应用工坊</h1>
-    <p>说一句话,造一个应用。它会被写进工作区的 <code>apps/</code>,桌面立刻长出图标 —— 之后你和 AI 都能继续改它。</p>
+    <h1>🪄 App Workshop</h1>
+    <p>Describe an app in one sentence. It gets written into the workspace's <code>apps/</code> folder, and the desktop gets a new icon right away -- you and the AI can keep improving it after that.</p>
   </header>
 
   <form id="form">
-    <textarea id="want" rows="3" placeholder="例如:一个记账本,能记收支、按月看汇总"></textarea>
-    <button id="go" type="submit">开造</button>
+    <textarea id="want" rows="3" placeholder="e.g. a budget tracker that logs income and expenses and shows a monthly summary"></textarea>
+    <button id="go" type="submit">Build it</button>
   </form>
 
   <div class="log" id="log"></div>
@@ -37,7 +37,7 @@ $("form").addEventListener("submit", async (e) => {
   if (!want) return;
   $("go").disabled = true;
   log.innerHTML = "";
-  line("start", "开始…");
+  line("start", "Starting…");
 
   const res = await fetch("/api/build", {
     method: "POST", headers: { "content-type": "application/json" },
@@ -62,15 +62,15 @@ $("form").addEventListener("submit", async (e) => {
 
       if (ev === "function_call") {
         const args = (() => { try { return JSON.parse(data.item?.arguments || "{}"); } catch { return {}; } })();
-        line("step", "⚙ " + (args.summary || data.item?.name || "工具"));
+        line("step", "⚙ " + (args.summary || data.item?.name || "tool"));
       } else if (ev === "message") {
         const t = (data.item?.content || []).map((p) => p.text || "").join("");
         if (t.trim()) line("say", t);
       } else if (ev === "done") {
-        line("ok", "造好了 —— 看看桌面");
-        window.wandesk.ui.toast("新应用已就绪");
+        line("ok", "Done -- check your desktop");
+        window.wandesk.ui.toast("New app is ready");
       } else if (ev === "error") {
-        line("err", "失败:" + data.error);
+        line("err", "Failed: " + data.error);
       }
     }
   }

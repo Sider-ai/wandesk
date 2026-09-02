@@ -1,6 +1,6 @@
 {
   "id": "poker",
-  "name": "炸金花",
+  "name": "Three-Card Poker",
   "icon": "🃏",
   "description": "Heads-up Zhajinhua (3-card Chinese poker) against a real AI rival that decides every move live — bet, raise, peek, and showdown on a felt table.",
   "mounts": {

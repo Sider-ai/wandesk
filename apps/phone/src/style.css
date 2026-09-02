@@ -1,11 +1,11 @@
 /* ════════════════════════════════════════════════════════════════════
-   手机 · Phone — a 2010-era 3G candybar: glossy silver-white shell,
+   Phone — a 2010-era 3G candybar: glossy silver-white shell,
    chrome accents, and a color TFT screen. The shell is hand-built and
    fixed; the LCD body renders whatever HTML the AI dreams up.
    ════════════════════════════════════════════════════════════════════ */
 .ph-room{
   height:100%; width:100%; box-sizing:border-box;
-  display:flex; overflow:auto;   /* 手机居中靠 .ph-phone 的 margin:auto —— 窗口矮时可完整滚动,不裁头尾 */
+  display:flex; overflow:auto;   /* the phone is centered via .ph-phone's margin:auto — scrolls fully in short windows, never clipped */
   padding:18px;
   font-family:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
   color:#3a3f48;
@@ -13,10 +13,10 @@
     radial-gradient(120% 90% at 50% 0%, #d5d8dd 0%, #bfc3ca 55%, #a6abb4 100%);
 }
 
-/* ── device body:银白亮面直板(2010 年白色款) ── */
+/* ── device body: silver-white glossy candybar (the 2010 white edition) ── */
 .ph-phone{
   position:relative; flex:0 0 auto; margin:auto;
-  width:296px; box-sizing:border-box;   /* 不设 max-height:整机尺寸恒定,矮窗口滚动看,屏幕永不被挤扁 */
+  width:296px; box-sizing:border-box;   /* no max-height: the device size is constant — scroll to view in short windows, the screen never gets squashed */
   display:flex; flex-direction:column;
   padding:15px 15px 13px;
   border-radius:22px;
@@ -29,13 +29,13 @@
     0 26px 50px rgba(50,58,72,.4),
     0 8px 16px rgba(50,58,72,.22);
 }
-/* 亮面塑料的斜向高光 */
+/* diagonal highlight on the glossy plastic */
 .ph-phone::before{
   content:''; position:absolute; inset:0; border-radius:22px; pointer-events:none;
   background:linear-gradient(115deg, rgba(255,255,255,.5) 0%, transparent 30%);
 }
 
-/* ── earpiece:镀铬听筒条 ── */
+/* ── earpiece: chrome-plated bar ── */
 .ph-head{
   display:flex; align-items:center; justify-content:center; gap:9px;
   position:relative; margin:1px 0 11px;
@@ -50,9 +50,9 @@
   background:repeating-linear-gradient(90deg,transparent 0 2px,#0e0f12 2px 3px);
 }
 
-/* ── 彩色 TFT 屏 ── */
+/* ── color TFT screen ── */
 .ph-lcd{
-  position:relative; overflow:hidden; flex:none;   /* 屏幕不参与压缩,216px 屏体永远完整可见 */
+  position:relative; overflow:hidden; flex:none;   /* the screen never shrinks — the 216px display area stays fully visible */
   border-radius:8px;
   border:3px solid #0c0d10;
   background-color:#f5f7fb;
@@ -70,7 +70,7 @@
   background:linear-gradient(125deg, rgba(255,255,255,.28) 0%, transparent 30%);
 }
 
-/* status bar — S60 味的浅蓝渐变条,外壳自带,AI 永远不用画 */
+/* status bar — an S60-flavored light blue gradient strip, built into the shell; the AI never has to draw it */
 .ph-status{
   display:flex; align-items:center; gap:6px;
   padding:4px 8px 3px; position:relative; z-index:6;
@@ -104,17 +104,17 @@
 .ph-batt b{ display:block; height:100%; background:#2e9e4f; border-radius:1px; }
 .ph-batt.low b{ background:#c23a2b; }
 
-/* the actual screen body — AI HTML lives here(彩屏:AI 可以用颜色) */
+/* the actual screen body — AI HTML lives here (color screen: the AI may use color) */
 .ph-lcd-body{
   position:relative; z-index:3; box-sizing:border-box;
   height:216px; overflow-y:auto;       /* fixed → the phone never changes size between screens */
-  padding:0;                            /* 内容通到屏幕边缘,内边距由每一屏的界面自己负责 */
+  padding:0;                            /* content reaches the screen edges; padding is each screen's own responsibility */
   font-family:"PingFang SC","Microsoft YaHei",sans-serif;
   font-size:12px; line-height:1.6;
   color:#23262d;
   word-break:break-word;
 }
-/* 只做安全兜底,不再压掉颜色(2010 彩屏了) */
+/* just a safety fallback, no longer stripping color (it's a 2010 color screen now) */
 .ph-lcd-body *{ max-width:100% !important; }
 .ph-lcd-body img{ display:none !important; }
 .ph-lcd-body a{ color:#1a55c4; text-decoration:underline; }
@@ -122,7 +122,7 @@
 .ph-lcd-body::-webkit-scrollbar-thumb{ background:rgba(40,55,90,.35); border-radius:2px; }
 
 /* loading state */
-.ph-loading{ display:flex; flex-direction:column; justify-content:center; gap:13px; padding:9px 11px; }  /* 高度继承 216px,加载中屏幕不塌 */
+.ph-loading{ display:flex; flex-direction:column; justify-content:center; gap:13px; padding:9px 11px; }  /* inherits the 216px height so the screen doesn't collapse while loading */
 .ph-toast{ font-weight:800; color:#2b3444; }
 .ph-cursor{ margin-left:2px; animation:ph-blink .8s step-end infinite; }
 @keyframes ph-blink{ 0%,100%{ opacity:1; } 50%{ opacity:0; } }
@@ -136,7 +136,7 @@
 }
 @keyframes ph-prog{ 0%{ width:5%; } 55%{ width:72%; } 100%{ width:100%; } }
 
-/* ── controls:石墨键区 ── */
+/* ── controls: graphite keypad area ── */
 .ph-controls{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
 .ph-opts{ display:flex; flex-direction:column; gap:7px; }
 .ph-opt{

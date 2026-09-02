@@ -1,7 +1,9 @@
-// 应用访问自己的库。**这是为 v2 唯一改过的文件之一** —— 应用代码一行没动。
+// App accesses its own database. **One of the only files changed for v2** — app code was
+// left untouched.
 //
-// 旧版:POST /apps/<id>/db,由宿主按 id 找库。
-// v2:应用是自己的网站,直接打自己的 /api/db;后端 server.js 把它接到 env.DB(D1)。
+// Old version: POST /apps/<id>/db, the host looks up the database by id.
+// v2: the app is its own website, hits its own /api/db directly; the backend server.js
+// wires it to env.DB (D1).
 export type DbResult = {
   ok: boolean;
   rows?: any[];

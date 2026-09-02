@@ -1,6 +1,6 @@
 {
   "id": "aircraft",
-  "name": "飞机大战",
+  "name": "Aircraft",
   "icon": "🚀",
   "description": "Neon arcade shooter with waves, bosses, power-ups and particle mayhem.",
   "mounts": {

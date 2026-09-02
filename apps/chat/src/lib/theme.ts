@@ -1,5 +1,5 @@
-// 主题:亮 / 暗 / 跟随系统。auto 在这里解析成具体值写到 <html data-theme>,
-// 样式层只认 light/dark 两个字。
+// Theme: light / dark / follow system. "auto" gets resolved here into a concrete value
+// written to <html data-theme>; the style layer only ever sees "light" or "dark".
 import { create } from 'zustand';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -17,7 +17,7 @@ function apply(mode: ThemeMode) {
 
 export function setTheme(mode: ThemeMode) {
     useTheme.setState({ mode });
-    try { localStorage.setItem(KEY, mode); } catch { /* 私隐模式 */ }
+    try { localStorage.setItem(KEY, mode); } catch { /* private mode */ }
     apply(mode);
 }
 

@@ -1,4 +1,4 @@
-// 当前天气大卡:温度 + 天况 + 今日高低 + 体感/湿度/风速。
+// Current-weather hero card: temperature + condition + today's high/low + feels-like/humidity/wind.
 import type { Condition, Forecast } from '../lib/types';
 
 export function NowCard({ forecast, cond, loading }: { forecast: Forecast; cond: Condition | null; loading: boolean }) {
@@ -12,9 +12,9 @@ export function NowCard({ forecast, cond, loading }: { forecast: Forecast; cond:
 
       {forecast.days[0] && (
         <div className="wx-now-hilo">
-          <span className="wx-now-hi"><span className="wx-hilo-k">高</span> {forecast.days[0].max}°</span>
+          <span className="wx-now-hi"><span className="wx-hilo-k">H</span> {forecast.days[0].max}°</span>
           <span className="wx-now-dot" />
-          <span className="wx-now-lo"><span className="wx-hilo-k">低</span> {forecast.days[0].min}°</span>
+          <span className="wx-now-lo"><span className="wx-hilo-k">L</span> {forecast.days[0].min}°</span>
         </div>
       )}
 
@@ -22,17 +22,17 @@ export function NowCard({ forecast, cond, loading }: { forecast: Forecast; cond:
         <div className="wx-stat">
           <span className="wx-stat-ic" aria-hidden="true">🌡️</span>
           <span className="wx-stat-v">{forecast.now.feels}°</span>
-          <span className="wx-stat-k">体感</span>
+          <span className="wx-stat-k">Feels like</span>
         </div>
         <div className="wx-stat">
           <span className="wx-stat-ic" aria-hidden="true">💧</span>
           <span className="wx-stat-v">{forecast.now.humidity}%</span>
-          <span className="wx-stat-k">湿度</span>
+          <span className="wx-stat-k">Humidity</span>
         </div>
         <div className="wx-stat">
           <span className="wx-stat-ic" aria-hidden="true">💨</span>
           <span className="wx-stat-v">{forecast.now.wind}<small> km/h</small></span>
-          <span className="wx-stat-k">风速</span>
+          <span className="wx-stat-k">Wind</span>
         </div>
       </div>
     </section>

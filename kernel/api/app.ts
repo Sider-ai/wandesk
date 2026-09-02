@@ -1,7 +1,8 @@
-// 应用 syscall 的执行端。
+// The execution endpoint for app syscalls.
 //
-// 这些端点**只由 workerd 里的 HostGate 调用**(overseer 经 NODE 外部服务绑定回环过来),
-// 请求体里的 appId 由 HostGate 按 token 填,应用自己伪造不了。
+// These endpoints are **only ever called by the HostGate inside workerd** (overseer loops back
+// here through the NODE external-service binding); the appId in the request body is filled in
+// by HostGate from the token — an app can never forge it itself.
 import type { IncomingMessage, ServerResponse } from "http";
 import { json, readJson } from "./http.js";
 import { appAsset, appServerCode } from "../apps/scan.js";
@@ -13,9 +14,9 @@ import { uiToast, uiOpenApp, uiOpenExternal } from "../syscall/ui.js";
 
 type Body = Record<string, any>;
 
-/** 每个 syscall 一个 handler。抛异常 = 应用侧 env.* 抛异常,信息原样带过去。 */
+/** One handler per syscall. Throwing here = env.* throws on the app side; the message carries straight through. */
 const HANDLERS: Record<string, (appId: string, body: Body) => unknown | Promise<unknown>> = {
-  // ── env.DB:查询不经这里(在 workerd 的 AppStore 里就地执行)。首次开库回来挂个链接 ──
+  // ── env.DB: queries don't go through here (they execute in place, inside workerd's AppStore). Mounts a link back on first open ──
   "db-opened": (appId, b) => { linkAppDb(appId, String(b.storeId || "")); return {}; },
 
   // ── env.ASSETS ──
@@ -48,25 +49,25 @@ const HANDLERS: Record<string, (appId: string, body: Body) => unknown | Promise<
   "ui-open-app": (appId, b) => uiOpenApp(appId, String(b.appId || ""), String(b.route || "/")),
   "ui-open-external": (appId, b) => uiOpenExternal(appId, String(b.url || "")),
 
-  // ── 服务端日志:AI 调试应用后端要看得见 ──
+  // ── Server-side logs: the AI debugging an app's backend needs to be able to see these ──
   "log": (appId, b) => { console.log(`[app:${appId}]`, String(b.message || "")); return { ok: true }; },
 };
 
 export const handleAppApi = async (req: IncomingMessage, res: ServerResponse, action: string): Promise<boolean> => {
-  // 取应用代码:overseer 装载应用时问的,GET
+  // Fetch app code: asked by overseer when it loads an app, GET
   if (action === "server-code") {
     const id = new URL(req.url || "/", "http://x").searchParams.get("id") || "";
     const code = appServerCode(id);
-    return code ? json(res, 200, code) : json(res, 404, { error: "应用不存在" });
+    return code ? json(res, 200, code) : json(res, 404, { error: "App does not exist" });
   }
 
   if (!(action in HANDLERS) && action !== "ai-stream") return false;
 
   const body = (await readJson(req)) as Body;
   const appId = String(body.appId || "");
-  if (!appId) return json(res, 400, { error: "缺少 appId" });
+  if (!appId) return json(res, 400, { error: "appId is missing" });
 
-  // ai-stream 走 SSE,不能包成 JSON —— 应用会把这条响应体原样透传给自己的前端
+  // ai-stream rides SSE and can't be wrapped as JSON —— the app passes this response body straight through to its own frontend
   if (action === "ai-stream") {
     res.writeHead(200, {
       "content-type": "text/event-stream; charset=utf-8",
@@ -81,7 +82,7 @@ export const handleAppApi = async (req: IncomingMessage, res: ServerResponse, ac
         if (done) break;
         res.write(Buffer.from(value));
       }
-    } catch { /* 下游断开 */ }
+    } catch { /* downstream disconnected */ }
     res.end();
     return true;
   }

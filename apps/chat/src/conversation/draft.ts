@@ -1,5 +1,5 @@
-// 起手卡在消息区,输入框在 Composer —— 中间用一粒草稿种子传话:
-// 点卡片把文字填进输入框(不发送),光标落在尾部。
+// The starter cards live in the message area, while the input box lives in Composer —
+// a draft seed carries text between them: clicking a card fills the input (without sending), cursor at the end.
 import { create } from 'zustand';
 
 export const useDraftSeed = create<{ text: string; seq: number }>(() => ({ text: '', seq: 0 }));

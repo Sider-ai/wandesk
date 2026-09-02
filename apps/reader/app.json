@@ -1,8 +1,8 @@
 {
   "id": "reader",
-  "name": "阅读",
+  "name": "Reader",
   "icon": "📖",
-  "description": "",
+  "description": "An interactive-fiction e-reader — pick a premise and the AI plays game master, writing each page and offering you choices.",
   "mounts": {
     "window": "/"
   }

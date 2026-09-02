@@ -1,14 +1,14 @@
-// 事件名契约:内核与壳共用一份,两边都不写裸字符串。
+// Event-name contract: shared by the kernel and the shell so neither side hardcodes raw strings.
 export const EV = Object.freeze({
-  APPS_CHANGED: "apps.changed",       // apps/ 目录变了,壳该重拉注册表
-  ACTIVITY_START: "activity.start",   // 有应用开始调 AI
+  APPS_CHANGED: "apps.changed",       // The apps/ directory changed, the shell should reload the registry
+  ACTIVITY_START: "activity.start",   // An app started calling the AI
   ACTIVITY_END: "activity.end",
   PROC_LOG: "proc.log",
   PROC_EXIT: "proc.exit",
-  UI_TOAST: "ui.toast",               // 应用请壳弹一条提示
-  UI_OPEN_APP: "ui.openApp",          // 应用请壳打开另一个应用
+  UI_TOAST: "ui.toast",               // An app is asking the shell to show a toast
+  UI_OPEN_APP: "ui.openApp",          // An app is asking the shell to open another app
   UI_OPEN_EXTERNAL: "ui.openExternal",
-  LANGUAGE_CHANGED: "language.changed", // 界面语言变了(设置里切换) —— 带 { language }
+  LANGUAGE_CHANGED: "language.changed", // The UI language changed (toggled in settings) —— carries { language }
 });
 
 export type EventName = (typeof EV)[keyof typeof EV];

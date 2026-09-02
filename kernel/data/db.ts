@@ -1,4 +1,4 @@
-// 内核库的句柄。一个进程一个连接,WAL 打开(桌面壳会有多个读者)。
+// Handle to the kernel's own database. One connection per process, WAL enabled (the desktop shell can have multiple readers).
 import fs from "fs";
 import path from "path";
 import { DatabaseSync } from "node:sqlite";

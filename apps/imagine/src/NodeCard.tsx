@@ -3,7 +3,8 @@ import type { TreeNode } from './lib/types';
 import type { Pos } from './lib/layout';
 import { getNodeHtml } from './lib/data';
 
-// 缩略图 html 懒加载缓存:tree 查询不含 html,只有真正被渲染(视口内 + 够放大)的节点才拉一次。
+// Lazy-load cache for thumbnail html: the tree query doesn't include html; only nodes that actually
+// render (in-viewport + zoomed in enough) fetch it, once each.
 const htmlCache = new Map<string, string>();
 export function bustHtmlCache(id: string) { htmlCache.delete(id); }
 
@@ -39,7 +40,8 @@ export const NodeCard = memo(function NodeCard({
   const wantThumb = node.status === 'done' && !!node.has_content && renderPreview;
   const thumbHtml = useThumbHtml(node.id, wantThumb && !isRoot);
 
-  // 根 = 原始需求:一个圆角胶囊,需求文本 + 发散按钮,无缩略图、不可删。
+  // Root = the original requirement: a rounded pill with the requirement text + a branch button,
+  // no thumbnail, can't be deleted.
   if (isRoot) {
     return (
       <div
@@ -47,14 +49,14 @@ export const NodeCard = memo(function NodeCard({
         style={{ transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)`, position: 'absolute' }}
         onClick={(e) => { e.stopPropagation(); onClick(node.id); }}
       >
-        <button className="cv-node-branch" title="基于需求继续发散" onClick={(e) => { e.stopPropagation(); onBranch(node.id); }}>
+        <button className="cv-node-branch" title="Branch from the requirement" onClick={(e) => { e.stopPropagation(); onBranch(node.id); }}>
           <span className="branch-ico" aria-hidden="true">💭</span>
         </button>
         {hasChildren && (
-          <button className={`cv-collapse${collapsed ? ' is-collapsed' : ''}`} title={collapsed ? `展开 ${hiddenCount} 个后代节点` : '收起子树'} onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}>{collapsed ? hiddenCount : '−'}</button>
+          <button className={`cv-collapse${collapsed ? ' is-collapsed' : ''}`} title={collapsed ? `Expand ${hiddenCount} descendant nodes` : 'Collapse subtree'} onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}>{collapsed ? hiddenCount : '−'}</button>
         )}
-        <span className="root-tag">需求</span>
-        <span className="root-text">{node.instruction || '(空)'}</span>
+        <span className="root-tag">Requirement</span>
+        <span className="root-text">{node.instruction || '(empty)'}</span>
       </div>
     );
   }
@@ -69,21 +71,21 @@ export const NodeCard = memo(function NodeCard({
       onClick={(e) => { e.stopPropagation(); onClick(node.id); }}
     >
       {node.status === 'done' && (
-        <button className="cv-node-branch" title="基于该节点继续发散" onClick={(e) => { e.stopPropagation(); onBranch(node.id); }}>
+        <button className="cv-node-branch" title="Branch from this node" onClick={(e) => { e.stopPropagation(); onBranch(node.id); }}>
           <span className="branch-ico" aria-hidden="true">💭</span>
         </button>
       )}
       {hasChildren && (
         <button
           className={`cv-collapse${collapsed ? ' is-collapsed' : ''}`}
-          title={collapsed ? `展开 ${hiddenCount} 个后代节点` : '收起子树'}
+          title={collapsed ? `Expand ${hiddenCount} descendant nodes` : 'Collapse subtree'}
           onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
         >{collapsed ? hiddenCount : '−'}</button>
       )}
       <div className="thumb">
         {wantThumb && thumbHtml ? (
           <>
-            {/* 缩略图不跑脚本:N 个动画页同时全速渲染会拖死画布;动效去新窗口看 */}
+            {/* Thumbnails don't run scripts: N animated pages all rendering at full speed at once would choke the canvas; view motion in the new window instead */}
             <iframe srcDoc={thumbHtml} sandbox="" scrolling="no" tabIndex={-1} title={node.title ?? node.id} />
             <div className="veil" />
           </>
@@ -92,18 +94,18 @@ export const NodeCard = memo(function NodeCard({
         ) : node.status === 'generating' ? (
           <div className="center">
             <div className="pixel-loader"><i /><i /><i /></div>
-            <div className="gen-label">生成中…</div>
+            <div className="gen-label">Generating…</div>
           </div>
         ) : (
           <div className="center">
-            <div className="err-label">{node.error || '生成失败'}</div>
-            <button className="retry-btn" onClick={(e) => { e.stopPropagation(); onRetry(node.id); }}>重试</button>
+            <div className="err-label">{node.error || 'Generation failed'}</div>
+            <button className="retry-btn" onClick={(e) => { e.stopPropagation(); onRetry(node.id); }}>Retry</button>
           </div>
         )}
       </div>
       <div className="vinfo">
-        <div className="vtitle">{node.title ?? (node.status === 'generating' ? '新变体' : '未命名')}</div>
-        <div className="vdesc">{`“${node.instruction}”`}</div>
+        <div className="vtitle">{node.title ?? (node.status === 'generating' ? 'New variant' : 'Untitled')}</div>
+        <div className="vdesc">{`"${node.instruction}"`}</div>
       </div>
     </div>
   );

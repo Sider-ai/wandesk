@@ -1,4 +1,4 @@
-// 活动流水:应用调 env.AI 必须带 summary,落这里 —— 用户能看见哪个应用在烧 token。
+// Activity log: any app calling env.AI must include a summary, logged here — so the user can see which app is burning tokens.
 import { all, run, one } from "./db.js";
 
 export type Activity = { id: number; app_id: string; summary: string; status: string; detail: string; created_at: string };

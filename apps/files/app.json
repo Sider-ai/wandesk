@@ -1,7 +1,7 @@
 {
   "id": "files",
-  "name": "文件",
+  "name": "Files",
   "icon": "🗂",
-  "description": "工作区里的真实文件 —— 应用的家也在这里。",
+  "description": "The real files in your workspace -- this is also where the apps live.",
   "mounts": { "window": "/" }
 }

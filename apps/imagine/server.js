@@ -1,9 +1,10 @@
-// imagine —— 由 appsrc/build.mjs 生成,改这里会被下次构建覆盖。
-// 前端源码在 appsrc/apps/imagine/,改完跑 `npm run build:apps`。
+// Generated once from a template; now plain source — edit freely.
+// Frontend source lives in src/; after editing, run `npm install && npm run build` in this directory.
 //
-// 应用即网站:静态资源与 API 都由它自己应答。三个 API 是从 wandesk-skill 平移过来的
-// 宿主能力,现在接在自己的 binding 上 —— 应用前端一行没改。
-const SCHEMA = "-- 想象 (imagine) — 创意发散画布。项目 = 一棵树;节点 = 一版 HTML 设计稿。\nCREATE TABLE IF NOT EXISTS app_imagine_projects (\n  id         TEXT PRIMARY KEY,\n  title      TEXT NOT NULL DEFAULT '',\n  prompt     TEXT NOT NULL DEFAULT '',\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\nCREATE TABLE IF NOT EXISTS app_imagine_nodes (\n  id          TEXT PRIMARY KEY,\n  project_id  TEXT NOT NULL,\n  parent_id   TEXT,                         -- NULL = 根节点\n  instruction TEXT NOT NULL DEFAULT '',     -- 生成这一版用的指令/方向\n  title       TEXT,                         -- 产物首行 <!--TITLE--> 抓的短标题\n  html        TEXT NOT NULL DEFAULT '',     -- 产物(自包含 HTML);tree 查询不取,按节点懒加载\n  status      TEXT NOT NULL DEFAULT 'generating',  -- generating | done | error\n  error       TEXT NOT NULL DEFAULT '',\n  created_at  TEXT NOT NULL DEFAULT (datetime('now'))\n);\nCREATE INDEX IF NOT EXISTS idx_app_imagine_nodes_project ON app_imagine_nodes (project_id, created_at);\n";
+// The app is its own website: it answers both static assets and API requests itself. The three
+// APIs are host capabilities carried over from wandesk-skill, now wired to their own bindings —
+// the app frontend was not changed at all.
+const SCHEMA = "-- Imagine — a creative-branching canvas. A project is a tree; a node is one HTML design draft.\nCREATE TABLE IF NOT EXISTS app_imagine_projects (\n  id         TEXT PRIMARY KEY,\n  title      TEXT NOT NULL DEFAULT '',\n  prompt     TEXT NOT NULL DEFAULT '',\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\nCREATE TABLE IF NOT EXISTS app_imagine_nodes (\n  id          TEXT PRIMARY KEY,\n  project_id  TEXT NOT NULL,\n  parent_id   TEXT,                         -- NULL = root node\n  instruction TEXT NOT NULL DEFAULT '',     -- instruction/direction used to generate this version\n  title       TEXT,                         -- short title scraped from the <!--TITLE--> first line of the output\n  html        TEXT NOT NULL DEFAULT '',     -- output (self-contained HTML); not fetched by the tree query, loaded lazily per node\n  status      TEXT NOT NULL DEFAULT 'generating',  -- generating | done | error\n  error       TEXT NOT NULL DEFAULT '',\n  created_at  TEXT NOT NULL DEFAULT (datetime('now'))\n);\nCREATE INDEX IF NOT EXISTS idx_app_imagine_nodes_project ON app_imagine_nodes (project_id, created_at);\n";
 
 let ready = false;
 const ensure = async (env) => {
@@ -21,7 +22,7 @@ export default {
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(req);
 
     try {
-      // ── 自己的库(D1) ──
+      // ── own database (D1) ──
       if (url.pathname === "/api/db") {
         await ensure(env);
         const { sql, params } = await req.json();
@@ -30,11 +31,11 @@ export default {
         return json({ ok: true, rows: r.results, changes: r.meta?.changes ?? 0, lastInsertRowid: r.meta?.last_row_id ?? 0 });
       }
 
-      // ── 唯一的智能面 ──
+      // ── the one intelligence surface ──
       if (url.pathname === "/api/agent") {
         const { prompt, data, system, schema } = await req.json();
         const want = schema
-          ? "\n\n只输出符合下面 JSON Schema 的 JSON,不要代码围栏、不要解释:\n" + JSON.stringify(schema)
+          ? "\n\nOutput only JSON matching the JSON Schema below — no code fences, no explanation:\n" + JSON.stringify(schema)
           : "";
         const out = await env.AI.ask({
           summary: `imagine:` + String(prompt || "").slice(0, 24),
@@ -45,12 +46,12 @@ export default {
         if (!out.ok) return json({ ok: false, error: out.error });
         let parsed;
         if (schema) {
-          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* 模型没给出合法 JSON */ }
+          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* model didn't return valid JSON */ }
         }
         return json({ ok: true, result: out.text, json: parsed, engine: "wandesk" });
       }
 
-      // ── 出网:能力全开,后端直接 fetch ──
+      // ── outbound network: unrestricted, the backend fetches directly ──
       if (url.pathname === "/api/http") {
         const { url: target, method, headers, body } = await req.json();
         const res = await fetch(String(target), { method: method || "GET", headers, body });

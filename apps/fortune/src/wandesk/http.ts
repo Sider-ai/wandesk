@@ -1,4 +1,5 @@
-// 出网。**为 v2 改过** —— 后端直接 fetch(),不再需要宿主代理(能力全开)。
+// Outbound network access. **Changed for v2** — the backend now fetch()es directly,
+// no longer needing the host as a proxy (fully unrestricted).
 export type HttpResult = { ok: boolean; status?: number; body?: string; error?: string };
 
 export async function proxy(

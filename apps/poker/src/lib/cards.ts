@@ -1,4 +1,4 @@
-// 炸金花 — 牌、洗牌、牌型评估与比大小(纯 TypeScript,与 AI 无关)。
+// Zhajinhua — cards, shuffling, hand evaluation, and comparison (plain TypeScript, no AI involved).
 export type Suit = '♠' | '♥' | '♦' | '♣';
 export type Card = { rank: number; suit: Suit }; // rank 2..14 (11=J 12=Q 13=K 14=A)
 
@@ -18,12 +18,12 @@ export function freshDeck(): Card[] {
   return d;
 }
 
-// 牌型: 6 豹子 > 5 同花顺 > 4 同花 > 3 顺子 > 2 对子 > 1 单张
+// Hand types: 6 Three of a Kind > 5 Straight Flush > 4 Flush > 3 Straight > 2 Pair > 1 High Card
 export type HandType = 1 | 2 | 3 | 4 | 5 | 6;
 export type Eval = { type: HandType; vals: number[]; name: string };
 
 export const TYPE_NAME: Record<HandType, string> = {
-  6: '豹子', 5: '同花顺', 4: '同花', 3: '顺子', 2: '对子', 1: '单张',
+  6: 'Three of a Kind', 5: 'Straight Flush', 4: 'Flush', 3: 'Straight', 2: 'Pair', 1: 'High Card',
 };
 
 export function evaluate(cards: Card[]): Eval {

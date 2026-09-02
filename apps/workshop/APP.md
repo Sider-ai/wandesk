@@ -1,14 +1,14 @@
-# 应用工坊(workshop)
+# App Workshop (workshop)
 
-说一句话,造一个应用。它把需求交给 agent,agent 在 `apps/<id>/` 写下 app.json、server.js、public/index.html 和 APP.md,桌面立刻长出图标。
+Describe what you want in one sentence, and it hands the request to an agent, which writes app.json, server.js, public/index.html, and APP.md into `apps/<id>/`, and the desktop gets a new icon right away.
 
-## 能做什么
+## What it can do
 
-- 造新应用:描述功能,流式看它在写什么。
-- 改现有应用:告诉它改哪个,它直接改那个目录。
-- 造出来的应用没有构建步骤,前端是单文件,谁都能打开就改。
+- Build a new app: describe the feature, watch it write the code in a live stream.
+- Change an existing app: tell it which one, and it edits that directory directly.
+- Apps it builds have no build step — the front end is a single file anyone can open and edit.
 
-## 目录与修改
+## Layout and customization
 
-- `server.js` 里的 BRIEF 是给 agent 的造应用规则,改它就改了工坊的产出风格。
-- `public/index.html` 单文件前端。
+- The BRIEF constant in `server.js` is the rulebook the agent follows when building an app; changing it changes what the workshop produces.
+- `public/index.html` is the single-file front end.

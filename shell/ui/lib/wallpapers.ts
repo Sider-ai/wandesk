@@ -8,22 +8,22 @@ export type Wallpaper = { id: string; name: string; css: string };
 // Built-in wallpapers. Each SVG entry must have a matching file in ui/public/wallpapers/;
 // linen / clouds / ink are pure CSS and need no file. The first entry is the default/fallback.
 export const WALLPAPERS: Wallpaper[] = [
-  { id: 'bokeh',   name: '光斑清晨', css: 'background:#3f9fb0 url(/wallpapers/bokeh-dawn.svg) center/cover no-repeat;' },
-  { id: 'contour', name: '缓坡',   css: 'background:#d8cce1 url(/wallpapers/contour-gentle.svg) center/cover no-repeat;' },
-  { id: 'sakura',  name: '樱花飘落', css: 'background:#fef2f6 url(/wallpapers/sakura.svg) center/cover no-repeat;' },
-  { id: 'wheat',   name: '麦田',   css: 'background:#f0cf86 url(/wallpapers/wheat.svg) center/cover no-repeat;' },
-  { id: 'yanyu',   name: '烟雨',   css: 'background:#efe8da url(/wallpapers/yanyu.svg) center/cover no-repeat;' },
-  { id: 'birch',   name: '白桦',   css: 'background:#e8dfc9 url(/wallpapers/birch.svg) center/cover no-repeat;' },
-  { id: 'cork',    name: '软木板', css: 'background:#b9873f url(/wallpapers/cork.svg) center/cover no-repeat;' },
-  { id: 'aurora',  name: '极光之夜', css: 'background:#04121f url(/wallpapers/aurora.svg) center/cover no-repeat;' },
-  { id: 'linen',   name: '绒布',   css: 'background-color:#f4f0e8;background-image:linear-gradient(90deg,rgba(60,50,35,.05) 1px,transparent 1px),linear-gradient(rgba(60,50,35,.04) 1px,transparent 1px);background-size:18px 18px;' },
-  { id: 'clouds',  name: '云霞',   css: 'background:linear-gradient(135deg,#fff0d8,#e6f2ff 48%,#f4d8ec);' },
-  { id: 'ink',     name: '墨黑',   css: 'background-color:#0c1018;background-image:radial-gradient(rgba(255,255,255,.10) 1px,transparent 1px);background-size:16px 16px;' },
+  { id: 'bokeh',   name: 'Bokeh Morning', css: 'background:#3f9fb0 url(/wallpapers/bokeh-dawn.svg) center/cover no-repeat;' },
+  { id: 'contour', name: 'Gentle Slope',   css: 'background:#d8cce1 url(/wallpapers/contour-gentle.svg) center/cover no-repeat;' },
+  { id: 'sakura',  name: 'Falling Sakura', css: 'background:#fef2f6 url(/wallpapers/sakura.svg) center/cover no-repeat;' },
+  { id: 'wheat',   name: 'Wheat Field',   css: 'background:#f0cf86 url(/wallpapers/wheat.svg) center/cover no-repeat;' },
+  { id: 'yanyu',   name: 'Misty Rain',   css: 'background:#efe8da url(/wallpapers/yanyu.svg) center/cover no-repeat;' },
+  { id: 'birch',   name: 'Birch Wood',   css: 'background:#e8dfc9 url(/wallpapers/birch.svg) center/cover no-repeat;' },
+  { id: 'cork',    name: 'Corkboard', css: 'background:#b9873f url(/wallpapers/cork.svg) center/cover no-repeat;' },
+  { id: 'aurora',  name: 'Aurora Night', css: 'background:#04121f url(/wallpapers/aurora.svg) center/cover no-repeat;' },
+  { id: 'linen',   name: 'Linen',   css: 'background-color:#f4f0e8;background-image:linear-gradient(90deg,rgba(60,50,35,.05) 1px,transparent 1px),linear-gradient(rgba(60,50,35,.04) 1px,transparent 1px);background-size:18px 18px;' },
+  { id: 'clouds',  name: 'Cloud Glow',   css: 'background:linear-gradient(135deg,#fff0d8,#e6f2ff 48%,#f4d8ec);' },
+  { id: 'ink',     name: 'Ink Black',   css: 'background-color:#0c1018;background-image:radial-gradient(rgba(255,255,255,.10) 1px,transparent 1px);background-size:16px 16px;' },
 ];
 
 export const DEFAULT_WALLPAPER_ID = WALLPAPERS[0].id;
 
-// 内置壁纸名走 t(),AI 生成的自定义壁纸没有词条,回落它自己起的名字(用户的描述截取)。
+// Built-in wallpaper names go through t(); AI-generated custom wallpapers have no dictionary entry, so they fall back to the name they were given (a slice of the user's description).
 export const wallpaperName = (w: Wallpaper): string => {
   const key = `wallpaper.name.${w.id}`;
   const s = t(key);
@@ -50,15 +50,15 @@ export function saveCustomWallpapers(list: Wallpaper[]): void {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ custom_wallpapers: JSON.stringify(list) }),
-  }).catch(() => { /* 缓存已写,下次保存再同步 */ });
+  }).catch(() => { /* cache already written, will sync again on the next save */ });
 }
 
-// 用库里的值刷新本地缓存(桌面启动时调用一次)
+// Refreshes the local cache from the stored value (called once when the desktop starts up)
 export function seedCustomWallpapers(json: string): void {
   try {
     const v = JSON.parse(json || '[]');
     if (Array.isArray(v)) localStorage.setItem(CUSTOM_KEY, JSON.stringify(v));
-  } catch { /* 库里的值坏了就保持缓存 */ }
+  } catch { /* keep the cache if the stored value is corrupt */ }
 }
 
 // Built-in + user-created, in display order.

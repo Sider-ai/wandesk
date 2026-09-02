@@ -1,11 +1,11 @@
-// 设置:模型连接、系统提示词,外加壳自己的偏好(桌面布局 / 壁纸)。
+// Settings: model connection, system prompt, plus the shell's own preferences (desktop layout / wallpaper).
 import type { IncomingMessage, ServerResponse } from "http";
 import { json, readJson } from "./http.js";
 import { readSettings, writeSettings } from "../data/settings.js";
 import { broadcast } from "../realtime.js";
 import { EV } from "../shared/events.js";
 
-/** apiKey 只写不读:给壳的响应里抹成占位符,免得设置页把它回显出来。 */
+/** apiKey is write-only: masked to a placeholder in the response to the shell, so the settings page never echoes it back. */
 const SECRET_KEYS = new Set(["apiKey"]);
 
 export const handleSettingsApi = async (req: IncomingMessage, res: ServerResponse): Promise<boolean> => {
@@ -15,11 +15,11 @@ export const handleSettingsApi = async (req: IncomingMessage, res: ServerRespons
     const patch: Record<string, string> = {};
     for (const [k, v] of Object.entries(body)) {
       if (typeof v !== "string") continue;
-      if (SECRET_KEYS.has(k) && v === "********") continue; // 占位符原样回传 = 不改
+      if (SECRET_KEYS.has(k) && v === "********") continue; // Placeholder sent back unchanged = leave it alone
       patch[k] = v;
     }
     writeSettings(patch);
-    // 语言变了才广播 —— 壳借此重渲染、重载所有打开的应用窗口
+    // Only broadcast if the language actually changed —— the shell uses this to re-render and reload every open app window
     if (typeof patch.language === "string" && patch.language !== before) {
       broadcast(EV.LANGUAGE_CHANGED, { language: patch.language });
     }

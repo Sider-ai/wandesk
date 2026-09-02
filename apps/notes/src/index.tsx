@@ -5,9 +5,9 @@ import { DeleteModal } from './components/DeleteModal';
 import './style.css';
 
 // ════════════════════════════════════════════════════════════════════
-//  笔记本 — 一本拟物的皮面笔记本(皮革封面 · 双线圈装订 · 多种纸 · 丝带书签 · 钢笔)。
-//  开场:封面缓缓翻开 → 摊开的对页。切页有翻页卷曲动效。
-//  本文件只做组装:状态与逻辑在 lib/useNotebook,视图在 components/,数据在 db.ts。
+//  Notebook — a skeuomorphic leather-bound notebook (leather cover · double-ring binding · multiple papers · ribbon bookmark · pen).
+//  Opening: cover slowly opens → spread of open pages. Page turns have a curling flip animation.
+//  This file only does assembly: state and logic live in lib/useNotebook, the view in components/, data in db.ts.
 // ════════════════════════════════════════════════════════════════════
 
 export default function Notes({ appId }: { appId: string }) {
@@ -18,13 +18,13 @@ export default function Notes({ appId }: { appId: string }) {
     <div className="nb-root">
       <div className="nb-desk-glow" aria-hidden />
       <div className={`nb-cover ${nb.opened ? 'opened' : ''}`}>
-        {/* 封皮(开场时翻开,露出内页) */}
+        {/* Cover (opens on entry, revealing the inner pages) */}
         <div className="nb-lid" aria-hidden>
           <div className="nb-lid-face">
             <div className="nb-lid-frame" />
             <div className="nb-lid-emblem">
               <span className="nb-lid-mono">✦</span>
-              <span className="nb-lid-word">笔记</span>
+              <span className="nb-lid-word">Notes</span>
               <span className="nb-lid-rule" />
             </div>
           </div>
@@ -38,7 +38,7 @@ export default function Notes({ appId }: { appId: string }) {
             onOpen={nb.openPage} onAdd={nb.addPage} onDelete={nb.setDeleteId}
           />
 
-          {/* 书脊:双线圈装订 + 钢笔 */}
+          {/* Spine: double-ring binding + pen */}
           <div className="nb-spine">
             <div className="nb-spiral" aria-hidden>
               {Array.from({ length: 16 }).map((_, i) => (<span key={i} className="nb-ring" />))}

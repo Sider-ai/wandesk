@@ -1,7 +1,9 @@
-// 对话状态与动作。
+// Conversation state and actions.
 //
-// currentId 为空 = 空白草稿:不落库不进列表,发首条消息那刻才真正建对话 ——
-// 侧栏不会攒出一排空的「新对话」。行数组是可变结构,流式直接改行,tick 触发重渲染。
+// An empty currentId = a blank draft: nothing is persisted or added to the list; the conversation
+// is only actually created the moment the first message is sent — the sidebar never fills up with
+// a row of empty "New conversation" entries. The rows array is a mutable structure: streaming mutates
+// rows in place, and `tick` triggers re-render.
 import { create } from 'zustand';
 import { EVENTS } from '../shared/events';
 
@@ -29,25 +31,25 @@ export interface Meta {
 const ID_KEY = 'agent.conversation';
 const PAGE = 60;
 
-// null = 从没记过,回到最近对话;'' = 用户明确停在草稿,恢复草稿
+// null = never recorded, fall back to the most recent conversation; '' = the user deliberately stayed on a draft, restore the draft
 const loadId = (): string | null => { try { return localStorage.getItem(ID_KEY); } catch { return null; } };
 const saveId = (id: string) => { try { localStorage.setItem(ID_KEY, id); } catch { /* ignore */ } };
 
 interface ConversationState {
     conversations: Conversation[];
     currentId: string;
-    /** 草稿期选的工作目录;空 = 用默认。建对话那刻随 POST 带走。 */
+    /** The working directory chosen during the draft stage; empty = use the default. Sent along with the POST when the conversation is created. */
     draftWorkdir: string;
     meta: Meta;
     liveIds: string[];
 
-    /** 可变数组:流式直接改行,靠 tick 触发重渲染。 */
+    /** Mutable array: streaming mutates rows in place, and `tick` drives re-render. */
     rows: Row[];
     busy: boolean;
     stopping: boolean;
     ready: boolean;
     tick: number;
-    /** 自增 = 把视口拉回底部。 */
+    /** Incrementing this scrolls the viewport back to the bottom. */
     viewSeq: number;
     hasMore: boolean;
     loadingOlder: boolean;
@@ -99,7 +101,8 @@ function bind() {
     if (bound) return;
     bound = true;
 
-    // 断线重连:补上断线期间漏掉的消息和状态。首次连接不刷 —— init 刚拉过,再刷只会闪一下
+    // Reconnect: catch up on the messages and state missed while disconnected. Skip the first connection —
+    // init just fetched everything, refetching again would only cause a flash
     let hadConnected = false;
     useChannel.subscribe((state) => {
         if (!state.connected) return;
@@ -114,7 +117,8 @@ function bind() {
 
         const id = String(event.conversationId || '');
         const ENDED = [EVENTS.DONE, EVENTS.ABORTED, EVENTS.ERROR] as string[];
-        // 呼吸点跟事件走,任何对话的都算 —— 切走之后它还活着,侧栏那行得替它说话
+        // The "breathing" indicator follows the events, for any conversation — after switching away it's still
+        // alive, and the sidebar row needs to speak for it
         if (id && type === EVENTS.START && !get().liveIds.includes(id)) {
             set((state) => ({ liveIds: [...state.liveIds, id] }));
         }
@@ -145,7 +149,7 @@ export async function loadConversations() {
     if (data) set({ conversations: data.conversations || [] });
 }
 
-/** 谁还在跑。失败当成都没有 —— 少画一个点,好过网络一抖整列都亮。 */
+/** Which conversations are still running. On failure, treat it as none — missing one dot beats the whole list flashing on a network blip. */
 export async function loadRuns() {
     const data = await api.get<{ ids: string[] }>('/api/runs').catch(() => null);
     if (!data) return;
@@ -154,7 +158,7 @@ export async function loadRuns() {
     if (id) set({ busy: data.ids.includes(id) });
 }
 
-/** 入口:连通道 → 拉列表 → 恢复上次停留(草稿或某段对话)。 */
+/** Entry point: connect the channel → fetch the list → restore where the user last was (a draft or a conversation). */
 export async function init() {
     bind();
     connectChannel();
@@ -170,26 +174,28 @@ export async function init() {
     await refresh();
 }
 
-/** keepView=true 是终局后的对账刷新:原地换数据,不动用户视角。 */
+/** keepView=true is the reconciliation refresh after completion: swap data in place without moving the user's view. */
 export async function refresh({ keepView = false }: { keepView?: boolean } = {}) {
     const id = get().currentId;
     if (!id) return;
     const data = await api
         .get<{ messages: RawMessage[]; hasMore: boolean }>(`/api/conversations/${id}/messages?limit=${PAGE}`)
         .catch(() => null);
-    if (!data || id !== get().currentId) return; // 期间切走了,丢弃
+    if (!data || id !== get().currentId) return; // switched away in the meantime, discard
 
     const raw = data.messages || [];
-    // 指纹没变就跳过整体替换,避免无谓重渲染;有行还在流式时不替换
+    // Skip the wholesale replacement if the fingerprint hasn't changed, to avoid a pointless re-render;
+    // don't replace while a row is still streaming
     const sig = `${raw.length}:${raw[0]?.seq || 0}:${raw[raw.length - 1]?.seq || 0}`;
     if (get().ready && sig === lastSig && !get().rows.some((row) => row.streaming)) return;
-    // 真在跑才护着直播行;不在跑还挂着 streaming 的是残骸(比如服务重启),照常替换
+    // Only protect the live row while actually running; a `streaming` flag left over while not running is
+    // debris (e.g. from a service restart), so replace it as usual
     if (get().busy && keepView && get().rows.some((row) => row.streaming)) return;
     lastSig = sig;
     oldestSeq = raw[0]?.seq || 0;
 
     const next = renderMessages(raw);
-    // 同位置同类的行复用旧 key:React 原地复用 DOM,不整屏重挂
+    // Rows of the same kind in the same position reuse the old key: React reuses the DOM in place instead of remounting the whole screen
     const prev = get().rows;
     for (let i = 0; i < next.length && i < prev.length; i++) {
         if (next[i].kind === prev[i].kind) next[i].key = prev[i].key;
@@ -203,7 +209,7 @@ export async function refresh({ keepView = false }: { keepView?: boolean } = {})
     bump();
 }
 
-/** 上滑加载更早一页:往头部插入。 */
+/** Swipe up to load an earlier page: insert at the top. */
 export async function loadOlder() {
     const { hasMore, loadingOlder, currentId } = get();
     if (!hasMore || loadingOlder || !oldestSeq || !currentId) return;
@@ -224,7 +230,8 @@ export async function loadOlder() {
     }
 }
 
-/** 切对话。正在跑的那段不打断 —— 轮子在服务端,切走它继续转,呼吸点替它说话。 */
+/** Switch conversations. A running turn is not interrupted — the wheel keeps turning server-side after
+ *  switching away, and the breathing indicator speaks for it. */
 export async function openConversation(id: string) {
     if (!id || id === get().currentId) return;
     set((state) => ({
@@ -235,11 +242,11 @@ export async function openConversation(id: string) {
     oldestSeq = 0;
     lastSig = '';
     rebuildStream();
-    void loadRuns(); // live 集合可能是十秒前的,切完对一次账
+    void loadRuns(); // the live set could be ten seconds stale, reconcile once after switching
     await refresh();
 }
 
-/** 新对话 = 本地空白草稿。 */
+/** New conversation = a local blank draft. */
 export function createDraft() {
     set((state) => ({
         currentId: '', rows: [], ready: true, hasMore: false,
@@ -253,7 +260,7 @@ export function createDraft() {
     bump();
 }
 
-/** 当前生效的工作目录(草稿看草稿的选择,空 = 服务端默认)。 */
+/** The currently effective working directory (a draft uses its own choice; empty = server default). */
 export function currentWorkdir(): string {
     const { currentId, conversations, draftWorkdir, meta } = get();
     if (!currentId) return draftWorkdir || meta.defaultWorkdir;
@@ -289,11 +296,11 @@ export async function send(text: string, attachments: Attachment[] = [], retryRo
         if (message) toast(message);
     };
 
-    // 草稿的首条消息:此刻才真正建对话
+    // The draft's first message: this is when the conversation is actually created
     if (!get().currentId) {
         const created = await api
             .post<{ conversation: Conversation }>('/api/conversations', { workdir: get().draftWorkdir || undefined })
-            .catch((error: unknown) => { fail(error instanceof Error ? error.message : '创建对话失败'); return null; });
+            .catch((error: unknown) => { fail(error instanceof Error ? error.message : 'Failed to create conversation'); return null; });
         if (!created?.conversation) return;
         set((state) => ({
             conversations: [created.conversation, ...state.conversations],
@@ -310,8 +317,8 @@ export async function send(text: string, attachments: Attachment[] = [], retryRo
         if (!get().liveIds.includes(id)) set((state) => ({ liveIds: [...state.liveIds, id] }));
         bump();
     } catch (error) {
-        if (error instanceof ApiError && error.status === 409) fail('这个对话正在运行,等它跑完再发');
-        else fail(error instanceof Error ? error.message : '发送失败');
+        if (error instanceof ApiError && error.status === 409) fail('This conversation is still running — wait for it to finish before sending');
+        else fail(error instanceof Error ? error.message : 'Failed to send');
     }
 }
 
@@ -325,7 +332,7 @@ export function stopRun() {
 }
 
 export async function renameConversation(id: string, title: string) {
-    await api.patch(`/api/conversations/${id}`, { title }).catch(() => toast('重命名失败'));
+    await api.patch(`/api/conversations/${id}`, { title }).catch(() => toast('Rename failed'));
     await loadConversations();
 }
 
@@ -336,10 +343,10 @@ export async function togglePinned(conversation: Conversation) {
 
 export async function removeConversation(id: string) {
     const removed = await api.del<{ deleted: boolean }>(`/api/conversations/${id}`).catch(() => null);
-    if (!removed) { toast('删除失败'); return; }
+    if (!removed) { toast('Delete failed'); return; }
     await loadConversations();
     if (id !== get().currentId) return;
-    set({ currentId: '' }); // 保证 openConversation 不被同 id 短路
+    set({ currentId: '' }); // make sure openConversation isn't short-circuited by a matching id
     const next = get().conversations[0]?.id;
     if (next) await openConversation(next);
     else createDraft();

@@ -6,7 +6,7 @@
 
 An open-source AI desktop. Describe an app and the built-in agent writes it into your workspace; the desktop grows an icon on the spot. Every app is a standard Cloudflare Worker site with its own origin and its own SQLite. Bring your own model, all local, no signup.
 
-[Website](https://wandesk.ai) · [中文](README.zh-CN.md) · [App Contract](CONTRACT.md) · [Discord](https://discord.gg/VUfTzCvz)
+[Website](https://wandesk.ai) · [Chinese README](README.zh-CN.md) · [App Contract](CONTRACT.md) · [Discord](https://discord.gg/VUfTzCvz)
 
 </div>
 
@@ -74,7 +74,7 @@ apps/notes/
 
 **Install = the directory exists. Remove = delete the directory.** The AI creates apps with `write`; the host changes nothing and never restarts. A new directory lands, the desktop grows an icon.
 
-The full contract is in **[CONTRACT.md](CONTRACT.md)**; repository conventions in [AGENTS.md](AGENTS.md).
+The full contract is in **[CONTRACT.md](CONTRACT.md)**.
 
 ## One origin per app
 
@@ -103,13 +103,13 @@ Memory, context and tools converge in the kernel. The kernel therefore never gro
 | App | | |
 |---|---|---|
 | ✦ Assistant | 🪄 App Workshop | 🗂 Files |
-| 📔 Notes | 👛 Ledger | 📖 Reader |
+| 📔 Notebook | 👛 Ledger | 📖 Reader |
 | ⛅ Weather | 🗞️ Hacker News | 💭 Imagine |
-| 🔮 Fortune | 💕 Love House | 📱 Phone |
-| 🃏 Poker | 🎱 Pool | 🏎️ Racing |
+| 🔮 I Ching | 💕 Love House | 📱 Phone |
+| 🃏 Three-Card Poker | 🎱 Pool | 🏎️ Dusk Racer |
 | 🚀 Aircraft | | |
 
-They ship with the package, land in your workspace on first launch, and from then on are indistinguishable from apps you made — edit them, delete them.
+They ship with the package, land in your workspace on first launch, and from then on are indistinguishable from apps you made — edit them, delete them. Each one ships with its source in `apps/<id>/src`; to rebuild after editing, run `npm install && npm run build` inside that app's directory.
 
 ## Where data lives
 
@@ -123,12 +123,11 @@ They ship with the package, land in your workspace on first launch, and from the
 ## A few honest notes
 
 - The agent behind `env.AI.run` has an **unsandboxed shell** and every binding is wide open — use it on a machine you trust.
-- Prompts and code comments are in Chinese.
 - workerd is about 150MB per platform and ships inside the release package.
 
 ## Community
 
-- Website: <https://wandesk.ai> · 中文站: <https://wandesk.cn>
+- Website: <https://wandesk.ai> · Chinese site: <https://wandesk.cn>
 - Discord: <https://discord.gg/VUfTzCvz>
 - Issues: <https://github.com/Sider-ai/wandesk/issues>
 

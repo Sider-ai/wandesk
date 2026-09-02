@@ -1,4 +1,4 @@
-// 飞机大战 — 全部游戏状态类型。
+// Aircraft — all game state types.
 export type Particle = {
   x: number; y: number; vx: number; vy: number;
   life: number; ml: number; sz: number;

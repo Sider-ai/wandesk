@@ -1,6 +1,8 @@
-// 常驻事件通道:GET /api/events 挂一条 SSE,所有对话事件都从这儿广播。
-// 运行不再绑在某次 HTTP 请求上 —— 切对话、刷新页面、开第二个窗口都不丢流;
-// 断线重连是 EventSource 的原生能力,服务端只管把 retry 写清楚。
+// Persistent event channel: GET /api/events opens an SSE stream, and every conversation
+// event is broadcast from here.
+// A run is no longer tied to a single HTTP request —— switching conversations, refreshing
+// the page, or opening a second window never drops the stream;
+// reconnect-on-disconnect is EventSource's native behavior, the server just needs to set retry clearly.
 const HEARTBEAT_MS = 25_000;
 
 export function createChannel() {

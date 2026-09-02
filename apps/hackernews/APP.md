@@ -1,20 +1,21 @@
 # Hacker News (hackernews)
 
-HN 头条阅读器。用 Algolia HN API 一次取一页,切换热门(front_page)/最新(date 排序)/
-Ask HN。纯联网、无数据库。
+HN headline reader. Fetches one page at a time via the Algolia HN API, switching between
+Top (front_page), New (sorted by date), and Ask HN. Network-only, no database.
 
-## 数据
+## Data
 
-无本地表。`proxy(appId, url)` 拉 `https://hn.algolia.com/api/v1/search…`,解析 body JSON 的 `hits`。
+No local tables. `proxy(appId, url)` fetches `https://hn.algolia.com/api/v1/search…` and parses the `hits` field of the response body JSON.
 
-## 界面
+## UI
 
-顶部分段(热门/最新/Ask)+ 列表:序号、标题、分数、作者、评论数、来源域名。
-点标题 `window.open` 原文;点评论 `window.open` 到 `news.ycombinator.com/item?id=…`。
+Top segmented control (Top/New/Ask) + list: rank, title, score, author, comment count, source domain.
+Clicking the title does `window.open` to the original article; clicking comments does `window.open` to
+`news.ycombinator.com/item?id=…`.
 
-## 目录与修改
+## Layout & editing
 
-- `app.json` 清单 · `APP.md` 本文件 · `server.js` 后端(Worker,建表脚本在里面)· `public/` 前端产物 · `src/` 前端源码(React)
-- **改前端**:改 `src/`,然后在本目录 `npm install && npm run build`,产物落回 `public/`,窗口刷新即生效。需要本机装有 Node.js;不改就不需要。
-- **改后端**:直接改 `server.js`,下一次请求即生效,不用重启。
-- **数据**:`data.db` 是本应用的 SQLite,`sqlite3 data.db` 可直接查;表结构见 `server.js` 顶部的 SCHEMA。
+- `app.json` manifest · `APP.md` this file · `server.js` backend (Worker, table-creation script is inside) · `public/` frontend build output · `src/` frontend source (React)
+- **Frontend changes**: edit `src/`, then run `npm install && npm run build` in this directory; the build output lands back in `public/`, and refreshing the window picks it up. Requires Node.js locally; skip this if you're not changing the frontend.
+- **Backend changes**: edit `server.js` directly; it takes effect on the next request, no restart needed.
+- **Data**: `data.db` is this app's SQLite database — query it directly with `sqlite3 data.db`; see the SCHEMA at the top of `server.js` for the table structure.

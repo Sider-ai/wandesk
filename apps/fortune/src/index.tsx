@@ -9,9 +9,10 @@ import {
 } from './lib/yijing';
 import './style.css';
 
-/* 算一卦 (fortune) — 摇铜钱起六爻,得一卦,再请卦师解读。
-   本文件只做:状态 + 起卦/解卦流程 + 组装;卦表与纯逻辑在 lib/yijing.ts,
-   天象背景/卦坛/解读卷轴在 components/。 */
+/* Fortune (I Ching) — toss coins to build six lines into a hexagram, then have
+   the diviner interpret it. This file only handles: state + the cast/read flow
+   + assembly; the hexagram table and pure logic live in lib/yijing.ts, and the
+   sky backdrop / altar / reading scroll live in components/. */
 
 export default function Fortune({ appId }: { appId: string }) {
   const [question, setQuestion] = useState('');
@@ -79,8 +80,8 @@ export default function Fortune({ appId }: { appId: string }) {
     await sleep(620);
 
     setPhase('reading');
-    const yaoDesc = all.map((y, i) => `${['初', '二', '三', '四', '五', '上'][i]}爻:${y ? '阳' : '阴'}`).join('，');
-    const prompt = `求问者所问:${q}\n所得卦象:${name}\n六爻(初爻至上爻):${yaoDesc}\n\n请只就此卦"${name}"为其解卦,按要求输出 JSON。`;
+    const yaoDesc = all.map((y, i) => `${['Initial', '2nd', '3rd', '4th', '5th', 'Top'][i]} line: ${y ? 'Yang' : 'Yin'}`).join(', ');
+    const prompt = `Querent's question: ${q}\nHexagram drawn: ${name}\nSix lines (initial to top): ${yaoDesc}\n\nPlease interpret only this hexagram "${name}" for them, and output the JSON as required.`;
 
     const r = await agent(appId, prompt, { system: DIVINER });
     const rd: Reading = parseReading(r.ok ? r.result || '' : '');
@@ -114,9 +115,9 @@ export default function Fortune({ appId }: { appId: string }) {
       <div className={`fo-body ${phase === 'idle' ? 'fo-centered' : ''}`}>
         <div className="fo-col">
           <header className="fo-head2">
-            <div className="fo-seal">卜</div>
-            <h1 className="fo-title">算一卦</h1>
-            <div className="fo-sub">周易六爻 · 心诚则灵</div>
+            <div className="fo-seal">☯</div>
+            <h1 className="fo-title">Cast Your Fortune</h1>
+            <div className="fo-sub">I Ching Six-Line Divination · Sincerity Brings Insight</div>
           </header>
 
           {phase === 'idle' ? (
@@ -127,15 +128,15 @@ export default function Fortune({ appId }: { appId: string }) {
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); divine(); } }}
                 rows={2}
-                placeholder="把心中所问写在这里…（事业、姻缘、得失、去留）"
+                placeholder="Write what's on your mind here… (career, love, gain and loss, staying or leaving)"
               />
               <button className="fo-cast" onClick={divine} disabled={!question.trim()}>
-                <span className="fo-cast-coin">☯</span>摇卦起卦
+                <span className="fo-cast-coin">☯</span>Cast the Hexagram
               </button>
             </div>
           ) : (
             <>
-              <div className="fo-asked">所问 · {askedRef.current || '—'}</div>
+              <div className="fo-asked">Question · {askedRef.current || '—'}</div>
 
               <Altar
                 tone={tone} casting={casting} phase={phase} hexName={hexName} pair={pair}
@@ -145,15 +146,15 @@ export default function Fortune({ appId }: { appId: string }) {
               {phase === 'reading' && (
                 <div className="fo-divining">
                   <span className="fo-div-ico">☯</span>
-                  <span>卦师正在凝神解卦…</span>
+                  <span>The diviner is deep in concentration, reading the hexagram…</span>
                   <span className="fo-div-dots"><i /><i /><i /></span>
                 </div>
               )}
 
               {reading && phase !== 'reading' && <ReadingScroll reading={reading} tone={tone} />}
 
-              <div className="fo-foot">古卦今观 · 仅供娱乐参考 — 尽人事 · 听天命</div>
-              <button className="fo-restart" onClick={restart} disabled={busy}>↻ 重新起卦</button>
+              <div className="fo-foot">Ancient Hexagrams, Modern Eyes · For entertainment only — do what you can, and leave the rest to fate.</div>
+              <button className="fo-restart" onClick={restart} disabled={busy}>↻ Cast Again</button>
             </>
           )}
         </div>

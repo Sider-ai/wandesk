@@ -1,4 +1,5 @@
-// 天气 — 状态、取数、城市管理与搜索都收进这个 hook;index 只做布局组装。
+// Weather — state, data fetching, city management, and search all live in this
+// hook; index only assembles the layout.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { proxy } from '../wandesk/http';
 import * as data from '../db';
@@ -48,7 +49,7 @@ export function useWeather(appId: string) {
     setError('');
     const res = await proxy(appId, FORECAST_URL(lat, lon));
     if (!res.ok || res.status === undefined || res.status >= 400 || !res.body) {
-      setError(res.error || (res.status ? `请求失败 (HTTP ${res.status})` : '网络不太给力'));
+      setError(res.error || (res.status ? `Request failed (HTTP ${res.status})` : 'The network seems unreliable right now'));
       setLoading(false);
       return;
     }
@@ -56,7 +57,7 @@ export function useWeather(appId: string) {
       setForecast(parseForecast(res.body));
       setMorphKey((k) => k + 1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : '解析天气数据出错了');
+      setError(e instanceof Error ? e.message : 'Error parsing weather data');
     } finally {
       setLoading(false);
     }
@@ -74,12 +75,12 @@ export function useWeather(appId: string) {
     const res = await proxy(appId, GEO_URL(term));
     if (seq !== searchSeq.current) return; // a newer search superseded us
     if (!res.ok || res.status === undefined || res.status >= 400 || !res.body) {
-      setSearchErr(res.error || '搜索失败,稍后再试');
+      setSearchErr(res.error || 'Search failed, try again later');
       setResults([]); setSearching(false);
       return;
     }
     try { setResults(parseGeo(res.body)); }
-    catch { setSearchErr('没看懂搜索结果'); setResults([]); }
+    catch { setSearchErr("Couldn't understand the search results"); setResults([]); }
     finally { if (seq === searchSeq.current) setSearching(false); }
   }
 

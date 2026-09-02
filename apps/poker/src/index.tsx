@@ -4,11 +4,13 @@ import { FeedPanel } from './components/FeedPanel';
 import './style.css';
 
 /* ════════════════════════════════════════════════════════════════════
-   炸金花 · Zhajinhua — 单挑三张,对手是真人决策的 AI。
-   发牌/比牌/筹码全是纯 TypeScript;AI 每一步来自一次 agent() 请求(局势 +
-   schema → { action, say }),兜底本地决策保证不卡死。
-   本文件只做:顶栏 + 组装(左牌桌 + 右播报)。逻辑在 lib/usePoker,
-   AI 回合在 lib/aiTurn,牌/牌局纯逻辑在 lib/cards+game,数据在 db.ts。
+   Zhajinhua — heads-up three-card poker against a real AI decision-maker.
+   Dealing, comparing hands, and chip math are all plain TypeScript; each
+   AI move comes from an agent() request (situation + schema → { action, say }),
+   with a local fallback decision so play never stalls.
+   This file only does: the top bar + layout (table on the left, feed on the
+   right). Logic lives in lib/usePoker, the AI's turn in lib/aiTurn, pure
+   card/hand logic in lib/cards + game, data in db.ts.
    ════════════════════════════════════════════════════════════════════ */
 
 export default function Poker({ appId }: { appId: string }) {
@@ -17,17 +19,17 @@ export default function Poker({ appId }: { appId: string }) {
   return (
     <div className={`pk-root ${pk.phase === 'over' ? 'pk-resolved' : ''}`}>
       <div className="pk-bar">
-        <div className="pk-brand"><span className="pk-brand-ico">🃏</span> 炸金花</div>
+        <div className="pk-brand"><span className="pk-brand-ico">🃏</span> Zhajinhua</div>
         <div className="pk-bank">
           <span className="pk-coin" aria-hidden>●</span>
           <span className="pk-chips">{pk.chips}</span>
           <span className="pk-rec">
-            <b className="pk-rec-w">胜 {pk.record.win}</b>
+            <b className="pk-rec-w">W {pk.record.win}</b>
             <i className="pk-rec-dot" aria-hidden />
-            <b className="pk-rec-l">负 {pk.record.lose}</b>
+            <b className="pk-rec-l">L {pk.record.lose}</b>
           </span>
         </div>
-        <button className="pk-reset" onClick={pk.onReset} title="筹码恢复 1000 并清空战绩">重置</button>
+        <button className="pk-reset" onClick={pk.onReset} title="Restores chips to 1000 and clears your record">Reset</button>
       </div>
 
       <div className="pk-body">

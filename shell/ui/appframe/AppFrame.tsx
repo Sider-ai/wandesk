@@ -3,18 +3,18 @@ import { appUrl } from "../lib/http";
 import { t } from "../lib/i18n";
 import { publish, subscribe } from "./bus";
 
-// 应用的宿主。壳对应用的全部认识就到这里为止:
-// 一个 iframe、一条 postMessage 通道。壳不知道里面是笔记还是记账。
+// The host for an app. This is the full extent of what the shell knows about an app:
+// one iframe, one postMessage channel. The shell doesn't know whether it's notes or a ledger inside.
 //
-// 每个应用有自己的 origin(`<token>.localhost:<port>`),所以给 allow-same-origin ——
-// 应用因此拿得到 localStorage / IndexedDB,且彼此天然隔开,不会串数据。
-// token 由装机密钥推导、跨重启稳定,应用存在浏览器里的东西不会因为重启就没了。
-// 壳在另一个 origin 上,iframe 碰不到壳的 DOM;两边只能 postMessage。
+// Each app has its own origin (`<token>.localhost:<port>`), hence allow-same-origin —
+// so an app gets localStorage / IndexedDB, naturally isolated from every other app, no data crosses over.
+// The token is derived from the install key and stays stable across restarts, so what an app has stored in the browser doesn't vanish on restart.
+// The shell is on a different origin, so the iframe can't touch the shell's DOM; the two sides can only postMessage.
 
 type Props = {
   appId: string;
   mount?: "window" | "panel";
-  /** 壳把自己的动作交回来:应用请求开另一个应用、改标题、关掉自己。 */
+  /** The shell hands its own actions back: an app requesting to open another app, change its title, close itself. */
   onOpenApp?: (appId: string, route: string) => void;
   onTitle?: (title: string) => void;
   onClose?: () => void;
@@ -30,7 +30,7 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
     let cancelled = false;
     setUrl(null); setError("");
     (async () => {
-      // 运行时可能还没起来(workerd 拉起要一会儿),重试几次再报错
+      // The runtime might not be up yet (workerd takes a moment to start), retry a few times before reporting an error
       for (let i = 0; i < 20 && !cancelled; i++) {
         const href = await appUrl(appId, mount).catch(() => null);
         if (cancelled) return;
@@ -42,18 +42,18 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
     return () => { cancelled = true; };
   }, [appId, mount]);
 
-  // ── postMessage 桥:应用前端的 window.wandesk.* 落在这里 ──
+  // ── postMessage bridge: the app frontend's window.wandesk.* lands here ──
   useEffect(() => {
     const post = (msg: unknown) => frame.current?.contentWindow?.postMessage(msg, "*");
 
-    // 同应用其它实例发来的事件,转进这个 iframe
+    // Events from other instances of the same app, forwarded into this iframe
     const listener = (event: string, payload: unknown) => post({ __wandesk: true, event, payload });
     const unsubscribe = subscribe(appId, listener);
 
     const onMessage = (e: MessageEvent) => {
       const msg = e.data;
       if (!msg || msg.__wandesk !== true || !msg.method) return;
-      if (e.source !== frame.current?.contentWindow) return; // 只认自己这个 iframe
+      if (e.source !== frame.current?.contentWindow) return; // only accept messages from this exact iframe
       const reply = (result: unknown, err?: string) =>
         post({ __wandesk: true, id: msg.id, result, error: err });
       const p = msg.params || {};
@@ -68,7 +68,7 @@ export function AppFrame({ appId, mount = "window", onOpenApp, onTitle, onClose,
           case "copyText": void navigator.clipboard?.writeText(String(p.text || "")); reply({ ok: true }); break;
           case "close": onClose?.(); reply({ ok: true }); break;
           case "emit": publish(appId, String(p.event || ""), p.payload, listener); reply({ ok: true }); break;
-          default: reply(null, `未知方法:${msg.method}`); // 协议内部错误,不是用户可见文案
+          default: reply(null, `Unknown method: ${msg.method}`); // an internal protocol error, not user-facing copy
         }
       } catch (err: any) {
         reply(null, String(err?.message || err));

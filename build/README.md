@@ -1,26 +1,26 @@
 # build/
 
-electron-builder 的 `buildResources`:打包时的图标与签名配置。
+electron-builder's `buildResources`: icons and signing configuration used at packaging time.
 
 ```
-icon.icns / icon.ico / icon.png   应用图标(自 wandesk-client 的 client/tauri/icons/ 搬来,源图 source.png 在那边)
-tray.png                          托盘图标(64×64,壳加托盘时用)
-entitlements.mac.plist            Hardened Runtime 例外:JIT / 未签名可执行内存 / 关库校验
-entitlements.mac.inherit.plist    同上,给 Helper 进程继承
+icon.icns / icon.ico / icon.png   App icons (carried over from wandesk-client's client/tauri/icons/, source.png lives there)
+tray.png                          Tray icon (64×64, used if/when the shell adds a tray)
+entitlements.mac.plist            Hardened Runtime exceptions: JIT / unsigned executable memory / disabled library validation
+entitlements.mac.inherit.plist    Same as above, inherited by helper processes
 ```
 
-## 打包
+## Packaging
 
 ```bash
-npm run dist:mac            # 自用:出 release/mac-arm64/Wandesk.app,本机有 Developer ID 就顺手签,不公证
-npm run dist:mac:release    # 发行:签名 + 公证 + 出 dmg,需要下面两个环境变量
+npm run dist:mac            # For personal use: produces release/mac-arm64/Wandesk.app, signs opportunistically if this machine has a Developer ID, no notarization
+npm run dist:mac:release    # For release: sign + notarize + produce a dmg, needs the two environment variables below
 ```
 
-发行模式沿用 wandesk-client 的约定:
+Release mode follows wandesk-client's convention:
 
 ```bash
 export APPLE_SIGN_IDENTITY="Developer ID Application: <Team> (<TEAMID>)"   # security find-identity -v -p codesigning
-export APPLE_NOTARY_PROFILE="<notarytool keychain profile>"                # xcrun notarytool store-credentials 存的名字
+export APPLE_NOTARY_PROFILE="<notarytool keychain profile>"                # the name stored via xcrun notarytool store-credentials
 ```
 
-签名证书与公证凭据只在钥匙串里,不进仓库。
+The signing certificate and notarization credentials live only in the keychain, never in the repo.

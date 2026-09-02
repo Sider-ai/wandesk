@@ -1,4 +1,4 @@
-/* ── 基底 ─────────────────────────────────────────── */
+/* ── Base ─────────────────────────────────────────── */
 * { box-sizing: border-box; }
 html { background: var(--surface); }
 html, body, #app { height: 100%; }
@@ -27,7 +27,7 @@ header, aside, button { -webkit-user-select: none; user-select: none; }
 
 #app { display: flex; }
 
-/* ── 通用件 ───────────────────────────────────────── */
+/* ── Common pieces ───────────────────────────────────────── */
 .grow { flex: 1; min-width: 0; }
 .clip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mono { font-family: var(--font-mono); }
@@ -65,7 +65,7 @@ header, aside, button { -webkit-user-select: none; user-select: none; }
 .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
 .field-input::placeholder { color: var(--text-4); }
 
-/* 运行中扫光文字 */
+/* Running-state shimmer text */
 .sheen {
     color: transparent;
     background-color: var(--sheen-base);
@@ -76,14 +76,14 @@ header, aside, button { -webkit-user-select: none; user-select: none; }
 }
 @keyframes sheen { to { background-position: 250% top; } }
 
-/* 「它还活着」的呼吸点 */
+/* The "still alive" breathing dot */
 @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
-/* 进场:轻微上浮 */
+/* Enter: a slight float-up */
 @keyframes float-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .float-in { animation: float-in .34s both; }
 
-/* ── 浮层 ─────────────────────────────────────────── */
+/* ── Overlay ─────────────────────────────────────────── */
 .veil {
     position: fixed; inset: 0; z-index: 95;
     background: var(--veil);
@@ -107,8 +107,9 @@ header, aside, button { -webkit-user-select: none; user-select: none; }
 .secret-field { position: relative; }
 .secret-field .field-input { padding-right: 54px; }
 .secret-field button { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--text-3); }
-/* 驱动选择:两张并排的卡片,选中的描边高亮。比下拉框直观 ——
-   选错协议是这里最容易犯的错,它值得占这点面积。 */
+/* Driver choice: two side-by-side cards, the selected one highlighted with a border. More
+   legible than a dropdown — picking the wrong protocol is the easiest mistake to make here,
+   and it earns this extra bit of space. */
 .driver-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .driver-option {
     display: flex; flex-direction: column; gap: 3px; align-items: flex-start;

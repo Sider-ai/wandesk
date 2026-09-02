@@ -1,4 +1,4 @@
-/* Hacker News — HN 橙 + 米白。头条 / 收藏 / 解读历史三视图。 */
+/* Hacker News — HN orange + off-white. Three views: headlines / favorites / analysis history. */
 .hn-root { height: 100%; min-height: 0; display: flex; flex-direction: column; background: #f6f6ef; color: #1a1a1a; font-size: 13px; font-family: Verdana, "PingFang SC", "Microsoft YaHei", sans-serif; }
 .hn-bar { flex: none; display: flex; align-items: center; gap: 9px; padding: 10px 14px; background: #ff6600; }
 .hn-logo { width: 20px; height: 20px; display: grid; place-items: center; border: 1.5px solid #fff; color: #fff; font: 800 13px/1 Verdana, sans-serif; }

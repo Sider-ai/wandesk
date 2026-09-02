@@ -1,4 +1,4 @@
-// 右页:摊开的纸(标题 + 日期 + 正文)+ 底部 AI 指令栏。纯展示,逻辑在 hook。
+// Right page: an open sheet of paper (title + date + body) + AI command bar at the bottom. Presentational only, logic lives in the hook.
 import { type RefObject } from 'react';
 import { dateStamp, paperOf, type Page } from '../lib/paper';
 
@@ -29,7 +29,7 @@ export function Sheet({
       {!active ? (
         <div className="nb-blank">
           <div className="nb-blank-mark">✎</div>
-          <div className="nb-blank-text">左边「＋ 新一页」翻开第一页</div>
+          <div className="nb-blank-text">Click "＋ New page" on the left to open the first page</div>
         </div>
       ) : (
         <>
@@ -43,7 +43,7 @@ export function Sheet({
                 value={title}
                 onChange={(e) => onEdit({ title: e.target.value.replace(/\n/g, '') })}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); taRef.current?.focus(); } }}
-                placeholder="标题…"
+                placeholder="Title…"
                 spellCheck={false}
               />
             </div>
@@ -56,12 +56,12 @@ export function Sheet({
               style={{ color: ink, caretColor: ink }}
               value={body}
               onChange={(e) => onEdit({ body: e.target.value })}
-              placeholder={'在这里写点什么…\n写下即自动保存。'}
+              placeholder={'Write something here…\nSaved automatically as you type.'}
               spellCheck={false}
             />
           </div>
 
-          {/* 页脚:一条指令 → AI 直接改写本页 */}
+          {/* Footer: a single instruction → AI rewrites this page directly */}
           <div className="nb-cmdbar">
             {cmdErr && <span className="nb-cmd-err">{cmdErr}</span>}
             <div className="nb-cmd-wrap">
@@ -69,11 +69,11 @@ export function Sheet({
                 className="nb-cmd"
                 value={cmd}
                 disabled={busy}
-                placeholder={busy ? 'AI 正在改写这一页…' : '输入指令，回车让 AI 直接改写这一页（续写 / 总结 / 润色 / 翻译…）'}
+                placeholder={busy ? 'AI is rewriting this page…' : 'Type an instruction, press Enter for AI to rewrite this page (continue / summarize / polish / translate…)'}
                 onChange={(e) => onCmdChange(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) onRunCommand(); }}
               />
-              <button className="nb-cmd-send" onClick={onRunCommand} disabled={busy || !cmd.trim()} title="发送" aria-label="发送">
+              <button className="nb-cmd-send" onClick={onRunCommand} disabled={busy || !cmd.trim()} title="Send" aria-label="Send">
                 {busy ? '…' : '✦'}
               </button>
             </div>

@@ -1,4 +1,4 @@
-// HTTP 客户端:统一 JSON、统一错误(带状态码,409 之类调用方要认)。
+// HTTP client: uniform JSON handling, uniform errors (with a status code, since callers need to recognize things like 409).
 export class ApiError extends Error {
     status: number;
     constructor(message: string, status: number) {

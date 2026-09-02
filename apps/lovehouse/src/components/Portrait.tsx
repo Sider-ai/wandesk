@@ -1,6 +1,6 @@
-// 苏晚 — 樱花头像(思考时轻轻呼吸)。
+// Su Wan — cherry-blossom avatar (breathes gently while thinking).
 export function Portrait({ thinking }: { thinking?: boolean }) {
   return (
-    <span className={`lw-portrait ${thinking ? 'thinking' : ''}`} role="img" aria-label="苏晚">🌸</span>
+    <span className={`lw-portrait ${thinking ? 'thinking' : ''}`} role="img" aria-label="Su Wan">🌸</span>
   );
 }

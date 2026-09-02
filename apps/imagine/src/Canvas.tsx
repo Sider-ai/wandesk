@@ -51,7 +51,7 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
     return m;
   }, [nodes]);
 
-  // 收起节点的后代不参与布局与渲染
+  // Descendants of a collapsed node don't take part in layout or rendering
   const visibleNodes = useMemo(() => {
     const root = nodes.find((n) => n.parent_id === null);
     if (!root) return [];
@@ -81,7 +81,7 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
 
   useEffect(() => { if (selectedId && !positions.has(selectedId)) setSelectedId(null); }, [positions, selectedId]);
 
-  /* 画布尺寸 */
+  /* Canvas size */
   const vpRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = vpRef.current; if (!el) return;
@@ -130,19 +130,19 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
     return () => el.removeEventListener('wheel', onWheel);
   }, [zoomAt]);
 
-  /* 交互 */
+  /* Interaction */
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast((t) => (t === msg ? null : t)), 2400); }
 
   function onNodeClick(id: string) {
     const n = byId.get(id); if (!n) return;
-    if (n.parent_id === null) { setSelectedId(id); setBubbleMode('branch'); return; } // 根 = 需求:点击即发散
-    if (n.status === 'generating') { showToast('这一版还在生成中…'); return; }
-    if (n.status === 'error') { showToast(n.error || '这一版生成失败,可重试'); return; }
+    if (n.parent_id === null) { setSelectedId(id); setBubbleMode('branch'); return; } // Root = requirement: click branches immediately
+    if (n.status === 'generating') { showToast('This version is still generating…'); return; }
+    if (n.status === 'error') { showToast(n.error || 'This version failed to generate — you can retry'); return; }
     setSelectedId(id);
-    void openNodeWindow(id); // 单击 = 新窗口看大图
+    void openNodeWindow(id); // Click = open full-size in a new window
   }
   function onNodeBranch(id: string) {
-    const n = byId.get(id); if (!n || n.status !== 'done') { showToast('这一版尚未生成完成'); return; }
+    const n = byId.get(id); if (!n || n.status !== 'done') { showToast('This version hasn\'t finished generating yet'); return; }
     setSelectedId(id); setBubbleMode('branch');
   }
 
@@ -150,7 +150,7 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
     if (!selectedId) return;
     const parent = byId.get(selectedId);
     setBubbleMode(null);
-    try { await branch(projectId, selectedId, instruction, count); showToast(`正在基于「${parent?.title ?? '需求'}」生成 ${count} 个新分支…`); load(); }
+    try { await branch(projectId, selectedId, instruction, count); showToast(`Generating ${count} new branches from "${parent?.title ?? 'requirement'}"…`); load(); }
     catch (e) { showToast(String(e)); }
   }
   async function retry(id: string) { bustHtmlCache(id); try { await retryNode(id); load(); } catch (e) { showToast(String(e)); } }
@@ -211,13 +211,13 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
 
         <div className="cv-topbar">
           <div className="cv-project-card">
-            <button className="cv-back" title="返回项目列表" onClick={onBack}>←</button>
+            <button className="cv-back" title="Back to project list" onClick={onBack}>←</button>
             <div>
               <div className="pj-name">{tree?.project.title ?? '…'}</div>
-              <div className="pj-sub">想象 · 单击看大图 · 右上发散</div>
+              <div className="pj-sub">Imagine · click to view full-size · branch from the top-right</div>
             </div>
-            <div className="cv-stat"><b>{doneCount}</b>方案</div>
-            {genCount > 0 && <div className="cv-stat"><b style={{ color: 'var(--accent)' }}>{genCount}</b>生成中</div>}
+            <div className="cv-stat"><b>{doneCount}</b>versions</div>
+            {genCount > 0 && <div className="cv-stat"><b style={{ color: 'var(--accent)' }}>{genCount}</b>generating</div>}
           </div>
         </div>
 
@@ -225,7 +225,7 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
           <button onClick={() => zoomAt(canvasSize.w / 2, canvasSize.h / 2, view.k / 1.25)}>−</button>
           <span className="val">{Math.round(view.k * 100)}%</span>
           <button onClick={() => zoomAt(canvasSize.w / 2, canvasSize.h / 2, view.k * 1.25)}>＋</button>
-          <button className="fit" onClick={fitView}>适配</button>
+          <button className="fit" onClick={fitView}>Fit</button>
         </div>
 
         {positions.size > 0 && (
@@ -234,7 +234,7 @@ export default function Canvas({ projectId, onBack }: { projectId: string; onBac
             onNavigate={(wx, wy) => setView((v) => ({ ...v, x: canvasSize.w / 2 - wx * v.k, y: canvasSize.h / 2 - wy * v.k }))}
           />
         )}
-        <div className="cv-hint">拖拽空白平移 · 滚轮缩放 · 单击节点开新窗口 · 右上发散</div>
+        <div className="cv-hint">Drag empty space to pan · scroll to zoom · click a node to open a new window · branch from the top-right</div>
       </div>
       {toast && <div className="cv-toast">{toast}</div>}
     </div>

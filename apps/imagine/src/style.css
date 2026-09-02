@@ -1,4 +1,4 @@
-/* 想象 — 画布视觉移植自 Picker Local。整体 scope 到 .im-root,适配 Wandesk 窗口内。 */
+/* Imagine — canvas visuals ported from Picker Local. Everything is scoped to .im-root, adapted to fit inside a Wandesk window. */
 .im-root {
   --bg: #f4f5f7; --grid-dot: #dcdfe4; --panel: #ffffff; --line: #c9ced6; --line-strong: #9aa1ac;
   --ink: #1c2026; --ink-2: #5b6470; --ink-3: #8b93a0;
@@ -31,7 +31,7 @@
 .im-root .cv-count button.on { background: var(--accent); color: #fff; }
 .im-root .count-label { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
 
-/* 主页 —— 整页滚动 + 点阵背景 + 顶部彩色光晕 */
+/* Home page — full-page scroll + dotted background + a colorful glow up top */
 .im-root .pj-app {
   position: absolute; inset: 0; overflow-y: auto;
   background:
@@ -81,7 +81,7 @@
 .im-root .pj-row:hover .pj-del { opacity: 1; }
 .im-root .pj-del:hover { color: var(--danger); border-color: var(--danger); background: #fbeaea; }
 
-/* 画布 */
+/* Canvas */
 .im-root .cv-layout { position: absolute; inset: 0; display: flex; }
 .im-root .cv-viewport { position: relative; flex: 1; min-width: 0; overflow: hidden; touch-action: none; cursor: grab; background-color: var(--bg); background-image: radial-gradient(var(--grid-dot) 1.2px, transparent 1.2px); background-size: 24px 24px; }
 .im-root .cv-viewport.panning { cursor: grabbing; }
@@ -99,7 +99,7 @@
 .im-root .cv-stat { font-size: 11px; color: var(--ink-3); border-left: 1px solid #eceef2; padding-left: 14px; }
 .im-root .cv-stat b { display: block; font-size: 15px; color: var(--ink); }
 
-/* 节点 */
+/* Node */
 .im-root .cv-node { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); background: var(--panel); border: 1.5px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; user-select: none; transition: border-color .15s, box-shadow .15s; }
 .im-root .cv-node:hover { border-color: var(--line-strong); }
 .im-root .cv-node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
@@ -117,7 +117,7 @@
 .im-root .cv-node.variant .vinfo { padding: 9px 11px 10px; flex: 1; min-height: 0; overflow: hidden; }
 .im-root .cv-node.variant .vtitle { font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .im-root .cv-node.variant .vdesc { font-size: 11px; color: var(--ink-3); margin-top: 3px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-/* 根 = 原始需求:圆角胶囊。overflow 不裁,发散/收起按钮照常露出 */
+/* Root = the original requirement: a rounded pill. overflow isn't clipped, so the branch/collapse buttons still show. */
 .im-root .cv-node.root-pill { width: 188px; padding: 12px 15px; border-radius: 16px; background: var(--accent-soft); border: 1.5px solid var(--accent); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
 .im-root .cv-node.root-pill:hover { border-color: var(--accent); }
 .im-root .cv-node.root-pill.selected { box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
@@ -137,7 +137,7 @@
 .im-root .pixel-loader i:nth-child(3) { animation-delay: .4s; opacity: .45; }
 @keyframes im-blink { 0%{transform:translateY(0)} 25%{transform:translateY(-6px)} 50%{transform:translateY(0)} }
 
-/* 发散键:节点右上角直接一个思考气泡 emoji,不套圆圈 */
+/* Branch button: just a thought-bubble emoji in the node's top-right corner, no circle around it */
 .im-root .cv-node-branch { position: absolute; z-index: 6; right: -8px; top: -14px; padding: 0; border: none; background: none; cursor: pointer; opacity: 0; transition: opacity .12s, transform .12s; }
 .im-root .cv-node:hover .cv-node-branch, .im-root .cv-node.selected .cv-node-branch { opacity: 1; }
 .im-root .cv-node-branch:hover { transform: scale(1.18); }
@@ -146,7 +146,7 @@
 .im-root .cv-collapse:hover { border-color: var(--accent); color: var(--accent); }
 .im-root .cv-collapse.is-collapsed { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* 气泡 */
+/* Bubble */
 .im-root .cv-bubble { position: absolute; width: 280px; background: var(--panel); border: 1.5px solid var(--accent); border-radius: 12px; box-shadow: var(--shadow-lg); padding: 12px; z-index: 60; transform-origin: left center; animation: im-bubblein .2s cubic-bezier(.3,1.3,.5,1) both; }
 @keyframes im-bubblein { from { opacity: 0; transform: scale(.85) translateX(-8px); } to { opacity: 1; } }
 .im-root .cv-bubble::before { content: ''; position: absolute; left: -7px; top: var(--arrow-top, 44px); width: 12px; height: 12px; background: var(--panel); border-left: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); transform: rotate(45deg); }
@@ -161,7 +161,7 @@
 .im-root .cv-bubble .cb-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
 .im-root .cv-bubble .cb-foot .cvbtn { white-space: nowrap; flex: 1; }
 
-/* 缩放 / 小地图 / 提示 / toast */
+/* Zoom / minimap / hint / toast */
 .im-root .cv-zoom { position: absolute; left: 16px; bottom: 16px; z-index: 50; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); display: flex; align-items: center; overflow: hidden; }
 .im-root .cv-zoom button { border: none; background: none; font-size: 15px; color: var(--ink-2); width: 32px; height: 32px; }
 .im-root .cv-zoom button:hover { background: #f3f4f7; color: var(--ink); }

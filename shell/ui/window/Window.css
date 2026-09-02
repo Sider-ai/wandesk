@@ -1,4 +1,4 @@
-/* Window —— Aero 玻璃窗框(源自恋爱屋 retrochat demo 的窗体质感)。 */
+/* Window — an Aero glass window frame (the window feel is from the Love House retrochat demo). */
 
 .win {
   position: absolute; display: flex; flex-direction: column;
@@ -20,7 +20,7 @@
   background: linear-gradient(180deg, #e6f3fd 0%, #b6d7f2 46%, #8fbfe9 52%, #b3d5f0 100%);
   border-bottom: 1px solid rgba(47,92,140,.45);
 }
-.winbar::after { /* 玻璃高光:上半扫一道 */
+.winbar::after { /* Glass highlight: a sweep across the top half */
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 50%;
   background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.08));
   pointer-events: none;

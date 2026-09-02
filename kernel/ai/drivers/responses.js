@@ -1,7 +1,9 @@
-// Responses API 驱动。
-// 只负责一件事:把统一的 { input, instructions, tools } 发出去,把流解析成统一的
-// { items, usage, status, stopReason },沿途用 onEvent 吐增量。
-// 重试、循环、工具执行都不在这儿 —— 那些是协议无关的,在上一层。
+// Responses API driver.
+// Does exactly one thing: send the unified { input, instructions, tools } out, parse the
+// stream into a unified { items, usage, status, stopReason }, emitting deltas via onEvent
+// along the way.
+// Retries, looping, and tool execution don't live here — those are protocol-agnostic and
+// live one layer up.
 import { EVENTS } from '../events.js';
 
 const readError = async (response) => {
@@ -9,7 +11,7 @@ const readError = async (response) => {
     try { return JSON.parse(body)?.error?.message || body; } catch { return body; }
 };
 
-/** 模型侧可透传的参数。值由调用方(config / GUI)决定，这一层不设默认。 */
+/** Parameters that can be passed through to the model. Values are decided by the caller (config / GUI); this layer sets no defaults. */
 const MODEL_OPTION_KEYS = [
     'reasoning',
     'max_output_tokens',
@@ -35,7 +37,7 @@ const pickModelOptions = (options) => {
     return picked;
 };
 
-/** 单次尝试：发请求、读流、解析。失败时抛出的错误带上 `status` 和 `emitted`。 */
+/** A single attempt: send the request, read the stream, parse it. Errors thrown on failure carry `status` and `emitted`. */
 async function attempt({ url, apiKey, model, input, instructions, tools, modelOptions, signal, onEvent, errorMaxChars }) {
     let emitted = false;
     const fail = (message, status) => {
@@ -66,7 +68,7 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
     }
 
     if (!response.ok) throw fail(`Responses API ${response.status}: ${(await readError(response)).slice(0, errorMaxChars)}`, response.status);
-    if (!response.body) throw fail('Responses API 返回空响应', response.status);
+    if (!response.body) throw fail('Responses API returned an empty response', response.status);
 
     const items = [];
     let usage = {};
@@ -102,14 +104,15 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
                     sawTerminal = true;
                     usage = event.response?.usage || {};
                     status = String(event.response?.status || (event.type === 'response.completed' ? 'completed' : 'incomplete'));
-                    // 截断和内容过滤都会走 incomplete。不读原因就会把半截回复当成功返回。
+                    // Both truncation and content filtering go through incomplete. Skipping the reason
+                    // would let a partial reply be reported back as a success.
                     stopReason = String(event.response?.incomplete_details?.reason || '');
                 } else if (event.type === 'response.failed') {
                     sawTerminal = true;
-                    throw fail(event.response?.error?.message || '模型响应失败');
+                    throw fail(event.response?.error?.message || 'Model response failed');
                 } else if (event.type === 'error') {
                     sawTerminal = true;
-                    throw fail(event.error?.message || event.message || '模型流返回错误');
+                    throw fail(event.error?.message || event.message || 'Model stream returned an error');
                 }
             }
         }
@@ -119,8 +122,9 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
         throw error;
     }
 
-    // 流跑完却没见过终结事件 —— 连接中途断了。不拦住的话半截内容会被当成正常完成。
-    if (!sawTerminal) throw fail('Responses API 流在终结事件前中断');
+    // The stream finished but no terminal event was seen — the connection dropped mid-stream.
+    // Without this guard, partial content would be treated as a normal completion.
+    if (!sawTerminal) throw fail('Responses API stream was interrupted before a terminal event');
 
     return { items, usage, status: status || 'completed', stopReason };
 }

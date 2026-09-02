@@ -1,4 +1,5 @@
-// 恋爱屋 — 客户端数据层。所有 SQL 收在这里,组件只调用这些函数(都吃 appId,不硬编码 id)。
+// Love House — client-side data layer. All SQL lives here; components only call these
+// functions (all take appId, no hardcoded id).
 import { db } from './wandesk/db';
 import { MAX_MEMORIES, type CmtItem, type Moment, type Msg } from './lib/persona';
 
@@ -14,7 +15,8 @@ export function parseMoment(row: any): Moment {
   };
 }
 
-// 老库可能还没有 moments 表(schema 只在建库时跑),幂等补上
+// An older database may not have the moments table yet (schema only runs when the db is
+// created); add it idempotently
 export const ensureMomentsTable = (appId: string) =>
   db(appId, "CREATE TABLE IF NOT EXISTS app_lovehouse_moments (id INTEGER PRIMARY KEY AUTOINCREMENT, emoji TEXT NOT NULL DEFAULT '', content TEXT NOT NULL, likes INTEGER NOT NULL DEFAULT 1, liked INTEGER NOT NULL DEFAULT 0, comments TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL DEFAULT (datetime('now')))");
 

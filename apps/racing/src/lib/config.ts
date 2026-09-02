@@ -43,7 +43,7 @@ export type Tuning = typeof TUNING;
 export const GEARS = [0, 9, 17, 26, 36, 47, 64] as const;
 
 export const RACERS = [
-  { name: '你 · YOU', color: 0x2079ff, isPlayer: true },
+  { name: 'YOU', color: 0x2079ff, isPlayer: true },
   { name: 'ARES', color: 0xd8262c, rim: 0xc9ccd4 },
   { name: 'VEX', color: 0x17181d, rim: 0xd9b25a },
   { name: 'NOVA', color: 0xe8e8ec, rim: 0x88898f },

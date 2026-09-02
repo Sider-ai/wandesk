@@ -1,8 +1,8 @@
 {
   "id": "lovehouse",
-  "name": "恋爱屋",
+  "name": "Love House",
   "icon": "💕",
-  "description": "虚拟恋爱 — 和苏晚聊天、约会，好感度随心意升温，重要的事都记进你们的恋爱手账。",
+  "description": "Virtual dating — chat and go on dates with Su Wan, watch affection rise as you connect, and every important moment gets saved to your relationship journal.",
   "mounts": {
     "window": "/"
   }

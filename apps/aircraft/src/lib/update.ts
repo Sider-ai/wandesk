@@ -1,4 +1,4 @@
-// 飞机大战 — 每帧推进:移动、开火、计时、敌机 AI、碰撞、拾取、波次流转与胜负。
+// Aircraft — per-frame advance: movement, firing, timers, enemy AI, collisions, pickups, wave progression, and win/loss.
 import { BASE_FR, BOSS_EVERY, C, cl, DROP_COL, lerp, MAX_WAVE, PH, PS, PU_TEXT, PW, RAPID_FR, rng, TAU } from './constants';
 import { boom, flash, glow, popFloat, ring, showBanner, smoke, spark } from './fx';
 import { spawnWave } from './state';

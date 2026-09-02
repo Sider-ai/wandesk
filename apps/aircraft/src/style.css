@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════
-   飞机大战 / SKY STRIKE — container chrome only.
+   AIRCRAFT / SKY STRIKE — container chrome only.
    The game, HUD, menus and overlays all draw to <canvas>; this file just
    frames it. All classes prefixed aircraft- so they never collide.
    ════════════════════════════════════════════════════════════════════ */

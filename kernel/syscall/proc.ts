@@ -1,8 +1,9 @@
-// env.PROC —— 受管子进程。
+// env.PROC —— managed child processes.
 //
-// worker 里没有「进程」这个东西,claude-code / codex 那一类应用必须有个口子。
-// 进程由内核持有(不是应用),应用只拿到 pid 与日志。应用被卸载/窗口关掉,进程还活着 ——
-// 这是刻意的:跑构建、跑 dev server 不该因为关个窗口就被杀。
+// There's no such thing as a "process" inside a worker, and apps like claude-code / codex need
+// some way to get one. The process is held by the kernel (not the app); the app only ever gets
+// a pid and logs. If an app is uninstalled or its window is closed, the process stays alive ——
+// that's deliberate: running a build or a dev server shouldn't get killed just because a window closed.
 import { spawn, type ChildProcess } from "child_process";
 import { randomUUID } from "crypto";
 import { workspace } from "../paths.js";
@@ -68,20 +69,20 @@ export const procLog = (id: string, tail = 200) => {
 export const procKill = (id: string, signal: NodeJS.Signals = "SIGTERM") => {
   const p = procs.get(id);
   if (!p) return false;
-  try { p.child.kill(signal); } catch { /* 已退出 */ }
+  try { p.child.kill(signal); } catch { /* already exited */ }
   return true;
 };
 
-/** 一次性执行:等它跑完,拿 stdout。适合 `git status` 这种问一句就完的。 */
+/** One-shot execution: wait for it to finish and grab stdout. Good for something like `git status` that just answers and is done. */
 export const procExec = (appId: string, command: string, args: string[] = [], cwd?: string, timeoutMs = 120000) =>
   new Promise<{ code: number; stdout: string; stderr: string }>((resolve) => {
     const child = spawn(command, args, { cwd: cwd || workspace(), env: process.env });
     let stdout = "", stderr = "";
-    const timer = setTimeout(() => { try { child.kill("SIGKILL"); } catch { /* 已退出 */ } }, timeoutMs);
+    const timer = setTimeout(() => { try { child.kill("SIGKILL"); } catch { /* already exited */ } }, timeoutMs);
     child.stdout?.on("data", (c) => { stdout += c; });
     child.stderr?.on("data", (c) => { stderr += c; });
     child.on("close", (code) => { clearTimeout(timer); resolve({ code: code ?? -1, stdout, stderr }); });
     child.on("error", (e) => { clearTimeout(timer); resolve({ code: -1, stdout, stderr: String(e?.message || e) }); });
   });
 
-process.on("exit", () => { for (const p of procs.values()) { try { p.child.kill("SIGTERM"); } catch { /* 忽略 */ } } });
+process.on("exit", () => { for (const p of procs.values()) { try { p.child.kill("SIGTERM"); } catch { /* ignore */ } } });

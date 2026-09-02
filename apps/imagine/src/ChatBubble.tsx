@@ -3,7 +3,7 @@ import type { TreeNode } from './lib/types';
 import { CountPicker } from './CountPicker';
 import type { Pos } from './lib/layout';
 
-// 发散气泡:挂在节点右上角,输入指令 + 选数量,生成子节点。
+// Branch bubble: anchored at the node's top-right corner, takes an instruction + a count, then generates child nodes.
 export function ChatBubble({ node, pos, onSubmit, onClose }: {
   node: TreeNode;
   pos: Pos;
@@ -27,12 +27,12 @@ export function ChatBubble({ node, pos, onSubmit, onClose }: {
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="cb-head">基于 <b>{isRoot ? '原始需求' : `「${node.title ?? '该版本'}」`}</b> 继续发散</div>
+      <div className="cb-head">Branch from <b>{isRoot ? 'the original requirement' : `"${node.title ?? 'this version'}"`}</b></div>
       <textarea
         ref={ref}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={isRoot ? '给一个创意方向,例如:温暖手作风,陶土橙主色…' : '对这个版本说点什么,例如:保留布局,换成深色背景'}
+        placeholder={isRoot ? 'Give a creative direction, e.g.: warm handcrafted style, terracotta orange…' : 'Say something about this version, e.g.: keep the layout, switch to a dark background'}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); submit(); }
           if (e.key === 'Escape') onClose();
@@ -40,7 +40,7 @@ export function ChatBubble({ node, pos, onSubmit, onClose }: {
       />
       <div className="cb-foot">
         <CountPicker value={count} onChange={setCount} />
-        <button className="cvbtn cvbtn-primary" onClick={submit}>{count > 1 ? `生成 ${count} 个` : '生成'}</button>
+        <button className="cvbtn cvbtn-primary" onClick={submit}>{count > 1 ? `Generate ${count}` : 'Generate'}</button>
       </div>
     </div>
   );

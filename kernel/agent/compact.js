@@ -1,4 +1,4 @@
-// 在两次 run 之间按上下文水位压缩早期历史。
+// Compacts earlier history between runs once the context watermark is crossed.
 import { complete } from '../ai/index.js';
 
 const chars = (item) => {
@@ -14,9 +14,11 @@ const text = (item, config) => {
     return '';
 };
 
-// 尾部保留量自适应:min(tailChars, 总量的 40%) —— 水位既然已经越线,这次压缩就必须
-// 真的压掉大头;固定留 40k 时,历史刚超 40k 会把「早期部分」切得只剩一两条,
-// 摘要模型如实总结出「什么都没发生」的假事实,而且水位不降,每一轮再来一次。
+// The tail-keep amount is adaptive: min(tailChars, 40% of total) — since the watermark has
+// already been crossed, this compaction pass needs to actually cut the bulk of it away;
+// with a fixed 40k kept, history that's just over 40k would trim the "earlier part" down to
+// one or two items, and the summarizer would faithfully report the false fact that "nothing
+// happened" — plus the watermark wouldn't drop, so it'd happen again every single turn.
 const splitAt = (history, tailChars) => {
     const total = history.reduce((sum, item) => sum + chars(item), 0);
     const tailKeep = Math.min(tailChars, Math.floor(total * 0.4));
@@ -31,7 +33,8 @@ const splitAt = (history, tailChars) => {
     return at;
 };
 
-/** 交给摘要的材料至少要有这么多字符 —— 只切出零头时压了也白压,还会生成误导性摘要。 */
+/** The material handed to the summarizer must be at least this many characters — compacting
+ *  a mere scrap is pointless and would only produce a misleading summary. */
 const MATERIAL_MIN_CHARS = 1500;
 
 const material = (items, config) => items
@@ -40,13 +43,14 @@ const material = (items, config) => items
     .join('\n\n---\n\n');
 
 const mechanical = (items, config) => [
-    '[早前对话的机械摘要]',
+    '[Mechanical summary of earlier conversation]',
     ...items.map((item, index) => `#${index + 1} ${item.role || item.type || 'unknown'} ${text(item, config).replace(/\s+/g, ' ').slice(0, config.mechanicalItemMaxChars)}`),
 ].join('\n');
 
-/** 用量是否已到压缩水位。单独导出给调用方预判(如 Web 端提前广播「正在压缩」)。 */
+/** Whether usage has reached the compaction watermark. Exported separately so callers can
+ *  anticipate it (e.g. the web frontend broadcasting "compacting" ahead of time). */
 export function shouldCompact({ usage, compaction }) {
-    if (!compaction || typeof compaction !== 'object') throw new Error('compaction 配置必填');
+    if (!compaction || typeof compaction !== 'object') throw new Error('compaction config is required');
     const used = (Number(usage?.input_tokens) || 0) + (Number(usage?.output_tokens) || 0);
     return Boolean(compaction.contextWindowTokens) && used >= compaction.contextWindowTokens * compaction.foldRatio;
 }
@@ -68,8 +72,9 @@ export async function compact({
     if (at < 2) return { history, compacted: false };
 
     const early = history.slice(0, at);
-    // 材料太薄(比如只有首条用户消息,reasoning 被滤掉后一片空白)就不压:
-    // 折叠不了多少上下文,却会往历史里塞一份「什么都没发生」的假事实
+    // Skip compaction when the material is too thin (e.g. just the first user message, blank
+    // once reasoning items are filtered out): it wouldn't fold away much context, but it would
+    // still plant a false "nothing happened" fact in the history.
     if (material(early, compaction).length < MATERIAL_MIN_CHARS) return { history, compacted: false };
     let summary = '';
     let kind = 'summary';
@@ -81,13 +86,13 @@ export async function compact({
             apiKey,
             model,
             instructions: compaction.prompt,
-            input: [{ role: 'user', content: `压缩下面的对话：\n\n${material(early, compaction)}` }],
+            input: [{ role: 'user', content: `Compact the conversation below:\n\n${material(early, compaction)}` }],
             errorMaxChars,
             signal,
         });
         tokens = (Number(result.usage?.input_tokens) || 0) + (Number(result.usage?.output_tokens) || 0);
         if (String(result.text).trim().length >= compaction.summaryMinChars) summary = String(result.text).trim();
-    } catch { /* 摘要失败时使用确定性索引 */ }
+    } catch { /* fall back to the deterministic index when summarization fails */ }
     if (!summary) {
         summary = mechanical(early, compaction);
         kind = 'mechanical';
@@ -101,7 +106,7 @@ export async function compact({
         sourceCount: early.length,
         tailCount: history.length - at,
         history: [
-            { role: 'system', content: `[早前对话的摘要]\n${summary}` },
+            { role: 'system', content: `[Summary of earlier conversation]\n${summary}` },
             ...history.slice(at),
         ],
     };

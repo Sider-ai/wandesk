@@ -74,7 +74,7 @@ apps/notes/
 **「安装」= 目录存在,「移除」= 删目录。** AI 用 `write` 造应用,宿主零改动、不重启 ——
 新目录一落地,桌面立刻长出图标。
 
-完整契约见 **[CONTRACT.md](CONTRACT.md)**;仓库约定见 [AGENTS.md](AGENTS.md)。
+完整契约见 **[CONTRACT.md](CONTRACT.md)**。
 
 ## 每个应用一个 origin
 
@@ -107,14 +107,14 @@ return env.AI.stream({ summary: "助理:回答用户", prompt: text });
 
 | | | |
 |---|---|---|
-| ✦ 助理 | 🪄 应用工坊 | 🗂 文件 |
-| 📔 笔记本 | 👛 记账本 | 📖 阅读 |
-| ⛅ 天气 | 🗞️ Hacker News | 💭 想象 |
-| 🔮 算一卦 | 💕 恋爱屋 | 📱 手机 |
-| 🃏 炸金花 | 🎱 台球 | 🏎️ 极品飞车 |
-| 🚀 飞机大战 | | |
+| ✦ Assistant | 🪄 App Workshop | 🗂 Files |
+| 📔 Notebook | 👛 Ledger | 📖 Reader |
+| ⛅ Weather | 🗞️ Hacker News | 💭 Imagine |
+| 🔮 I Ching | 💕 Love House | 📱 Phone |
+| 🃏 Three-Card Poker | 🎱 Pool | 🏎️ Dusk Racer |
+| 🚀 Aircraft | | |
 
-随包发,首次启动落地到工作区;之后与你自己造的应用再无区别,可改可删。
+随包发,首次启动落地到工作区;之后与你自己造的应用再无区别,可改可删。每个应用的源码都在 `apps/<id>/src` 里,改完在应用目录里 `npm install && npm run build` 即可重新构建。
 
 ## 数据在哪
 
@@ -128,7 +128,7 @@ return env.AI.stream({ summary: "助理:回答用户", prompt: text });
 ## 几句实话
 
 - `env.AI.run` 背后的 agent 手里有**无沙箱 bash**,能力也是全开的 —— 只在你信任的机器上用。
-- 提示词与注释均为中文。
+- 代码库现在是纯英文的:提示词与注释均为英文。
 - workerd 单平台约 150MB,发行包要带。
 
 ## 社区

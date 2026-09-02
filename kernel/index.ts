@@ -1,7 +1,9 @@
-// 内核入口。
+// Kernel entry point.
 //
-// 起顺序有讲究:先监听(workerd 的 NODE 外部服务绑定要能立刻回环),再拉 workerd。
-// 反过来会死锁 —— overseer 起来就想问内核要 token,而内核还没在听。
+// Startup order matters: start listening first (workerd's NODE external-service binding needs
+// to be able to loop back immediately), then bring up workerd.
+// Doing it the other way round deadlocks —— overseer comes up and immediately wants a token from
+// the kernel, but the kernel isn't listening yet.
 import http from "http";
 import { KERNEL_PORT } from "./config.js";
 import { handleApi } from "./api/index.js";
@@ -28,17 +30,19 @@ const server = http.createServer(async (req, res) => {
 
 server.on("upgrade", (req, socket) => handleUpgrade(req, socket as never));
 
-// 常驻服务要有活着的底气 —— 这两条是从 AGENT 的 web/server/index.js 带过来的。
-// 会话面的运行轮子在后台转,里面一次未捕获的拒绝就会带走整个内核进程
-// (Node 默认 unhandledRejection 直接退出),而内核一死,所有应用窗口一起白。
-process.on("uncaughtException", (error) => console.error("[kernel] 未捕获异常:", error));
-process.on("unhandledRejection", (reason) => console.error("[kernel] 未处理的 Promise 拒绝:", reason));
+// A long-running service needs to be resilient to stay alive —— these two handlers were carried
+// over from AGENT's web/server/index.js.
+// The conversation surface's run loop spins in the background; one uncaught rejection in there
+// would otherwise take down the entire kernel process (Node's default unhandledRejection behavior
+// is to exit), and once the kernel dies every app window goes blank along with it.
+process.on("uncaughtException", (error) => console.error("[kernel] Uncaught exception:", error));
+process.on("unhandledRejection", (reason) => console.error("[kernel] Unhandled promise rejection:", reason));
 
 server.listen(KERNEL_PORT, "127.0.0.1", async () => {
-  db();                 // 建库 / 补表
-  seedPresetApps();     // 预装应用落地工作区
-  watchApps();          // apps/ 目录变化 → 通知壳重拉
-  console.log(`[kernel] 工作区:${workspace()}`);
-  console.log(`[kernel] 就绪:http://127.0.0.1:${KERNEL_PORT}`);
+  db();                 // Create the database / apply missing tables
+  seedPresetApps();     // Land the preinstalled apps in the workspace
+  watchApps();          // apps/ directory changes → notify the shell to reload
+  console.log(`[kernel] Workspace: ${workspace()}`);
+  console.log(`[kernel] Ready: http://127.0.0.1:${KERNEL_PORT}`);
   await startRuntime(KERNEL_PORT);
 });

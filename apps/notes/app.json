@@ -1,8 +1,8 @@
 {
   "id": "notes",
-  "name": "笔记本",
+  "name": "Notebook",
   "icon": "📔",
-  "description": "一本拟物的皮面笔记本 — 翻页书写、目录索引、丝带书签，AI 帮你续写与润色。",
+  "description": "A skeuomorphic leather notebook — write across pages, browse the index, mark with a ribbon bookmark, and let AI help you continue and polish.",
   "mounts": {
     "window": "/"
   }

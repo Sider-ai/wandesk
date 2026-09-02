@@ -1,5 +1,5 @@
-// 同一应用的多个实例之间的事件总线(窗口 ↔ 侧栏面板)。
-// 只在壳的内存里,不落库 —— 实例都没了,事件也就没意义了。
+// Event bus between multiple instances of the same app (window ↔ side panel).
+// Lives only in the shell's memory, never persisted — once the instances are gone, the events are meaningless anyway.
 type Listener = (event: string, payload: unknown) => void;
 const byApp = new Map<string, Set<Listener>>();
 

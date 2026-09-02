@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <!--
-    Hardened Runtime 下的例外。三条都是 Electron 与随包二进制(workerd)跑起来的最低要求,
-    与 wandesk-client 给内置 Node 的 entitlements.node.plist 同源。
+    Exceptions under Hardened Runtime. All three are the minimum needed for Electron and the bundled
+    binary (workerd) to run. Same set wandesk-client used for its bundled Node (entitlements.node.plist).
   -->
   <dict>
     <key>com.apple.security.cs.allow-jit</key>

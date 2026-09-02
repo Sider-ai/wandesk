@@ -1,4 +1,4 @@
-// 手机外壳 —— 听筒 + LCD(状态栏固定 + 屏幕主体)+ 三选项/自由输入。纯展示。
+// Phone shell — earpiece + LCD (fixed status bar + screen body) + three options / free text input. Pure presentation.
 import { type RefObject } from 'react';
 import type { Screen } from '../lib/screen';
 
@@ -27,7 +27,7 @@ export function PhoneShell({
           <div className="ph-status">
             <span className="ph-signal" aria-hidden><i /><i /><i /><i /></span>
             <span className="ph-3g">3G</span>
-            <span className="ph-carrier">中国移动</span>
+            <span className="ph-carrier">Carrier</span>
             <span className="ph-clock">{clock}</span>
             <span className="ph-batt" aria-hidden><b style={{ width: '76%' }} /></span>
           </div>
@@ -59,12 +59,12 @@ export function PhoneShell({
               className="ph-input"
               value={custom}
               disabled={busy || loading}
-              placeholder="或自己输入想做什么…"
+              placeholder="Or type what you want to do…"
               onChange={(e) => setCustom(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && custom.trim()) onChoose(custom); }}
             />
             <button className="ph-send" disabled={busy || loading || !custom.trim()} onClick={() => onChoose(custom)}>
-              发送
+              Send
             </button>
           </div>
         </div>

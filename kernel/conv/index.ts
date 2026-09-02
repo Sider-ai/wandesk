@@ -1,17 +1,21 @@
-// 会话面 —— AGENT 仓库的 web/server 原样搬进内核。
+// Conversation surface —— the AGENT repo's web/server code carried into the kernel as-is.
 //
-// `server/` 与 `shared/` 里的文件**一行没改**,连相对 import 都正好对得上
-// (`../../ai/index.js` → kernel/ai,`../../agent/index.js` → kernel/agent)。
-// 这里只做三件装配的事:
-//   1. 拼一个 AGENT 形状的 config(工作目录、bash 策略、压缩水位从 wandesk 这边给);
-//   2. 把它的 settings 表**桥到 wandesk 的 settings** —— 全产品只有一份模型配置,
-//      用户在助理里改和在壳的设置里改是同一处;
-//   3. 暴露一个 handle(req, res),挂在内核的 /api/conv/* 下。
+// The files under `server/` and `shared/` are **unchanged, not a single line edited**,
+// and even the relative imports still line up
+// (`../../ai/index.js` → kernel/ai, `../../agent/index.js` → kernel/agent).
+// This file only does three pieces of wiring:
+//   1. Assemble an AGENT-shaped config (working directory, bash policy, and compaction
+//      thresholds are supplied from the wandesk side);
+//   2. Bridge its settings table **to wandesk's settings** —— the whole product has a
+//      single model configuration; editing it from the assistant or from the shell's
+//      settings panel writes the same place;
+//   3. Expose a handle(req, res), mounted under the kernel's /api/conv/*.
 //
-// 应用经 env.AI.fetch() 打到这里(见 CONTRACT.md)。所以「助理」只是一个普通应用,
-// 它没有任何特权 —— 换个 UI 照样能接同一套会话面。
+// Apps reach this via env.AI.fetch() (see CONTRACT.md). So the "assistant" is just an
+// ordinary app —— it has no special privileges; swap in a different UI and it can still
+// talk to the same conversation surface.
 import type { IncomingMessage, ServerResponse } from "http";
-// server/ 与 shared/ 是纯 JS(与 AGENT 仓库双向同步),不给它们加类型
+// server/ and shared/ are plain JS (kept in sync both ways with the AGENT repo); we don't add types to them
 import path from "path";
 import { openDatabase, createStore } from "./server/store.js";
 import { createChannel } from "./server/sse.js";
@@ -31,7 +35,7 @@ const buildConfig = () => ({
   responsesUrl: "",
   apiKey: "",
   model: "",
-  instructions: "你是一个编程 Agent。调用工具前用 summary 简短说明目的。",
+  instructions: "You are a coding agent. Before calling a tool, briefly state its purpose in the summary.",
   workdir: workspace(),
   maxRounds: AGENT_LIMITS.maxRounds,
   errorMaxChars: AGENT_LIMITS.errorMaxChars,
@@ -42,9 +46,9 @@ const buildConfig = () => ({
     summaryMinChars: 80, callArgsMaxChars: 2000, callOutputMaxChars: 4000,
     mechanicalItemMaxChars: 160,
     prompt: [
-      "你在压缩一段对话,让 Agent 能无缝继续工作。",
-      "保留用户目标与约束、已完成的事、关键事实、路径、命令、错误、未完成部分和下一步。",
-      "只输出连续的中文摘要正文,不要工具调用、标签或代码围栏。",
+      "You are compacting a conversation so the agent can continue working seamlessly.",
+      "Preserve the user's goals and constraints, what has already been done, key facts, paths, commands, errors, unfinished parts, and the next steps.",
+      "Output only continuous summary prose in English — no tool calls, tags, or code fences.",
     ].join("\n"),
   },
   bash: {
@@ -56,14 +60,15 @@ const buildConfig = () => ({
   images: { maxBytes: 8 * 1024 * 1024, maxPerMessage: 10, maxLiveToolImages: 2, directory: path.join(kernelDir(), "files") },
 });
 
-// wandesk 的键名 ↔ AGENT 的键名。只有 apiUrl / instructions 两处不同名。
+// wandesk's key names ↔ AGENT's key names. Only apiUrl / instructions differ.
 const TO_AGENT: Record<string, string> = { apiUrl: "responsesUrl", system: "instructions" };
 const TO_WANDESK: Record<string, string> = { responsesUrl: "apiUrl", instructions: "system" };
 const rename = (obj: Record<string, string>, map: Record<string, string>) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [map[k] || k, v]));
 
-// 应用能经 env.AI.fetch("/api/settings") 读到这张表 —— key 不必真发出去。
-// 与壳的设置面板同一套办法:读时遮成占位符,写时占位符原样回来就当没改。
+// Apps can read this table via env.AI.fetch("/api/settings") —— the key doesn't need to actually go out.
+// Same approach as the shell's settings panel: mask it to a placeholder on read, and treat the
+// placeholder coming back unchanged on write as "not changed".
 const MASK = "********";
 const maskKey = (s: Record<string, string>) => (s.apiKey ? { ...s, apiKey: MASK } : s);
 
@@ -74,27 +79,30 @@ export const convApi = () => {
   const config = buildConfig();
   const store = createStore(openDatabase(config.web.dataFile));
 
-  // 全产品一份模型配置:助理的设置页和壳的设置页写的是同一张表
+  // One model configuration for the whole product: the assistant's settings page and the
+  // shell's settings page write to the same table.
   const bridged = {
     ...store,
     getSettings: () => rename(readSettings(), TO_AGENT),
     setSettings: (values: Record<string, string>) => {
       const patch = { ...values };
-      if (patch.apiKey === MASK) delete patch.apiKey; // 占位符原样回来 = 没改
+      if (patch.apiKey === MASK) delete patch.apiKey; // placeholder coming back unchanged = not changed
       writeSettings(rename(patch, TO_WANDESK));
       return rename(readSettings(), TO_AGENT);
     },
   };
 
-  // 运行轮子要真 key;对外的接口层给遮过的。同一份数据,两个视角。
+  // The run loop needs the real key; the outward-facing API layer gets the masked one. Same
+  // underlying data, two views.
   const forApi = {
     ...bridged,
     getSettings: () => maskKey(bridged.getSettings()),
     setSettings: (values: Record<string, string>) => maskKey(bridged.setSettings(values)),
   };
 
-  // 跑轮子时把「已安装应用」和长期记忆接在 instructions 后面 —— 助理和 env.AI 看到的是同一个世界。
-  // 设置页读到的仍是用户自己写的那段,注入的不回显。
+  // When running the loop, append "installed apps" and long-term memory after instructions ——
+  // the assistant and env.AI see the same world.
+  // The settings page still reads back only the text the user themselves wrote; the injected part is not echoed.
   const forRuns = {
     ...bridged,
     getSettings: () => {

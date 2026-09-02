@@ -1,9 +1,10 @@
-// fortune —— 由 appsrc/build.mjs 生成,改这里会被下次构建覆盖。
-// 前端源码在 appsrc/apps/fortune/,改完跑 `npm run build:apps`。
+// Generated once from a template; now plain source — edit freely.
+// Frontend source lives in src/; after editing, run `npm install && npm run build` in this directory.
 //
-// 应用即网站:静态资源与 API 都由它自己应答。三个 API 是从 wandesk-skill 平移过来的
-// 宿主能力,现在接在自己的 binding 上 —— 应用前端一行没改。
-const SCHEMA = "-- 卦象历史(唯一真相:渲染历史卦签都从这里来,result 存解卦 JSON 全文)\nCREATE TABLE IF NOT EXISTS app_fortune_readings (\n  id         INTEGER PRIMARY KEY AUTOINCREMENT,\n  question   TEXT NOT NULL DEFAULT '',   -- 求问\n  hexagram   TEXT NOT NULL DEFAULT '',   -- 所得卦名(如 \"天火同人\")\n  result     TEXT NOT NULL DEFAULT '',   -- 解卦结果 JSON {signName,signPoem,good,bad,advice}\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\n";
+// The app is its own website: it answers both static assets and API requests itself.
+// The three APIs were carried over from wandesk-skill's host capabilities, now wired to
+// this app's own binding — not a single line of the frontend app was changed.
+const SCHEMA = "-- Hexagram history (single source of truth: rendering past readings reads from here; result stores the full reading JSON)\nCREATE TABLE IF NOT EXISTS app_fortune_readings (\n  id         INTEGER PRIMARY KEY AUTOINCREMENT,\n  question   TEXT NOT NULL DEFAULT '',   -- the question asked\n  hexagram   TEXT NOT NULL DEFAULT '',   -- hexagram name drawn (e.g. \"Tongren (Fellowship)\")\n  result     TEXT NOT NULL DEFAULT '',   -- reading result JSON {signName,signPoem,good,bad,advice}\n  created_at TEXT NOT NULL DEFAULT (datetime('now'))\n);\n";
 
 let ready = false;
 const ensure = async (env) => {
@@ -21,7 +22,7 @@ export default {
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(req);
 
     try {
-      // ── 自己的库(D1) ──
+      // ── own database (D1) ──
       if (url.pathname === "/api/db") {
         await ensure(env);
         const { sql, params } = await req.json();
@@ -30,11 +31,11 @@ export default {
         return json({ ok: true, rows: r.results, changes: r.meta?.changes ?? 0, lastInsertRowid: r.meta?.last_row_id ?? 0 });
       }
 
-      // ── 唯一的智能面 ──
+      // ── the one AI surface ──
       if (url.pathname === "/api/agent") {
         const { prompt, data, system, schema } = await req.json();
         const want = schema
-          ? "\n\n只输出符合下面 JSON Schema 的 JSON,不要代码围栏、不要解释:\n" + JSON.stringify(schema)
+          ? "\n\nOutput only JSON matching the JSON Schema below — no code fences, no explanation:\n" + JSON.stringify(schema)
           : "";
         const out = await env.AI.ask({
           summary: `fortune:` + String(prompt || "").slice(0, 24),
@@ -45,12 +46,12 @@ export default {
         if (!out.ok) return json({ ok: false, error: out.error });
         let parsed;
         if (schema) {
-          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* 模型没给出合法 JSON */ }
+          try { parsed = JSON.parse(String(out.text).trim().replace(/^\`\`\`[a-z]*\n?|\`\`\`$/g, "")); } catch { /* the model didn't return valid JSON */ }
         }
         return json({ ok: true, result: out.text, json: parsed, engine: "wandesk" });
       }
 
-      // ── 出网:能力全开,后端直接 fetch ──
+      // ── outbound network: fully unrestricted, backend fetches directly ──
       if (url.pathname === "/api/http") {
         const { url: target, method, headers, body } = await req.json();
         const res = await fetch(String(target), { method: method || "GET", headers, body });

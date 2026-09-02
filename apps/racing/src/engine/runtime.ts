@@ -36,7 +36,7 @@ export function mountRacing(root: RacingRoot): () => void {
   const viewH = () => Math.max(1, root.clientHeight);
   const $ = <T extends Element = HTMLElement>(selector: string): T => {
     const element = root.querySelector<T>(selector);
-    if (!element) throw new Error(`赛车界面缺少节点: ${selector}`);
+    if (!element) throw new Error(`Racing UI is missing element: ${selector}`);
     return element;
   };
   function showError(message: string): void {
@@ -44,18 +44,18 @@ export function mountRacing(root: RacingRoot): () => void {
     $('#errbox').classList.remove('hidden');
     $('#loading').classList.add('hidden');
   }
-  window.addEventListener('error', e => { if(!bootOK) showError('初始化出错:' + (e.message||'未知错误')); }, { signal: abort.signal });
+  window.addEventListener('error', e => { if(!bootOK) showError('Initialization failed: ' + (e.message||'unknown error')); }, { signal: abort.signal });
 
   const T = TUNING;
   const fmtT = formatRaceTime;
   const rnd = random;
 
-  /* ════════════════════ 渲染器 / 场景 ════════════════════ */
+  /* ════════════════════ Renderer / scene ════════════════════ */
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
-  } catch(e){ showError('当前浏览器无法启用 WebGL。请改用最新版 Chrome / Safari。'); throw e; }
-  // 软件渲染(SwiftShader 等无 GPU 环境)自动降质,保证能玩
+  } catch(e){ showError('This browser cannot enable WebGL. Please use the latest Chrome or Safari.'); throw e; }
+  // Software rendering (SwiftShader or other no-GPU environments) auto-downgrades quality to keep the game playable
   const GL_INFO = (()=>{ try{ const gl=renderer.getContext();
     const ext=gl.getExtension('WEBGL_debug_renderer_info');
     return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ''; }catch(e){ return ''; } })();
@@ -75,7 +75,7 @@ export function mountRacing(root: RacingRoot): () => void {
   const camera = new THREE.PerspectiveCamera(T.fovBase, viewW()/viewH(), 0.1, 2200);
   camera.position.set(0, 3, -10);
 
-  /* 黄昏天空(也用作环境反射) */
+  /* Dusk sky (also used for environment reflections) */
   const SUN_DIR = new THREE.Vector3(-0.55, 0.30, -0.78).normalize();
   function makeSky(): THREE.Mesh {
     const geo = new THREE.SphereGeometry(1000, 32, 18);
@@ -92,8 +92,8 @@ export function mountRacing(root: RacingRoot): () => void {
           vec3 col = mix(hor, zen, smoothstep(-0.02,0.42,h));
           col = mix(vec3(1.4,0.62,0.30), col, smoothstep(-0.25,0.02,h));
           float sd = max(dot(vDir,sunDir),0.0);
-          col += vec3(3.2,1.9,0.9)*pow(sd,420.0)*3.0;   // 日轮
-          col += vec3(1.6,0.85,0.35)*pow(sd,18.0)*0.55; // 霞光
+          col += vec3(3.2,1.9,0.9)*pow(sd,420.0)*3.0;   // sun disc
+          col += vec3(1.6,0.85,0.35)*pow(sd,18.0)*0.55; // sunset glow
           gl_FragColor = vec4(col,1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
@@ -104,7 +104,7 @@ export function mountRacing(root: RacingRoot): () => void {
   const sky = makeSky();
   scene.add(sky);
 
-  // 环境反射:用同一个天空生成 PMREM,车漆反射与天色一致
+  // Environment reflections: generate a PMREM from the same sky so paint reflections match the sky color
   {
     const envScene = new THREE.Scene();
     envScene.add(makeSky());
@@ -117,7 +117,7 @@ export function mountRacing(root: RacingRoot): () => void {
     pmrem.dispose();
   }
 
-  /* 光照 */
+  /* Lighting */
   const sun = new THREE.DirectionalLight(0xffd9a0, 2.9);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -128,7 +128,7 @@ export function mountRacing(root: RacingRoot): () => void {
   scene.add(sun, sun.target);
   scene.add(new THREE.HemisphereLight(0x90b2e8, 0x4a3826, 0.55));
 
-  /* 后期:Bloom */
+  /* Post-processing: Bloom */
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(
     viewW()*DPR, viewH()*DPR, { type: THREE.HalfFloatType, samples: SOFT_GL ? 0 : 4 }));
   composer.setPixelRatio(DPR);
@@ -146,7 +146,7 @@ export function mountRacing(root: RacingRoot): () => void {
 
 
 
-  /* ════════════════════ 车辆状态 ════════════════════ */
+  /* ════════════════════ Car state ════════════════════ */
   const cars: CarState[] = RACERS.map((r, i) => {
     const model = buildCar(r.color, { rim: 'rim' in r ? r.rim : undefined });
     scene.add(model.grp);
@@ -166,9 +166,10 @@ export function mountRacing(root: RacingRoot): () => void {
   const player = cars[0];
 
   function placeOnGrid(): void {
-    // 发车排位:玩家 P4 在最后;整体离起点门架留出距离,标题环绕镜头不穿模
-    const slots = [24, 18, 12, 6]; // P1..P4 的 s 值
-    const order = [cars[1], cars[2], cars[3], player]; // AI 前三,玩家 P4
+    // Starting grid: player starts P4 (last); the whole grid is kept back from the start
+    // gantry so the title's orbiting camera doesn't clip through the cars
+    const slots = [24, 18, 12, 6]; // s values for P1..P4
+    const order = [cars[1], cars[2], cars[3], player]; // AI in front three, player P4
     order.forEach((c, i)=>{
       const sVal = slots[i];
       const sm = sampleAt(sVal);
@@ -188,14 +189,14 @@ export function mountRacing(root: RacingRoot): () => void {
     const m = c.model;
     m.grp.position.copy(c.pos);
     m.grp.rotation.y = c.h;
-    // 车身姿态:俯仰 + 侧倾
+    // Body attitude: pitch + roll
     const latA = c.isPlayer ? c.vlat : 0;
     const tgtRoll = clamp(-latA*0.016 - c.steer*Math.min(Math.abs(c.vf??c.v),30)*0.0035, -0.085, 0.085);
     const tgtPitch = clamp(-(c.acc||0)*0.0045, -0.05, 0.06);
     c.roll = damp(c.roll, tgtRoll, 8, dt||0.016);
     c.pitch = damp(c.pitch, tgtPitch, 6, dt||0.016);
     m.body.rotation.z = c.roll; m.body.rotation.x = c.pitch;
-    // 车轮
+    // Wheels
     const speed = c.isPlayer ? c.vf : c.v;
     c.spin += speed/0.34 * (dt||0);
     m.wheels.forEach((wheel) => { wheel.rotation.x = c.spin; });
@@ -212,7 +213,7 @@ export function mountRacing(root: RacingRoot): () => void {
   const input = createInput(root, abort.signal, () => state, setPause, startRace);
 
 
-  /* ════════════════════ 比赛状态 ════════════════════ */
+  /* ════════════════════ Race state ════════════════════ */
   let state = 'loading';        // loading|title|countdown|racing|paused|finished
   let raceTime = 0, countT = 0, lapStart = 0, lastLap = -1, bestLap = -1;
   const dynamics: DrivingDynamics = {
@@ -234,7 +235,7 @@ export function mountRacing(root: RacingRoot): () => void {
           lastLap = t;
           const isBest = bestLap<0 || t<bestLap;
           if(isBest) bestLap = t;
-          if(c.wraps < 3) lapToast(`LAP <em>${c.wraps+1}/3</em>`, `上圈 ${fmtT(t)}${isBest?' ★ 最快':''}`, isBest);
+          if(c.wraps < 3) lapToast(`LAP <em>${c.wraps+1}/3</em>`, `Last lap ${fmtT(t)}${isBest?' ★ Best':''}`, isBest);
         }
         lapStart = raceTime;
       }
@@ -282,7 +283,7 @@ export function mountRacing(root: RacingRoot): () => void {
   });
 
 
-  /* 太阳跟随玩家(阴影范围有限) */
+  /* Sun follows the player (shadow range is limited) */
   function updateSun(): void {
     sun.position.copy(player.pos).addScaledVector(SUN_DIR, 150);
     sun.target.position.copy(player.pos);
@@ -345,7 +346,7 @@ export function mountRacing(root: RacingRoot): () => void {
     E.bestTxt.textContent = fmtT(bestLap);
     drawMinimap(rank);
   }
-  /* 小地图 */
+  /* Minimap */
   const mapCtx = E.minimap.getContext('2d')!;
   let mapPts: Array<[number, number]> | null = null, mapScale = 1, mapOff: [number, number] = [0,0];
   function buildMap(): void {
@@ -368,7 +369,7 @@ export function mountRacing(root: RacingRoot): () => void {
     g.closePath();
     g.lineWidth = 9; g.strokeStyle = 'rgba(255,255,255,.16)'; g.stroke();
     g.lineWidth = 3.5; g.strokeStyle = 'rgba(255,255,255,.5)'; g.stroke();
-    // 起点
+    // Start line
     const s0 = SMP[0];
     g.save();
     g.translate(s0.p.x*mapScale+mapOff[0], W-(s0.p.z*mapScale+mapOff[1]));
@@ -392,7 +393,7 @@ export function mountRacing(root: RacingRoot): () => void {
     later(()=>E.lapToast.classList.remove('show'), 2400);
   }
 
-  /* ════════════════════ 状态切换 ════════════════════ */
+  /* ════════════════════ State transitions ════════════════════ */
   function show(el: Element, on: boolean): void { el.classList.toggle('hidden', !on); }
   function toTitle(): void {
     state = 'title';
@@ -476,7 +477,7 @@ export function mountRacing(root: RacingRoot): () => void {
   $('#btnAgain').onclick = startRace;
   $('#btnToTitle').onclick = toTitle;
 
-  /* ════════════════════ 特效更新 ════════════════════ */
+  /* ════════════════════ Effects update ════════════════════ */
   let fxAcc = 0;
   const _wp = new THREE.Vector3();
   function updateFX(dt: number): void {
@@ -486,7 +487,7 @@ export function mountRacing(root: RacingRoot): () => void {
     while(fxAcc > every){
       fxAcc -= every;
       if(state!=='racing') break;
-      // 氮气尾焰粒子
+      // Nitro exhaust flame particles
       if(dynamics.nitroActive){
         for(const off of c.model.exhaust){
           _wp.copy(off).applyMatrix4(c.model.grp.matrixWorld);
@@ -495,7 +496,7 @@ export function mountRacing(root: RacingRoot): () => void {
             0.22, rnd(0.5,0.75), 3, 1.0);
         }
       }
-      // 漂移烟 + 草地尘
+      // Drift smoke + grass dust
       if((c.drifting && Math.abs(c.vf)>8) || (c.onGrass && Math.abs(c.vf)>10)){
         for(const off of c.model.rearWheels){
           _wp.copy(off).applyMatrix4(c.model.grp.matrixWorld);
@@ -504,7 +505,7 @@ export function mountRacing(root: RacingRoot): () => void {
         }
       }
     }
-    // 胎痕(按行驶距离铺设)
+    // Tire marks (laid down based on distance traveled)
     if(c.drifting && Math.abs(c.vf)>8 && !c.onGrass){
       skidAcc += Math.abs(c.vf)*dt;
       if(skidAcc > 0.55){
@@ -516,17 +517,17 @@ export function mountRacing(root: RacingRoot): () => void {
       }
     }
     smoke.update(dt); flame.update(dt);
-    // 氮气火焰锥(常显核心,粒子之外的保底视觉)
+    // Nitro flame cones (always-visible core, a fallback visual beyond the particles)
     for(const fl of player.model.flames){
       fl.visible = dynamics.nitroActive;
       if(dynamics.nitroActive){ const k = rnd(0.7,1.35); fl.scale.set(1,k,1); fl.material.opacity = rnd(0.7,1); }
     }
-    // 刹车灯
+    // Brake lights
     const braking = (input.isDown('KeyS')||input.isDown('ArrowDown')) && state==='racing';
     player.model.tailMat.emissiveIntensity = braking ? 4.2 : 1.5;
   }
 
-  /* ════════════════════ 主循环 ════════════════════ */
+  /* ════════════════════ Main loop ════════════════════ */
   let last = performance.now(), accum = 0;
   let fpsAcc = 0, fpsN = 0, fpsGuarded = false, uptime = 0;
   function frame(now: number): void {
@@ -534,7 +535,8 @@ export function mountRacing(root: RacingRoot): () => void {
     raf = requestAnimationFrame(frame);
     tick(now, true);
   }
-  // rAF 被浏览器节流(窗口被完全遮挡)时,用定时器只推进模拟、不渲染,避免游戏"冻住"
+  // When the browser throttles rAF (window fully occluded), use a timer to keep advancing
+  // the simulation without rendering, so the game doesn't appear "frozen"
   const simTimer = window.setInterval(()=>{ const n = performance.now(); if(active && n - last > 400) tick(n, false); }, 150);
   function tick(now: number, render: boolean): void {
     let dt = (now-last)/1000; last = now;
@@ -553,7 +555,7 @@ export function mountRacing(root: RacingRoot): () => void {
         accum -= T.step;
       }
     }
-    if(state==='finished'){ // 完赛后缓滑
+    if(state==='finished'){ // coast to a stop after finishing
       physics.step(Math.min(dt,0.033));
       for(let i=1;i<cars.length;i++) ai.step(cars[i], Math.min(dt,0.033));
     }
@@ -564,7 +566,7 @@ export function mountRacing(root: RacingRoot): () => void {
     updateSun();
     hudUpdate();
 
-    // 引擎声
+    // Engine sound
     if(AU.started && (state==='racing'||state==='countdown'||state==='finished')){
       const { g, r } = gearOf(player.vf);
       const th = (input.isDown('KeyW')||input.isDown('ArrowUp')) && state!=='countdown' ? 1 : 0;
@@ -574,7 +576,8 @@ export function mountRacing(root: RacingRoot): () => void {
         player.drifting&&Math.abs(player.vf)>8 ? 0.8 : 0, dynamics.nitroActive);
     } else if(AU.started) AU.idle();
 
-    // 帧率保护:开赛后持续低于 42fps 则降采样一次(跳过启动期的着色器编译卡顿)
+    // Frame rate guard: if it stays below 42fps after the race starts, downsample once
+    // (skips the shader-compile stutter during startup)
     uptime += dt;
     if(render && state==='racing' && uptime > 10){
       fpsAcc += dt; fpsN++;
@@ -583,7 +586,7 @@ export function mountRacing(root: RacingRoot): () => void {
         if(avg < 42 && !fpsGuarded){
           fpsGuarded = true;
           renderer.setPixelRatio(1); composer.setPixelRatio(1);
-          console.info('[perf] 帧率偏低,已降低渲染分辨率');
+          console.info('[perf] Frame rate low, render resolution reduced');
         }
         fpsAcc = 0; fpsN = 0;
       }
@@ -599,7 +602,7 @@ export function mountRacing(root: RacingRoot): () => void {
   });
   resizeObserver.observe(root);
 
-  /* 启动 */
+  /* Startup */
   placeOnGrid();
   buildMap();
   show(E.loading,false);

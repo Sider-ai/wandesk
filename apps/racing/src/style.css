@@ -20,7 +20,7 @@
     -webkit-user-select:none;user-select:none}
   .racing-root #app,.racing-root #app canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 
-  /* ── 通用 ─────────────────────────── */
+  /* ── General ─────────────────────────── */
   .racing-root .hidden{display:none!important}
   .racing-root .overlay{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:center}
   .racing-root .skew{transform:skewX(-8deg)}
@@ -36,7 +36,7 @@
   .racing-root kbd{font-family:var(--num);font-weight:700;font-size:13px;background:rgba(255,255,255,.10);
     border:1px solid rgba(255,255,255,.28);border-bottom-width:2.5px;border-radius:4px;padding:2px 8px;color:#fff}
 
-  /* ── 载入 / 错误 ───────────────────── */
+  /* ── Loading / Error ───────────────────── */
   .racing-root #loading{position:absolute;inset:0;z-index:60;background:#07080c;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:26px}
   .racing-root #loading .logo{font-family:var(--num);font-weight:900;font-style:italic;font-size:46px;letter-spacing:.06em;
@@ -50,7 +50,7 @@
   .racing-root #errbox h2{font-size:19px;margin-bottom:10px;color:var(--red)}
   .racing-root #errbox p{font-size:14px;line-height:1.8;color:var(--dim);margin-bottom:20px}
 
-  /* ── 标题页 ────────────────────────── */
+  /* ── Title Screen ────────────────────────── */
   .racing-root #title{background:linear-gradient(100deg,rgba(6,7,11,.93) 0%,rgba(6,7,11,.72) 34%,rgba(6,7,11,.18) 62%,rgba(6,7,11,0) 80%)}
   .racing-root #title .inner{padding:0 0 0 7.5cqw;max-width:680px}
   .racing-root #title .kicker{display:flex;align-items:center;gap:12px;color:var(--amber);letter-spacing:.42em;
@@ -93,7 +93,7 @@
     border:1px solid rgba(255,255,255,.10);border-right:3px solid var(--line)}
   .racing-root #minimap{display:block;width:152px;height:152px;transform:skewX(6deg)}
 
-  /* 速度表 */
+  /* Speedometer */
   .racing-root #speedo{position:absolute;right:30px;bottom:26px;width:248px}
   .racing-root #speedo .dial{position:relative;width:212px;height:212px;margin-left:auto}
   .racing-root #speedo svg{position:absolute;inset:0;overflow:visible}
@@ -109,7 +109,7 @@
   .racing-root #speedo .core span{font-size:11px;letter-spacing:.34em;color:var(--dim);margin-top:4px}
   .racing-root #speedo .core .gear{margin-top:7px;font-family:var(--num);font-style:italic;font-weight:800;font-size:19px;color:var(--amber)}
   .racing-root #speedo .core .gear i{font-style:normal;font-size:10px;color:var(--dim);letter-spacing:.3em;margin-right:5px}
-  /* 氮气 */
+  /* Nitro */
   .racing-root #nitroRow{display:flex;align-items:center;gap:10px;margin-top:6px;transform:skewX(-8deg)}
   .racing-root #nitroRow label{font-size:11px;letter-spacing:.3em;color:var(--cyan);white-space:nowrap}
   .racing-root #nitroSegs{display:flex;gap:4px;flex:1}
@@ -122,13 +122,13 @@
   .racing-root #driftTag small{display:block;font-size:11px;letter-spacing:.42em;color:var(--cyan);text-align:right}
   .racing-root #driftTag.on{opacity:1;transform:scale(1) skewX(-8deg)}
 
-  /* 按键提示 */
+  /* Key hints */
   .racing-root #hints{position:absolute;left:26px;bottom:26px;display:flex;flex-direction:column;gap:8px;
     transition:opacity 1.2s;font-size:12.5px;color:var(--dim)}
   .racing-root #hints div{display:flex;align-items:center;gap:9px;letter-spacing:.1em}
   .racing-root #hints.fade{opacity:0}
 
-  /* 中央信息 */
+  /* Center info */
   .racing-root #center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
   .racing-root #countNum{font-family:var(--num);font-weight:900;font-style:italic;font-size:188px;color:var(--amber);
     text-shadow:0 0 60px rgba(255,140,0,.65),0 6px 14px rgba(0,0,0,.5)}
@@ -149,14 +149,14 @@
   .racing-root #wrongWay.show{display:block}
   @keyframes racing-blink{50%{opacity:.25}}
 
-  /* 氮气速度感 */
+  /* Nitro speed vignette */
   .racing-root #vig{position:absolute;inset:0;z-index:5;pointer-events:none;
     background:radial-gradient(ellipse at center,transparent 56%,rgba(0,0,0,.42) 100%);transition:opacity .3s}
   .racing-root #nitroVig{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s;
     background:radial-gradient(ellipse at center,transparent 44%,rgba(35,160,255,.16) 78%,rgba(120,210,255,.30) 100%)}
   .racing-root #nitroVig.on{opacity:1}
 
-  /* ── 暂停 / 结算 ───────────────────── */
+  /* ── Pause / Results ───────────────────── */
   .racing-root #pause{background:rgba(5,6,10,.72);backdrop-filter:blur(9px);align-items:center;z-index:35}
   .racing-root #pause h2,.racing-root #results .head{font-family:var(--num);font-style:italic;font-weight:900;letter-spacing:.12em}
   .racing-root #pause h2{font-size:58px;color:#fff;margin-bottom:8px}

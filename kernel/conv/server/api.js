@@ -1,4 +1,4 @@
-// /api/* 路由表。只做解析、校验和应答,业务在 store / runs / channel 里。
+// /api/* route table. Only handles parsing, validation, and responses —— the business logic lives in store / runs / channel.
 import { statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { EVENTS } from '../shared/events.js';
@@ -21,13 +21,13 @@ const isDirectory = (path) => {
 };
 
 export function createApi({ config, store, runs, files, channel, meta }) {
-    /** 校验并归一工作目录;非法时返回 null。 */
+    /** Validate and normalize the working directory; returns null when invalid. */
     const normalizeWorkdir = (value) => {
         const path = resolve(String(value || '').trim() || config.workdir);
         return isDirectory(path) ? path : null;
     };
 
-    /** 处理了返回 true;不是 /api 请求返回 false 交给静态层。 */
+    /** Returns true once handled; returns false for non-/api requests, deferring to the static layer. */
     return async function handle(request, response, url) {
         if (!url.pathname.startsWith('/api/')) return false;
         const segments = url.pathname.split('/').filter(Boolean);
@@ -46,9 +46,9 @@ export function createApi({ config, store, runs, files, channel, meta }) {
                 const input = await readBody(request);
                 const allowed = ['driver', 'responsesUrl', 'apiKey', 'model', 'instructions'];
                 const values = Object.fromEntries(allowed.filter((key) => typeof input[key] === 'string').map((key) => [key, input[key].trim()]));
-                // 驱动名要挡在这里 —— 存进去一个不认识的值,下次运行才炸就太晚了
+                // The driver name must be checked here —— storing an unrecognized value and only blowing up on the next run would be too late
                 if (values.driver && !DRIVER_IDS.includes(values.driver)) {
-                    json(response, 400, { error: `未知的驱动:${values.driver}` }); return true;
+                    json(response, 400, { error: `Unknown driver: ${values.driver}` }); return true;
                 }
                 const settings = store.setSettings(values);
                 json(response, 200, { settings }); return true;
@@ -57,7 +57,7 @@ export function createApi({ config, store, runs, files, channel, meta }) {
             if (method === 'GET' && url.pathname === '/api/runs') { json(response, 200, { ids: runs.ids() }); return true; }
             if (method === 'GET' && segments[1] === 'files' && segments[2]) {
                 if (await files.serve(segments[2], response)) return true;
-                json(response, 404, { error: '文件不存在' }); return true;
+                json(response, 404, { error: 'File does not exist' }); return true;
             }
             if (method === 'POST' && url.pathname === '/api/files') {
                 const attachment = await files.upload(await readBody(request));
@@ -71,10 +71,10 @@ export function createApi({ config, store, runs, files, channel, meta }) {
             if (method === 'POST' && url.pathname === '/api/conversations') {
                 const input = await readBody(request);
                 const workdir = normalizeWorkdir(input.workdir);
-                if (!workdir) { json(response, 400, { error: '工作目录不存在' }); return true; }
+                if (!workdir) { json(response, 400, { error: 'Working directory does not exist' }); return true; }
                 const conversation = store.createConversation({
                     id: crypto.randomUUID(),
-                    title: String(input.title || '').trim().slice(0, 64) || '新对话',
+                    title: String(input.title || '').trim().slice(0, 64) || 'New conversation',
                     workdir,
                 });
                 channel.broadcast(EVENTS.CONVERSATIONS_CHANGED, {});
@@ -85,19 +85,19 @@ export function createApi({ config, store, runs, files, channel, meta }) {
             if (segments[0] === 'api' && segments[1] === 'conversations' && segments[2]) {
                 const id = segments[2];
                 const conversation = store.getConversation(id);
-                if (!conversation) { json(response, 404, { error: '对话不存在' }); return true; }
+                if (!conversation) { json(response, 404, { error: 'Conversation does not exist' }); return true; }
 
                 if (method === 'PATCH' && segments.length === 3) {
                     const input = await readBody(request);
                     if (typeof input.title === 'string') {
                         const title = input.title.trim().slice(0, 64);
-                        if (!title) { json(response, 400, { error: '标题不能为空' }); return true; }
+                        if (!title) { json(response, 400, { error: 'Title cannot be empty' }); return true; }
                         store.setTitle(id, title);
                     }
                     if (typeof input.pinned === 'boolean') store.setPinned(id, input.pinned);
                     if (typeof input.workdir === 'string') {
                         const workdir = normalizeWorkdir(input.workdir);
-                        if (!workdir) { json(response, 400, { error: '工作目录不存在' }); return true; }
+                        if (!workdir) { json(response, 400, { error: 'Working directory does not exist' }); return true; }
                         store.setWorkdir(id, workdir);
                     }
                     channel.broadcast(EVENTS.CONVERSATIONS_CHANGED, {});
@@ -122,7 +122,7 @@ export function createApi({ config, store, runs, files, channel, meta }) {
                     const input = await readBody(request);
                     const content = String(input.content || '').trim();
                     const attachments = files.normalizeMany(input.attachments);
-                    if (!content && !attachments.length) { json(response, 400, { error: '消息不能为空' }); return true; }
+                    if (!content && !attachments.length) { json(response, 400, { error: 'Message cannot be empty' }); return true; }
                     const message = runs.start(conversation, content, attachments, String(input.clientId || ''));
                     json(response, 202, { message });
                     return true;
@@ -133,7 +133,7 @@ export function createApi({ config, store, runs, files, channel, meta }) {
                 }
             }
 
-            json(response, 404, { error: '接口不存在' });
+            json(response, 404, { error: 'Endpoint does not exist' });
         } catch (error) {
             json(response, error?.status || 500, { error: String(error?.message || error) });
         }

@@ -1,4 +1,4 @@
-// 飞机大战 — 客户端数据层(最高分)。
+// Aircraft — client-side data layer (high score).
 import { db } from './wandesk/db';
 
 export async function loadHiScore(appId: string): Promise<number> {

@@ -1,21 +1,22 @@
-// 消息线的渲染模型:落库的 Responses item → 用户看得懂的行。
+// The rendering model for the message thread: persisted Responses items → user-readable rows.
 //
-// 行是**可变对象**:流式增量直接改字段,再靠 store 的 tick 触发重渲染。
-// React 用 key 复用 DOM,原地改内容不重挂(不闪、不丢滚动、不断选中)。
+// Rows are **mutable objects**: streaming deltas mutate fields directly, and the store's tick
+// then drives a re-render. React reuses DOM by key, updating content in place without remounting
+// (no flicker, no lost scroll position, no broken selection).
 
-/** 服务端 /messages 返回的一条。 */
+/** One entry returned by the server's /messages endpoint. */
 export interface RawMessage {
     seq: number;
     item: StoredItem;
     createdAt: string;
 }
 
-/** 落库的 item —— Responses 规范的形状。 */
+/** The persisted item — shaped per the Responses spec. */
 export interface StoredItem {
     type?: string;
     role?: string;
     content?: string | Array<{ type?: string; text?: string }> | null;
-    /** 思考块:有的模型放 summary,有的放 content,两处都读。 */
+    /** Reasoning block: some models put it in `summary`, others in `content` — read both. */
     summary?: Array<{ text?: string }>;
     call_id?: string;
     name?: string;
@@ -29,7 +30,7 @@ export interface Attachment { id: string; name: string; path: string; mimeType: 
 export interface Row {
     key: string;
     kind: 'user' | 'assistant' | 'tool' | 'system';
-    /** 行时间(ms),日期条和轮时长用。 */
+    /** Row timestamp (ms), used for the date divider and turn duration. */
     at?: number;
     content?: string;
 
@@ -39,7 +40,7 @@ export interface Row {
     failed?: boolean;
     attachments?: Attachment[];
 
-    // assistant:思考与正文同一行(思考先流,正文后到)
+    // assistant: reasoning and the main text share one row (reasoning streams first, text arrives after)
     reasoning?: string;
     streaming?: boolean;
 
@@ -65,7 +66,7 @@ const parseArgs = (value: unknown): Record<string, unknown> => {
     try { return JSON.parse(String(value ?? '{}')); } catch { return {}; }
 };
 
-/** item 里的纯文本:content 可能是串或分段;思考在 summary/content 里。 */
+/** The plain text inside an item: content may be a string or segments; reasoning lives in summary/content. */
 function itemText(item: StoredItem): string {
     if (item.type === 'reasoning') {
         const parts = [...(item.summary || []), ...(Array.isArray(item.content) ? item.content : [])];
@@ -92,11 +93,13 @@ export function toolRow(call: { call_id?: string; callId?: string; name?: string
 }
 
 /**
- * 历史 item → 渲染行。
+ * History items → rendered rows.
  *
- * 思考是独立 item,但界面上它属于紧随其后的那条正文 —— 先攥在手里,
- * 遇到 assistant 正文就并进去;这一步只思考没说话(直接去调工具)就单独成行。
- * 工具结果回填到对应调用行;发起调用被压缩切掉的孤儿结果单独成行,不吞。
+ * Reasoning is a separate item, but in the UI it belongs to the main text that follows it —
+ * hold onto it, and merge it in once an assistant text item shows up; a reasoning-only turn
+ * (straight into a tool call, no text) becomes its own row.
+ * Tool results are filled back into their matching call row; an orphaned result whose call
+ * was trimmed by compaction becomes its own row rather than being dropped.
  */
 export function renderMessages(raw: RawMessage[]): Row[] {
     const rows: Row[] = [];
@@ -147,7 +150,7 @@ export function renderMessages(raw: RawMessage[]): Row[] {
             else if (/^\[error\]/.test(text)) {
                 rows.push({ key: mkKey('s'), kind: 'system', code: 'error', content: text.replace(/^\[error\]\s*/, ''), at });
             }
-            // 其余系统条目是给模型看的,不进画面
+            // Other system entries are meant for the model, not the UI
             continue;
         }
         if (item.role === 'assistant') {

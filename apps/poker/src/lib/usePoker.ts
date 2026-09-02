@@ -1,4 +1,4 @@
-// 炸金花 — 牌局状态与人类操作收进这个 hook;AI 回合委托给 lib/aiTurn。
+// Zhajinhua — hand state and human actions live in this hook; the AI's turn is delegated to lib/aiTurn.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as data from '../db';
 import { evaluate, freshDeck } from './cards';
@@ -17,7 +17,7 @@ export function usePoker(appId: string) {
   const [seats, setSeats] = useState<Seat[]>([]);
   const [pot, setPot] = useState(0);
   const [stake, setStake] = useState(BASE_STAKE);
-  const [turn, setTurn] = useState(0); // 0 = human, 1 = AI, -1 = nobody (resolving)
+  const [turn, setTurn] = useState(0); // 0 = human, 1 = AI, -1 = no one (resolving)
   const [phase, setPhase] = useState<Phase>('idle');
   const [feed, setFeed] = useState<FeedLine[]>([]);
   const [aiThinking, setAiThinking] = useState(false);
@@ -74,8 +74,8 @@ export function usePoker(appId: string) {
     const delta = (youWon ? total : 0) - youBet;
     await saveChips(finalWallet);
     pushFeed(youWon
-      ? { kind: 'result', text: `🏆 ${win ? win.name : '赢家'} 赢得底池 ${total}!(净 +${delta})` }
-      : { kind: 'result', text: `本局结束 — ${win ? win.name : '对手'} 赢得底池 ${total}。(净 ${delta})` });
+      ? { kind: 'result', text: `🏆 ${win ? win.name : 'Winner'} takes the pot of ${total}! (net +${delta})` }
+      : { kind: 'result', text: `Hand over — ${win ? win.name : 'Opponent'} takes the pot of ${total}. (net ${delta})` });
     await data.insertStat(appId, youWon ? 'win' : 'lose', delta);
     setRecord((r) => (youWon ? { ...r, win: r.win + 1 } : { ...r, lose: r.lose + 1 }));
   }, [appId, saveChips, pushFeed]);
@@ -83,13 +83,13 @@ export function usePoker(appId: string) {
   // ── start a hand ──
   const deal = useCallback(async () => {
     if (busyBank) return;
-    if (chips < BASE_STAKE) { pushFeed({ kind: 'sys', text: '筹码不足以下底注,先点「重置」吧。' }); return; }
+    if (chips < BASE_STAKE) { pushFeed({ kind: 'sys', text: 'Not enough chips to cover the ante — hit "Reset" first.' }); return; }
     const deck = freshDeck();
     const ante = BASE_STAKE;
     const hCards = [deck[0], deck[1], deck[2]];
     const aCards = [deck[3], deck[4], deck[5]];
     const built: Seat[] = [
-      { id: 0, name: '你', emoji: '🧑', isHuman: true, cards: hCards, eval: evaluate(hCards), chips: chips - ante, bet: ante, peeked: true, folded: false, out: false, mood: 'idle' },
+      { id: 0, name: 'You', emoji: '🧑', isHuman: true, cards: hCards, eval: evaluate(hCards), chips: chips - ante, bet: ante, peeked: true, folded: false, out: false, mood: 'idle' },
       { id: 1, name: BOT.name, emoji: BOT.emoji, isHuman: false, cards: aCards, eval: evaluate(aCards), chips: TABLE_STACK - ante, bet: ante, peeked: false, folded: false, out: false, mood: 'idle' },
     ];
     await saveChips(chips - ante); // human's ante comes out of the persisted bankroll
@@ -100,12 +100,12 @@ export function usePoker(appId: string) {
     raisesRef.current = 0;
     setFeed([]);
     setPhase('dealing');
-    pushFeed({ kind: 'sys', text: `新的一局 · 单挑,每人底注 ${ante}。` });
+    pushFeed({ kind: 'sys', text: `New hand · heads-up, each player antes ${ante}.` });
     window.setTimeout(() => {
       setPhase('playing');
       setTurn(0);
-      pushFeed({ kind: 'sys', text: '发牌完毕,牌局开始。' });
-      pushFeed({ kind: 'sys', text: '轮到你了 — 看牌,还是闷着跟注?' });
+      pushFeed({ kind: 'sys', text: 'Cards are dealt — the hand begins.' });
+      pushFeed({ kind: 'sys', text: 'Your turn — peek at your cards, or stay blind and call?' });
     }, 1100);
   }, [busyBank, chips, saveChips, pushFeed]);
 
@@ -136,8 +136,8 @@ export function usePoker(appId: string) {
     void saveChips(0);
     setStake(updated[0].bet);
     raisesRef.current += 1;
-    lastHumanActionRef.current = `梭哈全下 ${pay}`;
-    pushFeed({ kind: 'you', who: '你', action: 'allin', text: `梭哈全下 ${pay}` });
+    lastHumanActionRef.current = `Goes all in for ${pay}`;
+    pushFeed({ kind: 'you', who: 'You', action: 'allin', text: `Goes all in for ${pay}` });
     setTurn(1);
   }, [myTurn, human, saveChips, pushFeed]);
 
@@ -145,21 +145,21 @@ export function usePoker(appId: string) {
     if (!myTurn) return;
     const arr = seatsRef.current.map((s) => (s.isHuman ? { ...s, folded: true } : s));
     setSeats(arr);
-    pushFeed({ kind: 'you', who: '你', text: '你弃牌了。', action: 'fold' });
+    pushFeed({ kind: 'you', who: 'You', text: 'You fold.', action: 'fold' });
     void settle(arr, arr.find((s) => !s.isHuman)!.id);
   }, [myTurn, pushFeed, settle]);
 
   const onCallOrRaise = useCallback((raise: boolean) => {
     if (!myTurn || !human) return;
     const cost = stake + (raise ? BASE_STAKE : 0);
-    if (human.chips < Math.min(cost, stake)) { pushFeed({ kind: 'sys', text: '你这桌的筹码不够了。' }); return; }
+    if (human.chips < Math.min(cost, stake)) { pushFeed({ kind: 'sys', text: 'You don\'t have enough chips left.' }); return; }
     const res = placeBet(seatsRef.current, 0, raise, stake);
     if (raise) raisesRef.current += 1;
     setSeats(res.updated);
     void saveChips(res.updated[0].chips); // human seat stack === wallet
     setStake(res.newStake);
-    lastHumanActionRef.current = raise ? `加注到跟注线 ${res.newStake}` : `跟注 ${res.pay}`;
-    pushFeed({ kind: 'you', who: '你', action: raise ? 'raise' : 'call', text: raise ? `你加注 ${res.pay}(跟注线 ${res.newStake})。` : `你跟注 ${res.pay}。` });
+    lastHumanActionRef.current = raise ? `Raises the call to ${res.newStake}` : `Calls ${res.pay}`;
+    pushFeed({ kind: 'you', who: 'You', action: raise ? 'raise' : 'call', text: raise ? `You raise ${res.pay} (call is now ${res.newStake}).` : `You call ${res.pay}.` });
     setTurn(1);
   }, [myTurn, human, stake, pushFeed, saveChips]);
 
@@ -172,8 +172,8 @@ export function usePoker(appId: string) {
     void saveChips(me.chips);
     const oppP = paid.updated.find((s) => !s.isHuman)!;
     const cmp = compare(me.eval, oppP.eval);
-    lastHumanActionRef.current = '要求比牌';
-    pushFeed({ kind: 'you', who: '你', text: '你要求和对手比牌!', action: 'show' });
+    lastHumanActionRef.current = 'Calls for a showdown';
+    pushFeed({ kind: 'you', who: 'You', text: 'You call for a showdown!', action: 'show' });
     const youWin = cmp > 0; // tie → challenger (you) loses
     const revealed = paid.updated.map((s) => ({ ...s, peeked: true }));
     setSeats(revealed);
@@ -186,7 +186,7 @@ export function usePoker(appId: string) {
     setChips(1000); setRecord({ win: 0, lose: 0 });
     setSeats([]); setPhase('idle'); setPot(0); setFeed([]);
     setWinnerId(null); setPotFly(null); setAiThinking(false);
-    pushFeed({ kind: 'sys', text: '已重置:筹码恢复到 1000,战绩清零。' });
+    pushFeed({ kind: 'sys', text: 'Reset — chips restored to 1000, record cleared.' });
   }, [appId, pushFeed]);
 
   const aiActive = phase === 'playing' && turn === 1;

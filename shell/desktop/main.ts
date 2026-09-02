@@ -1,14 +1,14 @@
-// Electron 主进程:一个窗口,指向本机内核。
+// Electron main process: one window, pointed at the local kernel.
 //
-// 壳在这里只做「窗口」这件事本身 —— 桌面、图标、任务栏全在网页里,
-// 因为它们和浏览器版是同一份代码。
+// The shell's job here is nothing more than the "window" itself —— the desktop, icons, and
+// taskbar all live in the web page, because they're the exact same code as the browser version.
 import { app, BrowserWindow, shell } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { startKernel, stopKernel } from "./boot.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// 编译产物在 dist/shell/desktop/ —— 往上三层就是应用根(打包后是 Resources/app)
+// Compiled output lives at dist/shell/desktop/ —— three levels up is the app root (Resources/app once packaged)
 const HOME = path.join(__dirname, "../../..");
 
 let win: BrowserWindow | null = null;
@@ -17,12 +17,12 @@ const createWindow = async () => {
   win = new BrowserWindow({
     width: 1280, height: 840, minWidth: 900, minHeight: 600,
     title: "Wandesk",
-    // 用系统默认标题栏:红绿灯与窗口标题都由 macOS 画
+    // Use the system's default title bar: the traffic-light buttons and window title are both drawn by macOS
     backgroundColor: "#f6f6f7",
     webPreferences: { contextIsolation: true, nodeIntegration: false },
   });
 
-  // 应用里的 target=_blank 交给系统浏览器,不在壳里开新窗口
+  // A target=_blank inside an app is handed off to the system browser instead of opening a new window in the shell
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:/i.test(url)) void shell.openExternal(url);
     return { action: "deny" };
@@ -33,7 +33,7 @@ const createWindow = async () => {
     await win.loadURL(origin);
   } catch (e: any) {
     await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(
-      `<body style="font:14px -apple-system;padding:40px;color:#444">内核启动失败:${e?.message || e}</body>`,
+      `<body style="font:14px -apple-system;padding:40px;color:#444">Kernel failed to start: ${e?.message || e}</body>`,
     )}`);
   }
   win.on("closed", () => { win = null; });

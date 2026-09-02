@@ -1,4 +1,4 @@
-// WeatherScene 的确定式布局数据(无 Math.random,种子 PRNG,渲染稳定)。
+// Deterministic layout data for WeatherScene (no Math.random — a seeded PRNG keeps renders stable).
 export const W = 1000;
 export const H = 640;
 

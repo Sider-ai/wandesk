@@ -1,12 +1,12 @@
-// 全局路径:一处定义,别处只引用。
+// Global paths: defined once here, referenced everywhere else.
 //
-//   <workspace>/                 用户的工作区(默认 ~/wandesk)
-//     apps/<id>/                 应用的家 —— 一个目录就是一个应用
-//     .wandesk/kernel.db         内核自己的库(会话/消息/压缩/设置/记忆)
-//     .wandesk/store/            应用的库(workerd 的 AppStore 落盘处,一个应用一个 .sqlite)
+//   <workspace>/                 The user's workspace (defaults to ~/wandesk)
+//     apps/<id>/                 An app's home —— one directory is one app
+//     .wandesk/kernel.db         The kernel's own database (conversations/messages/compaction/settings/memory)
+//     .wandesk/store/            App databases (where workerd's AppStore writes to disk, one .sqlite per app)
 //
-// apps/<id>/data.db 是指向 store 里真实文件的链接:`sqlite3 apps/notes/data.db` 一句话能查,
-// 「AI 能管自己造的应用」才成立。
+// apps/<id>/data.db is a link pointing at the real file inside store: `sqlite3 apps/notes/data.db`
+// just works, which is what makes "the AI can manage the apps it built itself" hold true.
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -14,10 +14,10 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/** 仓库根:开发态是源码目录,打包态是资源目录。 */
+/** Repo root: the source directory in dev, the resources directory when packaged. */
 export const HOME = process.env.WANDESK_HOME || path.join(__dirname, "..");
 
-/** 工作区根 —— 用户的地盘。应用、数据、文件都长在这里。 */
+/** Workspace root —— the user's own territory. Apps, data, and files all live here. */
 export const workspace = () => {
   const dir = process.env.WANDESK_WORKSPACE || path.join(os.homedir(), "wandesk");
   fs.mkdirSync(dir, { recursive: true });
@@ -38,8 +38,8 @@ export const kernelDir = () => {
 
 export const kernelDbFile = () => path.join(kernelDir(), "kernel.db");
 
-/** 预装应用的出厂模板(随包发,首次启动落地到工作区)。 */
+/** Factory templates for preinstalled apps (shipped with the package, landed into the workspace on first launch). */
 export const presetAppsDir = () => process.env.WANDESK_PRESETS || path.join(HOME, "apps");
 
-/** 壳的前端产物(生产态由内核直接托管)。 */
+/** The shell's frontend build output (served directly by the kernel in production). */
 export const uiDistDir = () => process.env.WANDESK_UI_DIST || path.join(HOME, "dist/ui");

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-// 极简 markdown → React:# 标题 / **粗** / `码` / - · 1. 列表 / 段落。AI 解读文本用。
+// Minimal markdown → React: # heading / **bold** / `code` / - · 1. lists / paragraphs. Used for AI analysis text.
 export function Md({ src }: { src: string }) {
   const lines = String(src || '').replace(/\r\n/g, '\n').split('\n');
   const out: ReactNode[] = []; let i = 0, k = 0;

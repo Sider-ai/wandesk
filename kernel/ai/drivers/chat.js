@@ -1,11 +1,13 @@
-// Chat Completions 驱动。
-// 给只有 /chat/completions 的服务(GLM、绝大多数第三方网关)用。
+// Chat Completions driver.
+// For services that only expose /chat/completions (GLM, most third-party gateways).
 //
-// 对上,它和 Responses 驱动交出完全一样的东西:统一的 items 词表、统一的 onEvent 增量、
-// 归一化后的 usage。对下,它自己消化 Chat 协议的所有差异 —— 两个驱动之间零依赖。
+// Upward, it hands back exactly the same shape as the Responses driver: the unified items
+// vocabulary, unified onEvent deltas, normalized usage. Downward, it absorbs all the Chat
+// protocol's own quirks itself — zero dependency between the two drivers.
 //
-// 内部 item 词表沿用 Responses 那套(message / reasoning / function_call /
-// function_call_output),因为它早就是 AGENT 的内部契约:数据库、UI、上下文压缩全按它来。
+// The internal item vocabulary follows the Responses one (message / reasoning / function_call /
+// function_call_output), because that's already AGENT's internal contract: the database, the
+// UI, and context compaction all key off of it.
 import { EVENTS } from '../events.js';
 
 const readError = async (response) => {
@@ -16,7 +18,7 @@ const readError = async (response) => {
 let seq = 0;
 const nextId = (prefix) => `${prefix}_${Date.now().toString(36)}${(seq += 1).toString(36)}`;
 
-/* ────────────── 请求:统一形状 → Chat 形状 ────────────── */
+/* ────────────── Request: unified shape → Chat shape ────────────── */
 
 const textOf = (parts) => (Array.isArray(parts) ? parts : [])
     .filter((part) => part?.type === 'input_text' || part?.type === 'output_text' || typeof part?.text === 'string')
@@ -27,7 +29,7 @@ const imagesOf = (parts) => (Array.isArray(parts) ? parts : [])
     .filter((part) => part?.type === 'input_image' && part.image_url)
     .map((part) => ({ type: 'image_url', image_url: { url: String(part.image_url) } }));
 
-/** 一条普通消息的 content:纯文本就给字符串,带图才给数组(有些服务只认字符串)。 */
+/** Content of a plain message: plain text gets a string, images get an array (some services only accept strings). */
 function contentOf(raw) {
     if (typeof raw === 'string') return raw;
     const images = imagesOf(raw);
@@ -37,21 +39,24 @@ function contentOf(raw) {
 }
 
 /**
- * input[] → messages[]。
+ * input[] → messages[].
  *
- * 三处 Chat 协议的硬要求:
- *  1. 连续的 function_call 必须并成**一条** assistant 消息,带多个 tool_calls;
- *     拆成多条会被判定为「tool_calls 没有对应的 assistant 消息」。
- *  2. reasoning item 不能回传 —— Chat 没有这个角色,发过去直接 400。
- *  3. tool 消息的 content 只能是文本;工具返回的图片攒起来,等这批 tool 消息发完
- *     再补一条 user 消息带出去,否则会把 assistant/tool 的配对切断。
+ * Three hard requirements of the Chat protocol:
+ *  1. Consecutive function_calls must be merged into **one** assistant message carrying
+ *     multiple tool_calls; splitting them into separate messages gets flagged as "tool_calls
+ *     with no matching assistant message".
+ *  2. reasoning items must not be sent back — Chat has no such role, and sending one gets a
+ *     flat 400.
+ *  3. A tool message's content can only be text; images returned by tools are collected and
+ *     sent out afterward in a separate user message once this batch of tool messages is done,
+ *     otherwise it would break the assistant/tool pairing.
  */
 export function toMessages(input = [], instructions = '') {
     const messages = [];
     if (String(instructions || '').trim()) messages.push({ role: 'system', content: String(instructions) });
 
-    let pendingCalls = null;   // 正在攒的 tool_calls
-    let pendingImages = [];    // 正在攒的工具返回图
+    let pendingCalls = null;   // tool_calls currently being accumulated
+    let pendingImages = [];    // tool-returned images currently being accumulated
 
     const flushCalls = () => {
         if (!pendingCalls) return;
@@ -60,7 +65,7 @@ export function toMessages(input = [], instructions = '') {
     };
     const flushImages = () => {
         if (!pendingImages.length) return;
-        messages.push({ role: 'user', content: [{ type: 'text', text: '(上一步工具返回的图片)' }, ...pendingImages] });
+        messages.push({ role: 'user', content: [{ type: 'text', text: '(image returned by the previous tool step)' }, ...pendingImages] });
         pendingImages = [];
     };
 
@@ -91,7 +96,7 @@ export function toMessages(input = [], instructions = '') {
         }
         flushImages();
 
-        // Chat 没有 reasoning 这个角色。回传会 400,直接丢掉。
+        // Chat has no reasoning role. Sending it back gets a 400, so just drop it.
         if (item.type === 'reasoning') continue;
 
         const role = String(item.role || (item.type === 'message' ? 'assistant' : 'user'));
@@ -104,7 +109,7 @@ export function toMessages(input = [], instructions = '') {
     return messages;
 }
 
-/** Responses 的扁平 tool → Chat 的嵌套 tool。 */
+/** Responses' flat tool → Chat's nested tool. */
 export const toTools = (tools = []) => (Array.isArray(tools) ? tools : [])
     .filter((tool) => tool && (tool.name || tool.function?.name))
     .map((tool) => (tool.function ? tool : {
@@ -117,8 +122,9 @@ export const toTools = (tools = []) => (Array.isArray(tools) ? tools : [])
     }));
 
 /**
- * 模型参数。两个协议只有少数几个键能一一对上,其余各家各样 ——
- * 对得上的映射过去,对不上的走 modelOptions.chat 原样透传,别在这儿猜。
+ * Model parameters. Only a handful of keys map one-to-one between the two protocols; the rest
+ * differ per provider — map what maps, and pass the rest through as-is via modelOptions.chat.
+ * Don't guess here.
  */
 const DIRECT_KEYS = ['temperature', 'top_p', 'tool_choice', 'parallel_tool_calls', 'stop', 'seed'];
 
@@ -131,8 +137,9 @@ export function toModelOptions(options) {
     return out;
 }
 
-/** Chat 的 usage → Responses 的字段名。上下文压缩读的是 input_tokens/output_tokens,
- *  不归一化的话水位永远是 0,压缩不会触发,上下文直接撑爆。 */
+/** Chat's usage → Responses' field names. Context compaction reads input_tokens/output_tokens;
+ *  without normalizing, the watermark would stay at 0 forever, compaction would never trigger,
+ *  and the context would just overflow. */
 export function toUsage(usage) {
     if (!usage || typeof usage !== 'object') return {};
     const input = Number(usage.prompt_tokens ?? usage.input_tokens ?? 0) || 0;
@@ -146,8 +153,9 @@ export function toUsage(usage) {
     };
 }
 
-/** finish_reason → Responses 的 status / incomplete 原因。
- *  length 和 content_filter 都是「没说完」,当成 completed 会把半截回复当完整结果。 */
+/** finish_reason → Responses' status / incomplete reason.
+ *  Both length and content_filter mean "didn't finish speaking"; treating them as completed
+ *  would report a partial reply as a complete result. */
 export function toStatus(finishReason) {
     const reason = String(finishReason || '');
     if (reason === 'length') return { status: 'incomplete', stopReason: 'max_output_tokens' };
@@ -155,14 +163,15 @@ export function toStatus(finishReason) {
     return { status: 'completed', stopReason: '' };
 }
 
-/* ────────────── 响应:Chat 流 → 统一 items ────────────── */
+/* ────────────── Response: Chat stream → unified items ────────────── */
 
 /**
- * 把 Chat 的流式增量攒成 Responses 形状的 items。
+ * Accumulates Chat's streaming deltas into Responses-shaped items.
  *
- * 和 Responses 驱动的差别在于:那边服务端直接给出成型的 item,这边只有碎片,
- * 得自己攒。工具调用的 arguments 在不同服务上行为不一样 —— OpenAI 会切成很多片,
- * GLM 一次给全 —— 按 index 累加对两种都成立。
+ * The difference from the Responses driver: there, the server hands back fully-formed items
+ * directly; here there are only fragments that must be assembled by hand. A tool call's
+ * arguments behave differently across services — OpenAI splits them into many pieces, GLM
+ * sends the whole thing at once — accumulating by index holds for both.
  */
 export function createAssembler(onEvent = () => {}) {
     let text = '';
@@ -175,7 +184,7 @@ export function createAssembler(onEvent = () => {}) {
     return {
         get emitted() { return emitted; },
 
-        /** 吃一个 chunk。返回 false 表示这个 chunk 没内容(心跳之类)。 */
+        /** Consumes one chunk. Returns false if the chunk had no content (a heartbeat, etc.). */
         push(chunk) {
             if (chunk?.usage) usage = chunk.usage;
             const choice = (chunk?.choices || [])[0];
@@ -205,7 +214,7 @@ export function createAssembler(onEvent = () => {}) {
             return true;
         },
 
-        /** 收尾:攒好的碎片拼成 items。顺序按 Responses 的惯例:先 reasoning,再正文,再工具调用。 */
+        /** Finalize: assembles accumulated fragments into items. Order follows the Responses convention: reasoning first, then the message body, then tool calls. */
         finish() {
             const items = [];
             if (reasoning) {
@@ -226,7 +235,7 @@ export function createAssembler(onEvent = () => {}) {
                     name: call.name, arguments: call.arguments || '{}', status: 'completed',
                 });
             }
-            // 有工具调用时 finish_reason 是 tool_calls,那是正常完成,不是截断
+            // When there are tool calls, finish_reason is tool_calls — that's a normal completion, not truncation
             const { status, stopReason } = toStatus(calls.size && finishReason === 'length' ? 'tool_calls' : finishReason);
             return { items, usage: toUsage(usage), status, stopReason };
         },
@@ -252,7 +261,7 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
                 messages: toMessages(input, instructions),
                 ...(tools?.length ? { tools: toTools(tools) } : {}),
                 stream: true,
-                // 不少服务默认不在流里给 usage,得显式要 —— 没有它上下文压缩就不会触发
+                // Many services don't include usage in the stream by default — must ask explicitly, otherwise context compaction never triggers
                 stream_options: { include_usage: true },
                 ...toModelOptions(modelOptions),
             }),
@@ -264,7 +273,7 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
     }
 
     if (!response.ok) throw fail(`Chat Completions ${response.status}: ${(await readError(response)).slice(0, errorMaxChars)}`, response.status);
-    if (!response.body) throw fail('Chat Completions 返回空响应', response.status);
+    if (!response.body) throw fail('Chat Completions returned an empty response', response.status);
 
     let sawData = false;
     let buffer = '';
@@ -282,7 +291,7 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
                 if (payload === '[DONE]') { sawData = true; continue; }
                 let event;
                 try { event = JSON.parse(payload); } catch { continue; }
-                // 有些网关把错误塞在流里而不是 HTTP 状态码上
+                // Some gateways stuff the error into the stream instead of the HTTP status code
                 if (event?.error) throw fail(event.error?.message || String(event.error));
                 assembler.push(event);
                 sawData = true;
@@ -294,8 +303,8 @@ async function attempt({ url, apiKey, model, input, instructions, tools, modelOp
         throw error;
     }
 
-    // 一条数据都没见过 = 连接中途断了。不拦住的话空回复会被当成正常完成。
-    if (!sawData) throw fail('Chat Completions 流在收到任何数据前中断');
+    // Never having seen any data = the connection broke mid-stream. Without this check, an empty reply would be treated as a normal completion.
+    if (!sawData) throw fail('Chat Completions stream broke before any data was received');
     return assembler.finish();
 }
 

@@ -1,15 +1,19 @@
-// 运行编排:一个对话同一时刻只有一轮在跑,轮子在后台转,事件走广播。
+// Run orchestration: only one round runs at a time per conversation, the loop runs in the
+// background, and events go out over the broadcast.
 //
-// 与 0.0.2 的关键差别:**逐条落库**。从前整轮结束才存 result.items,
-// 中途停止或崩溃就整轮丢失;现在每个 item 完成即落库,停止只丢正在流式的半句。
-// 停止 / 出错时补齐悬空的 function_call(Responses 要求 call 与 output 成对,
-// 缺一个下一轮请求整个被拒),并落一条系统留痕 —— 给用户看,也给模型看。
+// Key difference from 0.0.2: **persisted item by item**. Previously result.items was only
+// stored once the whole round finished, so a mid-round stop or crash lost the whole round;
+// now every item is persisted as soon as it completes, and stopping only drops the half-
+// streamed fragment in flight.
+// On stop / error, dangling function_calls are backfilled (Responses requires call and
+// output to come in pairs; missing one gets the entire next request rejected), and a system
+// trace note is recorded —— for the user to see, and for the model to see.
 import { runAgent } from '../../agent/index.js';
 import { compact, shouldCompact } from '../../agent/compact.js';
 import { complete } from '../../ai/index.js';
 import { EVENTS } from '../shared/events.js';
 
-const DEFAULT_TITLE = '新对话';
+const DEFAULT_TITLE = 'New conversation';
 
 const mechanicalTitle = (content) => String(content).replace(/\s+/g, ' ').trim().slice(0, 24) || DEFAULT_TITLE;
 
@@ -26,7 +30,7 @@ const parseArgs = (value) => {
 export function createRuns({ config, store, files, broadcast }) {
     const active = new Map();
 
-    /** 停止 / 出错后,给没等到结果的 function_call 补一条输出,落库并进上下文。 */
+    /** After a stop / error, backfill an output for any function_call that never got a result, persist it, and fold it into the context. */
     function settleDanglingCalls(conversationId, items, reason) {
         const pending = new Map();
         for (const item of items) {
@@ -47,7 +51,7 @@ export function createRuns({ config, store, files, broadcast }) {
         return settled;
     }
 
-    /** 首轮跑完后请模型起个标题;失败就留着机械标题,不打扰任何人。 */
+    /** After the first round finishes, ask the model for a title; on failure just keep the mechanical title and don't bother anyone. */
     async function autoTitle(conversationId, userContent, items, runtime) {
         const reply = items.filter((item) => item?.type === 'message').map(itemText).join('\n').slice(0, 1200);
         try {
@@ -57,14 +61,14 @@ export function createRuns({ config, store, files, broadcast }) {
                 apiKey: runtime.apiKey,
                 model: runtime.model,
                 errorMaxChars: config.errorMaxChars,
-                instructions: '为这段对话起一个不超过 16 个字的标题,概括用户想做的事。只输出标题本身,不要引号和句号。',
-                input: [{ role: 'user', content: `用户:${String(userContent).slice(0, 1200)}\n\n助手:${reply}` }],
+                instructions: 'Write a title of no more than 16 words that summarizes what the user is trying to do. Output only the title itself — no quotation marks, no period.',
+                input: [{ role: 'user', content: `User: ${String(userContent).slice(0, 1200)}\n\nAssistant: ${reply}` }],
             });
             const title = String(result.text).replace(/\s+/g, ' ').trim().slice(0, 32);
             if (!title) return;
             store.setTitle(conversationId, title);
             broadcast(EVENTS.CONVERSATIONS_CHANGED, {});
-        } catch { /* 起不出来就用机械标题 */ }
+        } catch { /* if title generation fails, keep the mechanical title */ }
     }
 
     async function work(conversation, user, controller, runtime) {
@@ -129,7 +133,7 @@ export function createRuns({ config, store, files, broadcast }) {
                 prepareInput: files.prepareInput,
             });
             const tail = result.stopReason
-                ? [{ role: 'system', content: `[incomplete] 上一条回复未完整结束:${result.stopReason}` }]
+                ? [{ role: 'system', content: `[incomplete] The previous reply did not finish completely: ${result.stopReason}` }]
                 : [];
             for (const marker of tail) store.append(conversationId, marker);
             store.saveContext(conversationId, [...folded.history, user, ...result.items, ...tail], result.usage);
@@ -137,11 +141,11 @@ export function createRuns({ config, store, files, broadcast }) {
             if (conversation.title === DEFAULT_TITLE) void autoTitle(conversationId, user.content, result.items, runtime);
         } catch (error) {
             const aborted = controller.signal.aborted;
-            const reason = aborted ? '任务被用户停止,该调用未完成' : '运行出错,该调用未完成';
+            const reason = aborted ? 'The task was stopped by the user; this call did not complete' : 'The run errored; this call did not complete';
             const settled = settleDanglingCalls(conversationId, generated, reason);
             const marker = aborted
-                ? { role: 'system', content: '[stopped] 上一条回复被用户停止,输出到此为止。' }
-                : { role: 'system', content: `[error] 上一轮运行失败:${String(error?.message || error).slice(0, config.errorMaxChars)}` };
+                ? { role: 'system', content: '[stopped] The previous reply was stopped by the user; output ends here.' }
+                : { role: 'system', content: `[error] The previous run failed: ${String(error?.message || error).slice(0, config.errorMaxChars)}` };
             store.append(conversationId, marker);
             store.saveContext(
                 conversationId,
@@ -166,9 +170,9 @@ export function createRuns({ config, store, files, broadcast }) {
             return Boolean(controller);
         },
 
-        /** 落库用户消息、点亮标题、把轮子丢进后台,立即返回已存的那条消息。 */
+        /** Persist the user message, light up the title, kick the loop off in the background, and immediately return the saved message. */
         start(conversation, content, attachments = [], clientId = '') {
-            if (active.has(conversation.id)) throw Object.assign(new Error('该对话正在运行'), { status: 409 });
+            if (active.has(conversation.id)) throw Object.assign(new Error('This conversation is already running'), { status: 409 });
             const savedSettings = store.getSettings();
             const runtime = {
                 ...config,
@@ -179,7 +183,7 @@ export function createRuns({ config, store, files, broadcast }) {
                 instructions: savedSettings.instructions || '',
             };
             if (!runtime.responsesUrl || !runtime.apiKey || !runtime.model) {
-                throw Object.assign(new Error('请先在设置中选择驱动并填写接口地址、API Key 和模型'), { status: 400 });
+                throw Object.assign(new Error('Please select a driver and fill in the API URL, API key, and model in settings first'), { status: 400 });
             }
             const controller = new AbortController();
             active.set(conversation.id, controller);
@@ -193,8 +197,8 @@ export function createRuns({ config, store, files, broadcast }) {
             broadcast(EVENTS.CONVERSATIONS_CHANGED, {});
 
             work(conversation, user, controller, runtime).catch((error) => {
-                // work 自己兜错;走到这儿说明兜错本身炸了(如落库失败),别让进程静默烂掉
-                console.error('[runs] 收尾失败:', error);
+                // work() catches its own errors; getting here means the catch itself blew up (e.g. persisting failed) —— don't let the process silently rot
+                console.error('[runs] failed to finalize:', error);
                 active.delete(conversation.id);
                 broadcast(EVENTS.ERROR, { conversationId: conversation.id, message: String(error?.message || error) });
             });

@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
 import { api, post } from "../lib/http";
-import { t, type Lang } from "../lib/i18n";
+import { t } from "../lib/i18n";
 import "./Settings.css";
 
-// 设置 —— 壳的面板,不是应用。
-// 它配置的是框架本身(内核连哪个模型、系统提示词、界面语言),不是任何领域的事。
-// 「凡是配置框架的界面属于壳,凡是做事的一律是应用」——  这条线不含糊。
+// Settings — a shell panel, not an app.
+// It configures the framework itself (which model the kernel talks to, the system
+// prompt), not anything domain-specific.
+// "Whatever configures the framework belongs to the shell, whatever does work is always an app" — that line stays firm.
 const DRIVERS = [
   { id: "responses", labelKey: "settings.driver.responses" },
   { id: "chat", labelKey: "settings.driver.chat" },
 ];
 
-const LANGUAGES: { id: Lang; labelKey: string }[] = [
-  { id: "zh", labelKey: "settings.language.zh" },
-  { id: "en", labelKey: "settings.language.en" },
-];
-
 export function Settings() {
-  const [form, setForm] = useState({ driver: "responses", apiUrl: "", apiKey: "", model: "", system: "", language: "zh" as Lang });
+  const [form, setForm] = useState({ driver: "responses", apiUrl: "", apiKey: "", model: "", system: "" });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -27,10 +23,9 @@ export function Settings() {
       setForm({
         driver: s.driver || "responses",
         apiUrl: s.apiUrl || "",
-        apiKey: s.apiKey || "",   // 内核回显的是 ******** 占位符,原样回传 = 不改
+        apiKey: s.apiKey || "",   // the kernel echoes back a ******** placeholder; sending it back unchanged = no change
         model: s.model || "",
         system: s.system || "",
-        language: s.language === "en" ? "en" : "zh",
       });
       setLoading(false);
     });
@@ -84,17 +79,6 @@ export function Settings() {
           value={form.system}
           onChange={(e) => setForm((f) => ({ ...f, system: e.target.value }))}
         />
-      </label>
-
-      <label className="set-row">
-        <span className="set-label">{t("settings.language")}</span>
-        <select
-          className="set-input"
-          value={form.language}
-          onChange={(e) => setForm((f) => ({ ...f, language: e.target.value as Lang }))}
-        >
-          {LANGUAGES.map((l) => <option key={l.id} value={l.id}>{t(l.labelKey)}</option>)}
-        </select>
       </label>
 
       <div className="set-actions">

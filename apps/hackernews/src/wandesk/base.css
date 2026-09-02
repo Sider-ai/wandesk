@@ -1,5 +1,5 @@
-/* 设计 token —— 与 wandesk-skill 的 index.css 一致。应用的 CSS 依赖这些变量。
-   注意:v2 里每个应用是独立网页,所以这里还要负责让根元素占满 iframe。 */
+/* Design tokens — consistent with wandesk-skill's index.css. The app's CSS relies on these variables.
+   Note: in v2 each app is its own standalone page, so this also has to make the root element fill the iframe. */
 :root {
   --bg: #f6f6f7; --panel: #fff; --ink: #1d1d20; --ink2: #55555c; --ink3: #8e8e96;
   --line: #e8e8ea; --line2: #dededf; --blue: #62a5f4; --blue-deep: #3b82f6;
@@ -12,7 +12,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
-/* 应用原本挂在壳的窗口里,靠父容器给高度;现在自己就是整页 */
+/* The app used to mount inside the shell's window, getting its height from the parent container; now it's the whole page */
 #root > * { height: 100%; }
 .shadow-card { box-shadow: 0 1px 2px rgba(20,20,25,0.04), 0 10px 30px rgba(20,20,25,0.05); }
 textarea { resize: none; }

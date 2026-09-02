@@ -1,4 +1,4 @@
-// 筹码堆 + 会表情的头像(纯装饰)。
+// Chip stack + expressive avatar (purely decorative).
 import type { Mood } from '../lib/game';
 
 export function ChipStack({ amount, variant }: { amount: number; variant: 'pot' | 'seat' }) {

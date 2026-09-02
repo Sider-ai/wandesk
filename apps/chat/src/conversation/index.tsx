@@ -1,4 +1,4 @@
-// 对话列:顶栏 + 消息流 + 输入区。
+// Conversation column: top bar + message stream + input area.
 import { Icon } from '../icons/Icon';
 import { useChannel } from '../lib/channel';
 import { useShell } from '../shell/layout';
@@ -12,22 +12,22 @@ export function ConversationView() {
     const { conversations, currentId, rows, ready } = useConversation();
 
     const title = currentId
-        ? conversations.find((item) => item.id === currentId)?.title || '对话'
-        : '新对话';
+        ? conversations.find((item) => item.id === currentId)?.title || 'Conversation'
+        : 'New conversation';
 
     return (
         <section className={`conversation${ready && !rows.length ? ' is-blank' : ''}`}>
             <header className="topbar">
                 <button
                     className={`icon-btn menu-btn${shell.collapsed ? ' show' : ''}`}
-                    title="展开侧栏"
+                    title="Expand sidebar"
                     onClick={shell.openSidebar}
                 >
                     <Icon name="panel" size={17} />
                 </button>
                 <span className="topbar-title clip">{title}</span>
                 <span className="grow" />
-                {!connected && <span className="offline-pill"><i />连接已断开,恢复中…</span>}
+                {!connected && <span className="offline-pill"><i />Connection lost, reconnecting…</span>}
             </header>
             <MessageStream />
             <Composer />

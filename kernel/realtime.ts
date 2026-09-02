@@ -1,7 +1,8 @@
-// WebSocket:内核 → 壳的单向广播。
+// WebSocket: one-way broadcast from kernel → shell.
 //
-// 只有一条链路,不做房间不做订阅 —— 壳是唯一的客户端,事件量也小。
-// 应用不直接连这里:应用的 UI 请求经 env.UI → HostGate → 内核 → 这里 → 壳。
+// Just a single link, no rooms, no subscriptions —— the shell is the only client, and event
+// volume is small anyway. Apps don't connect here directly: an app's UI request goes through
+// env.UI → HostGate → kernel → here → shell.
 import type { IncomingMessage } from "http";
 import type { Duplex } from "stream";
 import { createHash } from "crypto";
@@ -11,7 +12,7 @@ const clients = new Set<Client>();
 
 const GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-/** 极简 WebSocket 服务端:只发文本帧、不收业务消息,省掉一个依赖。 */
+/** A minimal WebSocket server: sends text frames only, never receives application messages — saves pulling in a dependency. */
 export const handleUpgrade = (req: IncomingMessage, socket: Duplex) => {
   const key = req.headers["sec-websocket-key"];
   if (typeof key !== "string") { socket.destroy(); return; }

@@ -1,4 +1,4 @@
-// 与内核 kernel/shared/events.ts 保持一致。两边都不写裸字符串。
+// Kept in sync with the kernel's kernel/shared/events.ts. Neither side writes bare strings.
 export const EV = Object.freeze({
   APPS_CHANGED: "apps.changed",
   ACTIVITY_START: "activity.start",

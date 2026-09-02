@@ -1,13 +1,13 @@
-# 助理(chat)
+# Assistant (chat)
 
-跟内核里的 agent 对话。它有 bash / read / write / edit,工作目录就是工作区根,能真的动手:改文件、造应用、跑命令。
+Talk to the agent inside the kernel. It has bash / read / write / edit, its working directory is the workspace root, and it can actually get things done: edit files, build apps, run commands.
 
-## 能做什么
+## What it can do
 
-- 多会话,历史落在内核库里;每次调用都会看到桌面上已安装的应用清单和长期记忆。
-- 它调用的是与所有应用共用的同一个 agent(`env.AI`),没有任何特权。
+- Multiple sessions, with history stored in the kernel database; every call sees the list of apps already installed on the desktop plus long-term memory.
+- It calls the same agent shared by all apps (`env.AI`), with no special privileges.
 
-## 目录与修改
+## Layout and changes
 
-- `src/` 前端源码(React,来自 AGENT 仓库的 web/ui,与之同步)· `public/` 产物 · `server.js` 后端直接改。
-- 改前端:本目录 `npm install && npm run build`。
+- `src/` frontend source (React, mirrored from the AGENT repo's web/ui — keep it in sync) · `public/` build output · `server.js` backend, edit directly.
+- To change the frontend: in this directory run `npm install && npm run build`.

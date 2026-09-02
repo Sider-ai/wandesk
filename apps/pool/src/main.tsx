@@ -1,4 +1,4 @@
-// 入口:挂载应用组件。壳只提供一个 iframe,挂载是应用自己的事。
+// Entry point: mounts the app component. The shell only provides an iframe; mounting is the app's own job.
 import { createRoot } from "react-dom/client";
 import "./wandesk/base.css";
 import App from "./index";

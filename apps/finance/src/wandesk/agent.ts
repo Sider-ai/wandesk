@@ -1,7 +1,8 @@
-// 应用调 AI。**为 v2 改过** —— 打自己的 /api/agent,后端接到 env.AI。
+// The app calls AI. **Changed for v2** — hits its own /api/agent, backend wires it to env.AI.
 //
-// 与旧版的差别:引擎不再是外部的 Claude Code / Codex,而是内核自己的 agent。
-// conversationId 仍然收下并回传,但当前内核每轮独立,不做原生续聊。
+// Difference from the old version: the engine is no longer external (Claude Code / Codex) but the
+// kernel's own agent. conversationId is still accepted and echoed back, but the current kernel
+// treats each turn independently and doesn't do native follow-up conversations.
 export type AgentResult = {
   ok: boolean;
   result?: string;

@@ -1,6 +1,6 @@
-// 本应用的构建:src/ → public/。改了 src/ 之后在本目录跑:
+// This app's build: src/ → public/. After editing src/, run in this directory:
 //   npm install && npm run build
-// 产物 public/app.js + app.css + index.html 落回来,窗口刷新即生效。宿主不参与编译,也不带依赖。
+// The output public/app.js + app.css + index.html lands back here; the window refreshes to pick it up. The host does not participate in compilation and carries no dependencies.
 import esbuild from "esbuild";
 import fs from "fs";
 import path from "path";

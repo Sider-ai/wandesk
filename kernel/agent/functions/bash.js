@@ -1,8 +1,8 @@
-// Bash 执行器。
+// Bash executor.
 import { spawn } from 'node:child_process';
 
 const positive = (name, value) => {
-    if (!Number.isInteger(value) || value <= 0) throw new Error(`${name} 必须是正整数`);
+    if (!Number.isInteger(value) || value <= 0) throw new Error(`${name} must be a positive integer`);
     return value;
 };
 
@@ -14,18 +14,18 @@ export function bash({
     maxTimeoutMs,
     maxOutputChars,
 }) {
-    if (typeof executable !== 'string' || !executable) throw new Error('bash.executable 必填');
-    if (!Array.isArray(args) || args.some((item) => typeof item !== 'string')) throw new Error('bash.args 必须是字符串数组');
+    if (typeof executable !== 'string' || !executable) throw new Error('bash.executable is required');
+    if (!Array.isArray(args) || args.some((item) => typeof item !== 'string')) throw new Error('bash.args must be an array of strings');
     positive('bash.minTimeoutMs', minTimeoutMs);
     positive('bash.defaultTimeoutMs', defaultTimeoutMs);
     positive('bash.maxTimeoutMs', maxTimeoutMs);
     positive('bash.maxOutputChars', maxOutputChars);
-    if (minTimeoutMs > defaultTimeoutMs || defaultTimeoutMs > maxTimeoutMs) throw new Error('bash 超时参数顺序非法');
+    if (minTimeoutMs > defaultTimeoutMs || defaultTimeoutMs > maxTimeoutMs) throw new Error('bash timeout parameters are out of order');
 
     return (input = {}, context = {}) => {
         const command = String(input.command || '');
-        if (!command) return Promise.resolve({ exit_code: -1, stdout: '', stderr: 'command 不能为空' });
-        if (typeof context.cwd !== 'string' || !context.cwd) throw new Error('bash 执行需要 context.cwd');
+        if (!command) return Promise.resolve({ exit_code: -1, stdout: '', stderr: 'command must not be empty' });
+        if (typeof context.cwd !== 'string' || !context.cwd) throw new Error('running bash requires context.cwd');
         const timeoutMs = Math.min(maxTimeoutMs, Math.max(minTimeoutMs, Number(input.timeout_ms) || defaultTimeoutMs));
 
         return new Promise((resolve, reject) => {
