@@ -45,9 +45,9 @@ export const sdkSource = (): string => {
 
   // ── Animation gate ──────────────────────────────────────────────────────
   // The shell tells us whether this window is the focused one. While it is not, requestAnimationFrame
-  // callbacks are parked instead of scheduled and CSS / SVG / media animations are paused, so a game or
-  // a weather scene in a background window costs nothing; on focus everything resumes. Apps need no code
-  // for this. (setInterval is not touched — use requestAnimationFrame for anything that draws.)
+  // callbacks are parked instead of scheduled, so a game or a weather scene in a background window
+  // costs nothing; on focus they are released in order. Apps need no code for this. (setInterval is
+  // not touched — use requestAnimationFrame for anything that draws.)
   const rafNative = window.requestAnimationFrame.bind(window);
   const cafNative = window.cancelAnimationFrame.bind(window);
   const parked = new Map();   // fake id → callback
@@ -60,40 +60,12 @@ export const sdkSource = (): string => {
     return id;
   };
   window.cancelAnimationFrame = (id) => { if (id < 0) parked.delete(id); else cafNative(id); };
-  // CSS keyframe animations and SVG SMIL do not go through requestAnimationFrame, so they get paused
-  // by a global style rule and svg.pauseAnimations(); <video>/<audio> that were playing are paused and resumed.
-  const PAUSE_ID = "__wd_pause";
-  let resumeMedia = [];
-  const freezeDom = () => {
-    try {
-      if (!document.getElementById(PAUSE_ID)) {
-        const st = document.createElement("style");
-        st.id = PAUSE_ID;
-        st.textContent = "*, *::before, *::after { animation-play-state: paused !important; }";
-        (document.head || document.documentElement).appendChild(st);
-      }
-      for (const svg of document.querySelectorAll("svg")) { try { svg.pauseAnimations(); } catch {} }
-      resumeMedia = [...document.querySelectorAll("video, audio")].filter((m) => !m.paused);
-      for (const m of resumeMedia) { try { m.pause(); } catch {} }
-    } catch {}
-  };
-  const thawDom = () => {
-    try {
-      document.getElementById(PAUSE_ID)?.remove();
-      for (const svg of document.querySelectorAll("svg")) { try { svg.unpauseAnimations(); } catch {} }
-      for (const m of resumeMedia) { try { m.play(); } catch {} }
-      resumeMedia = [];
-    } catch {}
-  };
   const setActive = (next) => {
     if (next === active) return;
     active = next;
     if (active) {
-      thawDom();
       const cbs = [...parked.values()]; parked.clear();
       for (const cb of cbs) rafNative(cb);
-    } else {
-      freezeDom();
     }
     try { window.dispatchEvent(new CustomEvent("wandesk:active", { detail: { active } })); } catch {}
     for (const fn of (listeners.get("active") || [])) { try { fn({ active }); } catch {} }
