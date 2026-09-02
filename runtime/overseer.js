@@ -158,21 +158,12 @@ export default {
 
 // ── AppStore:env.DB 的执行端 ─────────────────────────────────
 // 每个应用一个 Durable Object(idFromName(appId)),数据在 workerd 内置的 SQLite 里,
-// 文件落在 <workspace>/.wandesk/store/<uniqueKey>/<对象ID>.sqlite。内核会在 apps/<id>/data.db
-// 放一个指向它的符号链接,`sqlite3 apps/notes/data.db` 照样能查 —— 这条契约不变。
-//
-// 第一次开门时向内核「认领」:内核若在 apps/<id>/ 里找到老的 Node 管的 data.db,
-// 把它整库导过来;导完内核把老库改名留档、挂上符号链接。之后再也不问。
+// 文件落在 <workspace>/.wandesk/store/<uniqueKey>/<对象ID>.sqlite。第一次开门时通知内核,
+// 内核在 apps/<id>/data.db 放一个指向它的符号链接,`sqlite3 apps/notes/data.db` 照样能查。
 const MAX_DB_BYTES = 200 * 1024 * 1024; // 单库上限:失控膨胀的保险丝
 const FORBIDDEN = /\b(attach|load_extension)\b/i;   // 「应用只该碰自己的库」—— workerd 本来也拦,双保险
 const isRead = (sql) => /^\s*(select|with|pragma|explain)\b/i.test(sql);
-const META_TABLE = "_wd_meta";
-
-// 旧库里的 BLOB 经 JSON 过来时是 { __wd_b64 } 包装,这里还原
-const unwrap = (v) => {
-  if (v && typeof v === "object" && typeof v.__wd_b64 === "string") return Uint8Array.from(atob(v.__wd_b64), (c) => c.charCodeAt(0));
-  return v === undefined ? null : v;
-};
+const META_TABLE = "_wd_meta"; // 库里自报家门:sqlite3 打开一个 .sqlite 能知道它是哪个应用的
 
 export class AppStore extends DurableObject {
   #ready = false;
@@ -183,29 +174,17 @@ export class AppStore extends DurableObject {
     return this.#sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?", META_TABLE).toArray().length > 0;
   }
 
-  /** 首次开门:向内核认领旧库。失败就整体回滚,下次再试。 */
+  /** 首次开门:写下自己是谁,通知内核去挂 apps/<id>/data.db 链接。 */
   async #ensure(appId) {
     if (this.#ready) return;
-    if (this.#hasMeta()) { this.#ready = true; return; }
-    const storeId = this.ctx.id.toString();
-    const res = await this.env.NODE.fetch("http://node/api/app/db-adopt", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ appId, storeId }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data?.ok === false) throw new Error(String(data?.error || `认领失败 ${res.status}`));
-    const statements = Array.isArray(data.statements) ? data.statements : [];
-    this.ctx.storage.transactionSync(() => {
-      for (const s of statements) this.#sql.exec(String(s.sql), ...(Array.isArray(s.params) ? s.params.map(unwrap) : []));
+    if (!this.#hasMeta()) {
       this.#sql.exec(`CREATE TABLE IF NOT EXISTS ${META_TABLE} (key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')`);
-      this.#sql.exec(`INSERT OR REPLACE INTO ${META_TABLE} (key, value) VALUES ('app_id', ?), ('adopted_at', ?), ('imported', ?)`,
-        appId, new Date().toISOString(), String(statements.length));
-    });
-    // 告诉内核:数据已在我这儿,老库可以留档、挂链接了
-    await this.env.NODE.fetch("http://node/api/app/db-adopted", {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ appId, storeId, imported: statements.length }),
-    }).catch(() => {});
+      this.#sql.exec(`INSERT INTO ${META_TABLE} (key, value) VALUES ('app_id', ?), ('created_at', ?)`, appId, new Date().toISOString());
+      await this.env.NODE.fetch("http://node/api/app/db-opened", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ appId, storeId: this.ctx.id.toString() }),
+      }).catch(() => {}); // 挂不上链接只是少个快捷方式,不影响开库
+    }
     this.#ready = true;
   }
 
@@ -221,7 +200,7 @@ export class AppStore extends DurableObject {
     if (!text) throw new Error("sql 不能为空");
     if (FORBIDDEN.test(text)) throw new Error("不允许的语句:ATTACH / load_extension");
     this.#assertQuota(text);
-    const values = (Array.isArray(params) ? params : []).map(unwrap);
+    const values = (Array.isArray(params) ? params : []).map((v) => (v === undefined ? null : v));
     if (isRead(text)) return { rows: this.#sql.exec(text, ...values).toArray() };
     // 无参多语句(建表脚本)整体执行
     if (!values.length && /;\s*\S/.test(text)) { this.#sql.exec(text); return {}; }

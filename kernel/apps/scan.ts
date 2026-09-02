@@ -89,7 +89,7 @@ export const appAsset = (appId: string, rel: string): string | null => {
   } catch { return null; }
 };
 
-/** 应用目录里的 data.db:认领前是老的 Node 管的库,认领后是指向 AppStore 真实文件的链接。 */
+/** 应用目录里的 data.db:指向 AppStore 真实文件的链接。 */
 export const appDbPath = (appId: string): string | null => {
   const app = getApp(appId);
   return app ? path.join(app.dir, "data.db") : null;

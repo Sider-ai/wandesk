@@ -33,7 +33,7 @@ apps/      应用  —— 不属于框架,是内容
   `api/app.ts` 的 `HANDLERS` 里加一行 + 在 `runtime/overseer.js` 的 `HostGate` 和垫片里各加一段。
   三处齐了才算加完,漏一处应用侧就是 `undefined is not a function`。
   **`env.DB` 是例外**:它不回内核,执行端是 `overseer.js` 里的 `AppStore`(Durable Object + workerd 内置 SQLite)。
-  内核侧的 `syscall/db.ts` 只是客户端(经 `/_wd/db` 内部路由)加旧库认领。
+  内核侧的 `syscall/db.ts` 只是客户端(经 `/_wd/db` 内部路由)加挂链接。
 - `AppStore` 的 `uniqueKey`(`runtime/supervisor.ts` 的 `STORE_KEY`)**不能改** —— 对象 ID 由它推导,改了旧数据全部找不到。
 - `api/` 很薄:只解析请求、拼响应。业务在 `syscall/` 与 `data/`。
 - `data/` 只装产品本体的运行时状态。**任何领域表都不该出现在 `schema.sql` 里** ——
