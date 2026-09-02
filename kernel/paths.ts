@@ -14,8 +14,10 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/** Repo root: the source directory in dev, the resources directory when packaged. */
-export const HOME = process.env.WANDESK_HOME || path.join(__dirname, "..");
+/** Repo root: the source directory in dev, the resources directory when packaged.
+ *  This file lives at kernel/paths.ts in dev but at dist/kernel/paths.js after tsc — when the parent is `dist`, go up one more. */
+const parent = path.resolve(__dirname, "..");
+export const HOME = process.env.WANDESK_HOME || (path.basename(parent) === "dist" ? path.resolve(parent, "..") : parent);
 
 /** Workspace root —— the user's own territory. Apps, data, and files all live here. */
 export const workspace = () => {

@@ -14,6 +14,7 @@ import { ContextMenu } from "../panels/ContextMenu";
 import { Wallpaper } from "../panels/Wallpaper";
 import { Settings } from "../panels/Settings";
 import { About } from "../panels/About";
+import { Welcome, WELCOME_SKIPPED_KEY } from "../panels/Welcome";
 import "./Desktop.css";
 import "../appframe/AppFrame.css";
 
@@ -38,6 +39,7 @@ const SHELL_PANELS: Record<string, { nameKey: string; icon: string }> = {
   "__wallpaper": { nameKey: "panel.wallpaper", icon: "🎨" },
   "__settings": { nameKey: "panel.settings", icon: "⚙️" },
   "__about": { nameKey: "panel.about", icon: "ℹ️" },
+  "__welcome": { nameKey: "panel.welcome", icon: "👋" },
 };
 
 export function Desktop() {
@@ -143,6 +145,10 @@ export function Desktop() {
               saved = d;
               if (d.wallpaper) setWallpaper(normalizeWallpaperId(d.wallpaper));
             }
+            // First run: no model connection yet → open the welcome panel (unless the user chose to skip it)
+            let skipped = false;
+            try { skipped = localStorage.getItem(WELCOME_SKIPPED_KEY) === "1"; } catch {}
+            if (!(s.apiUrl && s.model && s.apiKey) && !skipped) setTimeout(() => openById("__welcome"), 0);
           } catch { /* fall back to the cache if the kernel read fails */ }
           if (cancelled) return;
           setApps(list);
@@ -208,15 +214,17 @@ export function Desktop() {
     setWins((prev) => {
       const ex = prev.find((w) => w.appId === id);
       if (ex) return prev.map((w) => (w.appId === id ? { ...w, min: false, z: ++zTop.current } : w));
-      const deskH = vp.h - TASKBAR_H;
-      const w = clampN(880, 320, vp.w - 40), h = clampN(600, 240, deskH - 40);
+      // Size from the live window, not the vp state: openWindow can run from a stale closure (the startup effect)
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const deskH = vh - TASKBAR_H;
+      const w = clampN(880, 320, vw - 40), h = clampN(600, 240, deskH - 40);
       const n = prev.length;
-      const baseX = Math.round((vp.w - w) / 2), baseY = Math.round((deskH - h) * 0.42);
+      const baseX = Math.round((vw - w) / 2), baseY = Math.round((deskH - h) * 0.42);
       return [...prev, {
         id: uid.current++, appId: id, emoji: icon, name, kind, route,
         z: ++zTop.current, min: false,
         init: {
-          x: clampN(baseX + n * 28, EDGE, Math.max(EDGE, vp.w - w - EDGE)),
+          x: clampN(baseX + n * 28, EDGE, Math.max(EDGE, vw - w - EDGE)),
           y: clampN(baseY + n * 28, EDGE, Math.max(EDGE, deskH - h - EDGE)),
           w, h,
         },
@@ -346,7 +354,9 @@ export function Desktop() {
           {w.kind === "shell"
             ? (w.appId === "__wallpaper"
                 ? <Wallpaper current={wallpaper} onPick={pickWallpaper} />
-                : w.appId === "__about" ? <About /> : <Settings />)
+                : w.appId === "__about" ? <About />
+                : w.appId === "__welcome" ? <Welcome onDone={() => close(w.id)} />
+                : <Settings />)
             : (
               <AppFrame
                 key={langTick}
