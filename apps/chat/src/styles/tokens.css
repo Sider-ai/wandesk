@@ -1,5 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
-   AGENT design tokens — graphite + blue.
+   AGENT design tokens — Windows Aero (Vista/7) glass, blue family.
+   Colors/gradients are reused verbatim from the shell's Aero chrome:
+   shell/ui/window/Window.css, shell/ui/desktop/Setup.css, shell/ui/desktop/Desktop.css.
    All colors come from here only; theme.ts resolves "auto" into a concrete light/dark value
    written onto <html data-theme>, and the style layer never knows about "follow system".
    ═══════════════════════════════════════════════════════════════ */
@@ -7,9 +9,10 @@
 :root {
     color-scheme: light;
 
-    /* Canvas: main area white, sidebar light gray, overlays white */
+    /* Canvas: content area stays white (paper), sidebar/header are Aero glass */
     --surface: #ffffff;
-    --surface-side: #f4f5f8;
+    --surface-side: linear-gradient(180deg, #e6f3fd 0%, #c3ddf4 40%, #9ccbec 70%, #b3d5f0 100%);
+    --surface-side-solid: #c3ddf4;
     --surface-float: #ffffff;
 
     /* Five text tiers */
@@ -19,29 +22,29 @@
     --text-4: rgba(28, 34, 56, .42);
     --text-5: rgba(30, 36, 60, .2);
 
-    /* Accent color: blue */
-    --accent: #2563eb;
-    --accent-hover: #3b76ef;
-    --accent-deep: #1d52c8;
-    --accent-soft: rgba(37, 99, 235, .09);
-    --accent-ring: rgba(37, 99, 235, .16);
+    /* Accent color: Aero blue, taken from Setup.css .oobe-step.is-active / .oobe-field input:focus */
+    --accent: #3b82f6;
+    --accent-hover: #5b95f7;
+    --accent-deep: #1e3287;
+    --accent-soft: rgba(59, 130, 246, .1);
+    --accent-ring: rgba(98, 165, 244, .35);
     --on-accent: #ffffff;
 
     /* Semantic colors */
     --warn: #c2680a;   --warn-soft: rgba(194, 104, 10, .1);
-    --danger: #dc3d3d; --danger-soft: rgba(220, 61, 61, .09);
+    --danger: #9a3324; --danger-soft: #fdeceb;
     --ok: #159a6e;     --ok-soft: rgba(21, 154, 110, .1);
 
-    /* Gray-scale fills and strokes */
-    --fill: rgba(116, 122, 145, .07);
-    --fill-2: rgba(116, 122, 145, .13);
-    --edge: rgba(116, 122, 145, .18);
-    --edge-soft: rgba(116, 122, 145, .1);
-    --edge-strong: rgba(116, 122, 145, .34);
-    --hover: rgba(116, 122, 145, .09);
+    /* Gray-scale fills and strokes — cool blue-tinted, matching the shell's Aero borders */
+    --fill: rgba(95, 136, 176, .09);
+    --fill-2: rgba(95, 136, 176, .16);
+    --edge: #cfe0f4;
+    --edge-soft: #e0eaf4;
+    --edge-strong: #a9cbea;
+    --hover: rgba(95, 136, 176, .12);
 
     /* Sidebar rows need a solid color: the gradient mask over the hover action area must match the row's actual background at that moment */
-    --row-hover: #e9ebf0;
+    --row-hover: #e2f0fc;
     --row-on: #ffffff;
 
     --veil: rgba(14, 17, 28, .34);
@@ -50,14 +53,15 @@
     --sheen-base: #9ba1b3;
     --sheen-peak: #12141c;
 
-    --shadow-1: 0 1px 2px rgba(16, 22, 44, .06);
-    --shadow-2: 0 2px 6px rgba(16, 22, 44, .05), 0 12px 32px -12px rgba(16, 22, 44, .16);
-    --shadow-3: 0 6px 16px rgba(16, 22, 44, .08), 0 24px 56px -16px rgba(16, 22, 44, .22);
+    /* Aero glass shadows, borrowed from Window.css / Setup.css */
+    --shadow-1: 0 1px 2px rgba(30, 60, 90, .12);
+    --shadow-2: 0 2px 6px rgba(30, 60, 90, .1), 0 12px 32px -12px rgba(20, 45, 75, .28);
+    --shadow-3: 0 24px 48px rgba(20, 45, 75, .3), 0 4px 12px rgba(20, 45, 75, .18);
 
-    --radius-m: 8px;
-    --radius-l: 12px;
+    --radius-m: 5px;
+    --radius-l: 6px;
 
-    --font: -apple-system, BlinkMacSystemFont, "SF Pro SC", "PingFang SC", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --swift: cubic-bezier(.26, .6, .32, 1);
 }
@@ -66,7 +70,8 @@
     color-scheme: dark;
 
     --surface: #16171d;
-    --surface-side: #101116;
+    --surface-side: linear-gradient(180deg, #232a38 0%, #1a2130 60%, #141a26 100%);
+    --surface-side-solid: #1a2130;
     --surface-float: #1f2129;
 
     --text-1: rgba(244, 246, 252, .96);
@@ -93,8 +98,8 @@
     --edge-strong: rgba(126, 134, 160, .44);
     --hover: rgba(126, 134, 160, .13);
 
-    --row-hover: #1a1c24;
-    --row-on: #23252f;
+    --row-hover: #232a38;
+    --row-on: #262e3e;
 
     --veil: rgba(6, 8, 14, .6);
 

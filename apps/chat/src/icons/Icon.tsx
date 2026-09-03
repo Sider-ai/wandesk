@@ -101,15 +101,22 @@ export function Icon({ name, size = 16 }: { name: IconName | string; size?: numb
 
 /** Brand mark: a prompt glyph inside a rounded square. Shared by the empty state and the sidebar. */
 export function Mark({ size = 26 }: { size?: number }) {
+    /* Aero glass tile: same 160deg blue gradient + top specular sweep as Setup.css .oobe-mark. */
     return (
         <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
             <defs>
-                <linearGradient id="mark-g" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stopColor="#4b83f2" />
-                    <stop offset="1" stopColor="#1d52c8" />
+                <linearGradient id="mark-g" x1="6" y1="1" x2="24" y2="30" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#7ec8f2" />
+                    <stop offset="1" stopColor="#3b82f6" />
                 </linearGradient>
+                <linearGradient id="mark-sheen" x1="0" y1="2" x2="0" y2="16" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#fff" stopOpacity=".8" />
+                    <stop offset="1" stopColor="#fff" stopOpacity="0" />
+                </linearGradient>
+                <clipPath id="mark-clip"><rect x="2" y="2" width="28" height="28" rx="7" /></clipPath>
             </defs>
-            <rect x="2" y="2" width="28" height="28" rx="8.5" fill="url(#mark-g)" />
+            <rect x="2" y="2" width="28" height="28" rx="7" fill="url(#mark-g)" stroke="#2f6fd6" strokeWidth="1" />
+            <rect x="2.5" y="2.5" width="27" height="14" fill="url(#mark-sheen)" clipPath="url(#mark-clip)" />
             <path
                 d="m11 11 5.4 5-5.4 5M18.6 21.4h4"
                 fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"

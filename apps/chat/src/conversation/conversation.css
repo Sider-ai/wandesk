@@ -3,14 +3,15 @@
    ═══════════════════════════════════════════════════════════════ */
 .conversation { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; background: var(--surface); }
 
-/* ── Top bar ── */
+/* ── Top bar: Vista task-dialog header band, copied from Setup.css .oobe-head ── */
 .topbar {
     flex-shrink: 0; height: 46px;
     display: flex; align-items: center; gap: 10px;
-    padding: 0 14px;
-    border-bottom: 1px solid var(--edge-soft);
+    padding: 0 18px;
+    background: linear-gradient(180deg, #f3f8fe 0%, #e3f0fc 100%);
+    border-bottom: 1px solid #d3e5f4;
 }
-.topbar-title { font-size: 13px; font-weight: 600; max-width: 52vw; }
+.topbar-title { font-size: 15px; font-weight: 400; color: #1e3287; letter-spacing: .1px; max-width: 52vw; }
 .menu-btn { display: none; }
 .menu-btn.show { display: grid; }
 .offline-pill {
@@ -46,10 +47,13 @@
 .msg.mine { align-items: flex-end; }
 .msg.mine + .msg.agent, .msg.agent + .msg.mine { margin-top: 12px; }
 
-/* User bubble: literal text, no markdown rendering */
+/* User bubble: soft Aero blue glass, literal text, no markdown rendering */
 .bubble {
-    max-width: 85%; border-radius: 14px 14px 4px 14px; padding: 10px 13px;
-    background: var(--fill-2); color: var(--text-1);
+    max-width: 85%; border-radius: 5px 5px 2px 5px; padding: 10px 13px;
+    background: linear-gradient(180deg, #eaf5ff 0%, #cfe7fb 100%);
+    border: 1px solid #7fb0dc;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    color: #10233b;
     font-size: 14px; line-height: 21px;
     white-space: pre-wrap; overflow-wrap: anywhere;
     user-select: text; -webkit-user-select: text; cursor: text;
@@ -90,7 +94,8 @@
 .fold-body { padding-top: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .fold-body .md { width: 100%; }
 
-/* ── Process entry: skeleton shared by reasoning / tools / groups ── */
+/* ── Process entry: skeleton shared by reasoning / tools / groups.
+   A top-level entry reads as a compact grey Windows list row with a thin accent bar; nested sub-entries (.sm) stay plain text. ── */
 .step { width: 100%; min-width: 0; }
 .step-head {
     display: flex; align-items: center; gap: 8px; width: 100%;
@@ -100,6 +105,13 @@
 .step-head:disabled { cursor: default; }
 .step-head:hover, .step.open > .step-head { color: var(--text-2); }
 .step.faded > .step-head { opacity: .65; }
+.step:not(.sm) > .step-head {
+    padding: 6px 10px 6px 9px; border-radius: 3px;
+    background: #f4f5f6; border-left: 3px solid #a9cbea;
+    box-shadow: inset 0 1px 0 #fff;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.step:not(.sm) > .step-head:hover, .step:not(.sm).open > .step-head { background: #eaf3fe; border-left-color: #3b82f6; }
 .step-ic { position: relative; width: 14px; height: 14px; flex: none; }
 .step-glyph, .step-chev {
     position: absolute; inset: 0;
@@ -122,7 +134,7 @@
 /* Expanded content block: arguments / output / full reasoning text */
 .step-body { margin-top: 4px; display: flex; flex-direction: column; gap: 4px; padding-left: 22px; }
 .step-block {
-    background: var(--fill); border-radius: 8px; padding: 8px 12px;
+    background: var(--fill); border-radius: var(--radius-m); padding: 8px 12px;
     font-size: 12px; line-height: 18px; color: var(--text-3);
     font-family: var(--font-mono);
     white-space: pre-wrap; word-break: break-all;
@@ -159,36 +171,43 @@
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     width: 100%; margin-top: 6px;
 }
+/* Aero glass panel — same recipe as .oobe-btn.is-primary, just larger and left-aligned */
 .starter {
     width: 100%; max-width: 430px;
     display: flex; gap: 10px; align-items: flex-start;
-    background: var(--surface-float); border: 1px solid var(--edge-soft);
-    border-radius: 14px; padding: 11px 13px;
-    text-align: left; transition: background .15s, border-color .15s;
-    box-shadow: var(--shadow-1);
+    background: linear-gradient(180deg, #eaf5ff 0%, #d7e9fb 48%, #c3ddf4 52%, #dcebf7 100%);
+    border: 1px solid #7295b6;
+    border-radius: 6px; padding: 12px 14px;
+    text-align: left; transition: filter .12s, box-shadow .12s;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), 0 1px 2px rgba(30, 60, 90, .15);
 }
-.starter:hover { background: var(--hover); border-color: var(--edge); }
-.starter-ic { flex: none; padding: 2px 0; color: var(--text-3); }
+.starter:hover { filter: brightness(1.045); }
+.starter:active { box-shadow: inset 0 1px 3px rgba(30, 60, 90, .3); }
+.starter-ic { flex: none; padding: 2px 0; color: #3b6bb0; }
 .starter-text {
     flex: 1; min-width: 0;
-    font-size: 13.5px; line-height: 20px; color: var(--text-2);
+    font-size: 13.5px; line-height: 20px; color: #16324f;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 
-/* ── Input area: rounded bordered box with an action row at the bottom ── */
-.composer-wrap { flex-shrink: 0; padding: 8px 16px; }
+/* ── Input area: Windows-7 text field sitting on a light grey footer strip, like Setup.css .oobe-foot ── */
+.composer-wrap { flex-shrink: 0; padding: 12px 16px; background: #f0f0f0; border-top: 1px solid #d9d9d9; }
 .composer {
     max-width: 768px; margin: 0 auto;
-    background: var(--surface);
-    border: 1px solid var(--edge);
-    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #abadb3;
+    border-radius: var(--radius-l);
+    box-shadow: inset 0 1px 3px rgba(30, 60, 90, .1);
     min-height: 96px;
     display: flex; flex-direction: column;
     cursor: text;
     transition: border-color .2s, box-shadow .2s;
 }
 .composer:hover { border-color: var(--edge-strong); }
-.composer:focus-within { border-color: var(--edge-strong); box-shadow: 0 0 0 3px var(--fill); }
+.composer:focus-within {
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 3px rgba(30, 60, 90, .08), 0 0 0 3px var(--accent-ring);
+}
 .composer textarea {
     width: 100%; min-width: 0; min-height: 44px;
     border: 0; outline: 0; background: transparent; resize: none;
@@ -215,39 +234,61 @@
 .composer-left { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
 .composer-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-width: 0; }
 
+/* Small Aero button — the same recipe as .oobe-wbtn, scaled down for the composer toolbar */
 .tool-chip {
     display: flex; align-items: center; gap: 6px;
-    height: 30px; padding: 0 9px; border-radius: 8px;
-    font-size: 12px; font-weight: 500; color: var(--text-2);
+    height: 26px; padding: 0 9px; border-radius: 4px;
+    font-size: 12px; font-weight: 500; color: #2c4a68;
     white-space: nowrap; max-width: 240px; min-width: 0;
     font-family: var(--font-mono);
-    transition: background .15s, color .15s;
+    border: 1px solid #b9c9da;
+    background: linear-gradient(180deg, #fdfeff 0%, #eef4fa 48%, #dfe9f4 52%, #f2f6fb 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+    transition: filter .12s, box-shadow .12s;
 }
-.tool-chip:hover { background: var(--hover); color: var(--text-1); }
+.tool-chip:hover { filter: brightness(1.03); border-color: #7295b6; }
+.tool-chip:active { box-shadow: inset 0 1px 3px rgba(30, 60, 90, .25); }
+.tool-chip:disabled { opacity: .55; filter: none; }
 .tool-chip svg { flex-shrink: 0; }
 
 .model-tag { font-size: 11.5px; color: var(--text-4); max-width: 180px; flex-shrink: 1; }
 
 .composer .round {
-    flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px;
+    flex-shrink: 0; width: 30px; height: 30px; border-radius: var(--radius-m);
     display: grid; place-items: center;
-    transition: background .15s, color .15s, opacity .15s;
+    border: 1px solid transparent;
+    transition: background .15s, color .15s, opacity .15s, filter .12s;
 }
-.composer .go { color: var(--on-accent); background: var(--accent); }
-.composer .go:hover { background: var(--accent-hover); }
-.composer .go:disabled { color: var(--text-5); background: var(--fill); pointer-events: none; }
-.composer .stop { color: var(--text-1); background: var(--fill-2); }
-.composer .stop:hover { background: var(--edge); }
+/* Aero gradient send button, styled after .oobe-btn.is-primary */
+.composer .go {
+    color: #16324f; border-color: #4e88bd;
+    background: linear-gradient(180deg, #eaf5ff 0%, #cfe7fb 48%, #a9d2f2 52%, #d6ecfc 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 2px rgba(30, 60, 90, .15);
+}
+.composer .go:hover { filter: brightness(1.05); }
+.composer .go:active { box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2); }
+.composer .go:disabled { color: var(--text-5); border-color: var(--edge-soft); background: var(--fill); box-shadow: none; pointer-events: none; }
+.composer .stop {
+    color: #1d1d20; border-color: #a0a0a0;
+    background: linear-gradient(180deg, #fdfdfd 0%, #ececec 48%, #dcdcdc 52%, #f2f2f2 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+.composer .stop:hover { filter: brightness(1.04); }
 .composer .stop:disabled { opacity: .6; }
 
 .foot-note { text-align: center; font-size: 11px; line-height: 16px; color: var(--text-5); padding: 5px 0 2px; }
 
-/* ── Markdown (the assistant's final text: bubble-free, full width) ── */
+/* ── Markdown (the assistant's final text) — a plain white card with a hairline Aero border ── */
 .md {
     max-width: 100%; min-width: 0; width: 100%;
     color: var(--text-1); font-size: 14px; line-height: 23px;
     overflow-wrap: anywhere;
     user-select: text; -webkit-user-select: text; cursor: text;
+}
+.msg.agent > .md {
+    background: #fff; border: 1px solid #d3e5f4;
+    border-radius: 6px; padding: 11px 14px;
+    box-shadow: inset 0 1px 0 #f6faff, 0 1px 2px rgba(30, 60, 90, .06);
 }
 .md > :first-child { margin-top: 0 !important; }
 .md > :last-child { margin-bottom: 0 !important; }

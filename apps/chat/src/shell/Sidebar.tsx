@@ -76,7 +76,7 @@ export function Sidebar() {
             <aside className={`sidebar${shell.collapsed ? ' folded' : ''}${shell.drawer ? ' open' : ''}`}>
                 <div className="side-head">
                     <Mark size={24} />
-                    <span className="side-brand">AGENT</span>
+                    <span className="side-brand">Assistant</span>
                     <span className="grow" />
                     <button className="icon-btn fold-btn" title="Collapse sidebar" onClick={shell.toggleCollapsed}>
                         <Icon name="panel" size={16} />
