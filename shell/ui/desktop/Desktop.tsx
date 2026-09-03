@@ -308,7 +308,7 @@ export function Desktop() {
   const topZ = Math.max(...wins.filter((w) => !w.min).map((w) => w.z), 0);
 
   // First boot: the setup wizard is the whole screen — no desktop, no taskbar, until a model answers.
-  if (setupNeeded) return <Setup onDone={() => setSetupNeeded(false)} />;
+  if (setupNeeded) return <Setup wallpaper={wallpaper} onDone={() => setSetupNeeded(false)} />;
 
   return (
     <div
