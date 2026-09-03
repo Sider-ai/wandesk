@@ -1,21 +1,40 @@
-/* Out-of-box setup: the wallpaper is behind it, nothing else is. */
-.oobe { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px;
-  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35), transparent 55%), rgba(20, 40, 60, 0.35);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
-.oobe-card { width: min(520px, 100%); padding: 36px 40px 28px; border-radius: 18px;
-  background: rgba(255,255,255,0.86); box-shadow: 0 30px 80px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
-  border: 1px solid rgba(255,255,255,0.7); }
-.oobe-brand { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #5b6b7a; margin-bottom: 14px; }
-.oobe-title { font-size: 26px; font-weight: 700; margin: 0 0 8px; color: #16232e; }
-.oobe-hint { font-size: 13.5px; line-height: 1.6; color: #55636f; margin: 0 0 24px; }
-.oobe-row { display: block; margin-bottom: 14px; }
-.oobe-label { display: block; font-size: 12.5px; font-weight: 600; color: #34434f; margin-bottom: 6px; }
-.oobe-input { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; padding: 10px 12px; border-radius: 9px;
-  border: 1px solid rgba(0,0,0,0.14); background: #fff; outline: none; }
-.oobe-input:focus { border-color: #4a7de0; box-shadow: 0 0 0 3px rgba(74,125,224,0.18); }
-.oobe-status { min-height: 22px; margin: 4px 0 10px; }
-.oobe-error { font-size: 12.5px; color: #b3261e; line-height: 1.5; }
-.oobe-go { width: 100%; font: inherit; font-size: 15px; font-weight: 600; padding: 12px; border: 0; border-radius: 10px;
-  color: #fff; background: linear-gradient(180deg, #5c8ff0, #3b6fd8); cursor: pointer; box-shadow: 0 6px 18px rgba(59,111,216,0.35); }
-.oobe-go:disabled { opacity: 0.6; cursor: default; }
-.oobe-foot { font-size: 12px; color: #7a8792; margin: 18px 0 0; text-align: center; }
+/* Out-of-box setup — a full-screen wizard with its own background; the desktop is not mounted behind it. */
+.oobe { position: fixed; inset: 0; display: flex; flex-direction: column; color: #fff; font-family: inherit;
+  background:
+    radial-gradient(1200px 700px at 15% 0%, rgba(120, 190, 255, 0.55), transparent 60%),
+    radial-gradient(900px 600px at 90% 100%, rgba(60, 200, 190, 0.35), transparent 60%),
+    linear-gradient(160deg, #0a3a6a 0%, #135a9c 45%, #1b6fb6 100%); }
+
+.oobe-top { height: 64px; display: flex; align-items: center; gap: 18px; padding: 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.18); background: rgba(0, 20, 50, 0.18); }
+.oobe-brand { font-size: 15px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+.oobe-topline { font-size: 13px; opacity: 0.8; }
+
+.oobe-body { flex: 1; display: grid; grid-template-columns: 280px 1fr; min-height: 0; }
+.oobe-steps { padding: 40px 28px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid rgba(255,255,255,0.14); }
+.oobe-step { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; opacity: 0.6; }
+.oobe-step.is-current { opacity: 1; background: rgba(255,255,255,0.14); font-weight: 600; }
+.oobe-step.is-done { opacity: 0.85; }
+.oobe-step-n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+  border: 1.5px solid rgba(255,255,255,0.7); }
+.oobe-step.is-current .oobe-step-n { background: #fff; color: #135a9c; border-color: #fff; }
+.oobe-step.is-done .oobe-step-n { background: rgba(255,255,255,0.25); }
+
+.oobe-page { padding: 56px 72px; max-width: 760px; overflow: auto; }
+.oobe-title { font-size: 34px; font-weight: 600; margin: 0 0 18px; letter-spacing: -0.01em; }
+.oobe-text { font-size: 15.5px; line-height: 1.65; margin: 0 0 14px; color: rgba(255,255,255,0.9); max-width: 620px; }
+.oobe-row { display: block; margin: 18px 0 0; max-width: 560px; }
+.oobe-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px; color: rgba(255,255,255,0.92); }
+.oobe-input { width: 100%; box-sizing: border-box; font: inherit; font-size: 15px; padding: 11px 13px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.96); color: #16232e; outline: none; }
+.oobe-input:focus { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.28); }
+.oobe-status { min-height: 24px; margin-top: 14px; }
+.oobe-error { display: inline-block; font-size: 13px; line-height: 1.5; padding: 8px 12px; border-radius: 6px;
+  background: rgba(180, 30, 30, 0.35); border: 1px solid rgba(255, 150, 150, 0.5); }
+
+.oobe-bottom { height: 76px; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 0 40px;
+  border-top: 1px solid rgba(255,255,255,0.18); background: rgba(0, 20, 50, 0.22); }
+.oobe-btn { min-width: 120px; font: inherit; font-size: 14px; font-weight: 600; padding: 10px 22px; border-radius: 6px; cursor: pointer;
+  color: #fff; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.45); }
+.oobe-btn.is-primary { color: #0f3f6e; background: #fff; border-color: #fff; }
+.oobe-btn:disabled { opacity: 0.55; cursor: default; }

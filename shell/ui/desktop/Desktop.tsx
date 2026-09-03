@@ -53,7 +53,7 @@ export function Desktop() {
   const [startOpen, setStartOpen] = useState(false);
   const [busy, setBusy] = useState(0); // how many apps are currently calling AI
   const [toast, setToast] = useState<{ icon: string; text: string } | null>(null);
-  const [setupNeeded, setSetupNeeded] = useState(false);
+  const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null); // null = not known yet
   const [langTick, setLangTick] = useState(0); // bumped +1 on each language switch, forcing every AppFrame to remount (reload its iframe)
   useLang(); // subscribe to language changes — re-renders this whole tree so the shell's own copy switches language immediately
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -307,13 +307,15 @@ export function Desktop() {
   const layerH = EDGE + (maxRow(cells) + 1) * CH + EDGE;
   const topZ = Math.max(...wins.filter((w) => !w.min).map((w) => w.z), 0);
 
+  // First boot: the setup wizard is the whole screen — no desktop, no taskbar, until a model answers.
+  if (setupNeeded) return <Setup onDone={() => setSetupNeeded(false)} />;
+
   return (
     <div
       className="desktop"
       style={cssToStyle(wallpaperCss(wallpaper))}
       onClick={() => { setCtx({ open: false, x: 0, y: 0 }); setStartOpen(false); }}
     >
-      {setupNeeded && <Setup onDone={() => setSetupNeeded(false)} />}
       <div
         ref={layerRef}
         className="iconlayer"
