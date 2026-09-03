@@ -14,7 +14,7 @@ import { ContextMenu } from "../panels/ContextMenu";
 import { Wallpaper } from "../panels/Wallpaper";
 import { Settings } from "../panels/Settings";
 import { About } from "../panels/About";
-import { Welcome, WELCOME_SKIPPED_KEY } from "../panels/Welcome";
+import { Setup } from "./Setup";
 import "./Desktop.css";
 import "../appframe/AppFrame.css";
 
@@ -39,7 +39,6 @@ const SHELL_PANELS: Record<string, { nameKey: string; icon: string }> = {
   "__wallpaper": { nameKey: "panel.wallpaper", icon: "🎨" },
   "__settings": { nameKey: "panel.settings", icon: "⚙️" },
   "__about": { nameKey: "panel.about", icon: "ℹ️" },
-  "__welcome": { nameKey: "panel.welcome", icon: "👋" },
 };
 
 export function Desktop() {
@@ -54,6 +53,7 @@ export function Desktop() {
   const [startOpen, setStartOpen] = useState(false);
   const [busy, setBusy] = useState(0); // how many apps are currently calling AI
   const [toast, setToast] = useState<{ icon: string; text: string } | null>(null);
+  const [setupNeeded, setSetupNeeded] = useState(false);
   const [langTick, setLangTick] = useState(0); // bumped +1 on each language switch, forcing every AppFrame to remount (reload its iframe)
   useLang(); // subscribe to language changes — re-renders this whole tree so the shell's own copy switches language immediately
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -145,10 +145,8 @@ export function Desktop() {
               saved = d;
               if (d.wallpaper) setWallpaper(normalizeWallpaperId(d.wallpaper));
             }
-            // First run: no model connection yet → open the welcome panel (unless the user chose to skip it)
-            let skipped = false;
-            try { skipped = localStorage.getItem(WELCOME_SKIPPED_KEY) === "1"; } catch {}
-            if (!(s.apiUrl && s.model && s.apiKey) && !skipped) setTimeout(() => openById("__welcome"), 0);
+            // No model connection yet → the out-of-box setup screen, and no desktop until a model answers
+            setSetupNeeded(!(s.apiUrl && s.model && s.apiKey));
           } catch { /* fall back to the cache if the kernel read fails */ }
           if (cancelled) return;
           setApps(list);
@@ -315,6 +313,7 @@ export function Desktop() {
       style={cssToStyle(wallpaperCss(wallpaper))}
       onClick={() => { setCtx({ open: false, x: 0, y: 0 }); setStartOpen(false); }}
     >
+      {setupNeeded && <Setup onDone={() => setSetupNeeded(false)} />}
       <div
         ref={layerRef}
         className="iconlayer"
@@ -355,7 +354,6 @@ export function Desktop() {
             ? (w.appId === "__wallpaper"
                 ? <Wallpaper current={wallpaper} onPick={pickWallpaper} />
                 : w.appId === "__about" ? <About />
-                : w.appId === "__welcome" ? <Welcome onDone={() => close(w.id)} />
                 : <Settings />)
             : (
               <AppFrame

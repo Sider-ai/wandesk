@@ -1,0 +1,21 @@
+/* Out-of-box setup: the wallpaper is behind it, nothing else is. */
+.oobe { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35), transparent 55%), rgba(20, 40, 60, 0.35);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.oobe-card { width: min(520px, 100%); padding: 36px 40px 28px; border-radius: 18px;
+  background: rgba(255,255,255,0.86); box-shadow: 0 30px 80px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.7); }
+.oobe-brand { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #5b6b7a; margin-bottom: 14px; }
+.oobe-title { font-size: 26px; font-weight: 700; margin: 0 0 8px; color: #16232e; }
+.oobe-hint { font-size: 13.5px; line-height: 1.6; color: #55636f; margin: 0 0 24px; }
+.oobe-row { display: block; margin-bottom: 14px; }
+.oobe-label { display: block; font-size: 12.5px; font-weight: 600; color: #34434f; margin-bottom: 6px; }
+.oobe-input { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; padding: 10px 12px; border-radius: 9px;
+  border: 1px solid rgba(0,0,0,0.14); background: #fff; outline: none; }
+.oobe-input:focus { border-color: #4a7de0; box-shadow: 0 0 0 3px rgba(74,125,224,0.18); }
+.oobe-status { min-height: 22px; margin: 4px 0 10px; }
+.oobe-error { font-size: 12.5px; color: #b3261e; line-height: 1.5; }
+.oobe-go { width: 100%; font: inherit; font-size: 15px; font-weight: 600; padding: 12px; border: 0; border-radius: 10px;
+  color: #fff; background: linear-gradient(180deg, #5c8ff0, #3b6fd8); cursor: pointer; box-shadow: 0 6px 18px rgba(59,111,216,0.35); }
+.oobe-go:disabled { opacity: 0.6; cursor: default; }
+.oobe-foot { font-size: 12px; color: #7a8792; margin: 18px 0 0; text-align: center; }
